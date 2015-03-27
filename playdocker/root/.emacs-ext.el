@@ -27,7 +27,7 @@
 ; (load "~/.emacs.d/elpa/package.el") Needed for version 23 only!
 
 ; list the packages you want
-(setq package-list '(magit color-theme scala-mode2 auto-complete yasnippet ensime))
+(setq package-list '(magit color-theme scala-mode2 auto-complete yasnippet ensime smex))
 
 ; list the repositories containing them
 (setq package-archives '(("org"       . "http://orgmode.org/elpa/")
@@ -77,6 +77,13 @@
 ;;(set-default-font "Source Code Pro")
 ;;(set-face-attribute 'default nil :font "Source Code Pro" :height 140)
 ;;(set-face-font 'default "Source Code Pro")
+
+;;; Smex
+(autoload 'smex "smex"
+  "Smex is a M-x enhancement for Emacs, it provides a convenient interface to
+your recently and most frequently used commands.")
+
+(global-set-key (kbd "M-x") 'smex)
 
 ;; Color Theme
 
