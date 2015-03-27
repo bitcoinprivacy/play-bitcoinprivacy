@@ -1,15 +1,14 @@
-@(blockHeight:Int)
+@(blockHeight:Int, addressForm:play.api.data.Form[String])
 
 @main {
 
-  <h2>Search</h2>
   <div>Please enter a bitcoin address. We will check for other addresses that seem to belong to the same owner, according to the blockchain up to block @blockHeight</div>
   
-      <input id="search-address" type="text" name="address" placeholder="Search for a Wallet by Address">
-      <div class="search-results"></div>
-    </span>
-  </div>
+ @helper.form(action = routes.Application.searchAddress) {
+        @helper.inputText(addressForm("address"))
+        <input type="submit"/>
+    }      
  
-  </div>
+ 
 
 }

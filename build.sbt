@@ -7,7 +7,6 @@ scalaVersion := "2.11.6"
 libraryDependencies ++= Seq(
   jdbc,
   anorm,
-  "joda-time" % "joda-time" % "2.3",
   "org.xerial" % "sqlite-jdbc" % "3.7.15-M1"
 )
 
@@ -24,4 +23,4 @@ scalacOptions ++= Seq(
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 
-fork in run := true
+fork in run := false
