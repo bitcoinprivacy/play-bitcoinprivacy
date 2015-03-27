@@ -1,7 +1,7 @@
-* open new github repo for the source code
-* rebuild the environment in a docker on the server
+* DONE open new github repo for the source code
+* DONE rebuild the environment in a docker on the server
 ** activator
 ** emacs with everything we need
-* connect a copy of the real db
+* TODO connect a copy of the real db
 * off we go!
 * to explore: sparkle, scala.js ...
