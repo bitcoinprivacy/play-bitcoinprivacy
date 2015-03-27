@@ -1,0 +1,2 @@
+
+* joda-time is not necessary in java 8 anymore. there is java.time now, and there is a scala.time wrapper. for now, we don't need any of them.
