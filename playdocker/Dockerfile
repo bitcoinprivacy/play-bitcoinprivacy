@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y oracle-java8-installer
 
 RUN wget https://dl.bintray.com/sbt/native-packages/sbt/0.13.8/sbt-0.13.8.tgz
 RUN tar xzvf sbt-0.13.8.tgz
-ENV PATH sbt/bin:$PATH
+ENV PATH /sbt/bin:$PATH
 
 WORKDIR /root/
 RUN git clone https://github.com/stefanwouldgo/play-bitcoinprivacy.git
