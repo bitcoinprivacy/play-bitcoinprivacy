@@ -2,6 +2,16 @@
 * DONE rebuild the environment in a docker on the server
 ** activator
 ** emacs with everything we need
+* DONE install play-bitcoinprivacy docker
+* TODO make getblocklist.sh watch for existing processes
+* TODO add date to history.log...
+* DONE add this file to an appropriate git repo
 * TODO connect a copy of the real db
+* TODO rebuild the web site
+** TODO search
+** TODO static stuff
+** TODO stats
+** TODO top 1000
+** TODO make everything much nicer, use bootstrap
 * off we go!
 * to explore: sparkle, scala.js ...
