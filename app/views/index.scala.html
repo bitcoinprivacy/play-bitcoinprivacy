@@ -1,14 +1,29 @@
-@(blockHeight:Int, addressForm:play.api.data.Form[String])
+@(blockHeight:Int, addressForm:play.api.data.Form[String],
+wallet:Option[List[(String, Long)]])
+@import b3.vertical.fieldConstructor  // Declares a vertical field constructor as default
 
-@main {
 
-  <div>Please enter a bitcoin address. We will check for other addresses that seem to belong to the same owner, according to the blockchain up to block @blockHeight</div>
+@main("Bitcoin Wallet Search"){
+
+<section>Welcome to bitcoin privacy. Enter a bitcoin address to check for other addresses that seem to belong to the same wallet, according to the blockchain up to block @blockHeight</section>
   
- @helper.form(action = routes.Application.searchAddress) {
-        @helper.inputText(addressForm("address"))
-        <input type="submit"/>
-    }      
- 
- 
+<p>
+  @b3.form(action = routes.Application.searchAddress) {
+  @b3.text(addressForm("address"), '_label -> "Bitcoin Address",
+  'placeholder -> "Please enter a bitcoin address" )
+  @b3.submit('class -> "btn btn-primary"){
+  <span class="glyphicon glyphicon-ok"></span> Search }
+        }      
+</p>
+
+<div class=responsive-table>
+  <table class=table>      
+  @for(t<-wallet){
+    @for((address,value) <- t){   
+      <tr><td>@address</td><td>@value</td></tr>
+    }  
+  }
+  </table>
+</div>
 
 }

@@ -4,6 +4,7 @@ package controllers
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms.{single, nonEmptyText}
+import models.Wallet
 
 object Application extends Controller {
 
@@ -13,16 +14,17 @@ object Application extends Controller {
  
  
   def index = Action {
-    Ok(views.html.index(666, addressForm))
+    Ok(views.html.index(Wallet.getBlockHeight, addressForm, None))
   }
  
-  def searchAddress = Action { implicit request =>
+  def searchAddress = Action.async { implicit request =>
     addressForm.bindFromRequest.fold(
-      errors => BadRequest,
+      errors => scala.concurrent.Future{BadRequest},
       {
         case (address) =>
-          Ok(address)
-          Redirect(routes.Application.index())
+          Wallet.get(address) map {a =>
+            Ok(views.html.index(Wallet.getBlockHeight, addressForm, Some(a)))
+          }
       }
     )
   }

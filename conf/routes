@@ -1,8 +1,5 @@
 
 GET     /                           controllers.Application.index
 
-GET     /wallet/:address                           controllers.Wallets.get(address)
+POST    /                     controllers.Application.searchAddress
 
-POST    /searchAddress                     controllers.Application.searchAddress
-
-GET     /*file               controllers.Assets.at(path="/public", file)
