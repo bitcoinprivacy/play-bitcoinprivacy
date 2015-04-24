@@ -1,0 +1,84 @@
+
+* How to setup a bitcoinprivacy server
+
+** We assume you have installed a debian/ubuntu system
+** you will need a running docker-lxc >= 1.5 (google how to get it), 
+   emacs24 (-nox probably) to read and execute this (do C-c C-o to execute a code block), tmux, git
+   #+BEGIN_SRC sh
+apt-get update && apt-get install -y lxc-docker emacs24-nox tmux git 
+   #+END_SRC
+
+** it might be a good idea to put the docker working directory on a big disk to avoid disk full problems.
+   add something like
+#+BEGIN_SRC 
+DOCKER_OPTS="-g /home/docker"
+#+END_SRC 
+   to /etc/default/docker
+
+** finally, start tmux and make a window (C-b c) for every docker you want to keep a bash open in, give it a nice name (C-b ,)
+** you might have to do docker login
+
+** to start apache:
+#+BEGIN_SRC sh
+docker run -t -i -p 80:80 -p 443:443 -v /home/www-data:/var/www/data stefanwouldgo/bitcoinprivacy:stable /bin/bash
+#+END_SRC
+*** and in the docker
+#+BEGIN_SRC sh
+service mysql start
+service apache2 start
+#+END_SRC
+
+** to start bitcoind:
+#+BEGIN_SRC sh
+docker run -t -i -p 8333:8333 -v /home/bitcoin-data:/.bitcoin stefanwouldgo/bitcoind:v10  /bin/bash
+#+END_SRC
+*** and then in the bitcoind docker:
+#+BEGIN_SRC sh
+/home/start.sh
+#+END_SRC
+*** wait till bitcoin-cli info tells you you're synced (important, because getblocklist might be started multiple times when it takes too long), then
+#+BEGIN_SRC sh
+/home/getblocklist.sh && cron
+#+END_SRC
+
+** to start play:
+#+BEGIN_SRC sh
+docker run -t -i -p 9000:9000 -v /home/www-data:/var/www/data stefanwouldgo/play-bitcoinprivacy:v2 /bin/bash
+#+END_SRC
+
+or build your own docker by doing
+#+BEGIN_SRC sh
+git clone https://github.com/stefanwouldgo/play-bitcoinprivacy.git
+cd play-bitcoinprivacy/playdocker
+docker build .
+#+END_SRC
+*** and in the docker:
+#+BEGIN_SRC sh
+cd play-bitcoinprivacy/
+git pull
+activator run
+#+END_SRC
+or, better yet, start emacs first and run activator from within eshell (M-x eshell), so you can have an editor, too
+
+** to start bge, think about on which disk you want to run this (if there is one instance running on the same disk already, this could be a problem)
+*** then, first start a mysql docker:
+#+BEGIN_SRC sh
+docker run --name mysql -e MYSQL_ROOT_PASSWORD=trivial -e MYSQL_DATABASE=movements -v /home/db:/var/lib/mysql -d mysql
+#+END_SRC
+*** start the bge docker:
+#+BEGIN_SRC sh
+docker run -t -i -v /home/bitcoin-data:/root/.bitcoin --link mysql:mysql -v /home/www-test-data:/root/bge/blockchain stefanwouldgo/bge:v20 /bin/bash
+#+END_SRC
+
+or build your own docker by doing
+#+BEGIN_SRC sh
+git clone https://github.com/stefanwouldgo/Bitcoin-Graph-Explorer.git bge
+cd bge
+docker build .
+#+END_SRC
+
+
+** in emacs, if you want IDE support, do (M-x ensime). before doing this for the first time, you need to generate a .ensime file at the project home by
+#+BEGIN_SRC sh
+sbt gen-ensime
+#+END_SRC

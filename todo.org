@@ -4,7 +4,7 @@
 ** emacs with everything we need
 * DONE install play-bitcoinprivacy docker
 * DONE add this file to an appropriate git repo
-* TODO put home/www-test-data on the oder hd
+* DONE put home/www-test-data on the oder hd
 * TODO make getblocklist.sh watch for existing processes
 * TODO add date to history.log...
 * TODO connect a copy of the real db
@@ -13,6 +13,7 @@
 ** TODO static stuff
 ** TODO stats
 ** TODO top 1000
-** TODO make everything much nicer, use bootstrap
+** DONE make everything much nicer, use bootstrap
+   CLOSED: [2015-04-24 Fri 15:04]
 * off we go!
 * to explore: sparkle, scala.js ...
