@@ -1,3 +1,11 @@
 
 * joda-time is not necessary in java 8 anymore. there is java.time now, and there is a scala.time wrapper. for now, we don't need any of them.
 * fork in run in sbt is said to be the reason for play reload hanging sometimes
+
+* there are multiple file backends for docker, 
+  and we seem to use some version of devicemapper. It appears
+  devicemapper has/had some bugs, and there might be performance 
+  benefits to changing the backend. still, I believe it might be the
+  wisest path to just keep using docker and wait for upstream to
+  change, unless we keep having problems with this
+
