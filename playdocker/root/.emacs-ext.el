@@ -12,7 +12,7 @@
 ;;    Extra packages not available via the package manager go in my
 ;;    personal stash at: =$HOME/.emacs.d=
 
-(add-to-list 'load-path "~/.emacs.d/")
+;; (add-to-list 'load-path "~/.emacs.d/")
 
 ;; Package Manager
 
@@ -333,7 +333,7 @@ your recently and most frequently used commands.")
 ;;    The brilliance of =org-mode= is the ability to publish your notes
 ;;    as HTML files into a web server. See [[http://orgmode.org/worg/org-tutorials/org-publish-html-tutorial.html][these instructions]].
 
-(require 'org-publish)
+;; (require 'org-publish)
 
 (setq org-publish-project-alist  '(
   ("org-notes"
@@ -449,15 +449,15 @@ your recently and most frequently used commands.")
 ;;    We need to load the [[https://github.com/haxney/scala-mode][scala mode]].
 ;;    We follow [[http://www.scala-lang.org/node/354][these instructions]] to hook it up with [[http://code.google.com/p/yasnippet/][Yasnippet]].
 
-(require 'scala-mode2)
+;; (require 'scala-mode2)
 
-;; Shouldn't this be done by default?
-(add-to-list 'auto-mode-alist '("\\.scala$" . scala-mode))
+;; ;; Shouldn't this be done by default?
+;; (add-to-list 'auto-mode-alist '("\\.scala$" . scala-mode))
 
-(add-hook 'scala-mode-hook
-          '(lambda ()
-             (yas/minor-mode-on)
-             (scala-mode-feature-electric-mode)))
+;; (add-hook 'scala-mode-hook
+;;           '(lambda ()
+;;              (yas/minor-mode-on)
+;;              (scala-mode-feature-electric-mode)))
 
 ;; JavaScript
 
