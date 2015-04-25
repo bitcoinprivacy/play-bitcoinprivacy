@@ -14,7 +14,7 @@ apt-get update && apt-get install -y lxc-docker emacs24-nox tmux git
 DOCKER_OPTS="-g /home/docker"
 #+END_SRC 
    to /etc/default/docker
-
+** also, a tmpfs on /tmp might be a nice, put it in /etc/fstab and do mount -a
 ** finally, start tmux and make a window (C-b c) for every docker you want to keep a bash open in, give it a nice name (C-b ,)
 ** you might have to do docker login
 
@@ -63,8 +63,10 @@ or, better yet, start emacs first and run activator from within eshell (M-x eshe
 ** to start bge, think about on which disk you want to run this (if there is one instance running on the same disk already, this could be a problem)
 *** then, first start a mysql docker:
 #+BEGIN_SRC sh
-docker run --name mysql -e MYSQL_ROOT_PASSWORD=trivial -e MYSQL_DATABASE=movements -v /home/db:/var/lib/mysql -d mysql
+docker run --name mysql -e MYSQL_ROOT_PASSWORD=trivial -e MYSQL_DATABASE=movements -v /home/db:/var/lib/mysql -v /tmp:/tmp -d mysql
 #+END_SRC
+note the mounted /tmp, this is needed because otherwise mysql throws
+strange errors because the docker /tmp is full
 *** start the bge docker:
 #+BEGIN_SRC sh
 docker run -t -i -v /home/bitcoin-data:/root/.bitcoin --link mysql:mysql -v /home/www-test-data:/root/bge/blockchain stefanwouldgo/bge:v20 /bin/bash
