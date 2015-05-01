@@ -1,3 +1,19 @@
 
 * joda-time is not necessary in java 8 anymore. there is java.time now, and there is a scala.time wrapper. for now, we don't need any of them.
 * fork in run in sbt is said to be the reason for play reload hanging sometimes
+
+* there are multiple file backends for docker, 
+  and we seem to use some version of devicemapper. It appears
+  devicemapper has/had some bugs, and there might be performance 
+  benefits to changing the backend. still, I believe it might be the
+  wisest path to just keep using docker and wait for upstream to
+  change, unless we keep having problems with this
+
+* mysql needs space in /tmp, though you can change this directory in my.cnf
+* tmpfs wasn't mounted on this server, but I guess it's a good idea, so I did it
+* tmux saves its sockets in /tmp, so after mounting tmpfs I couldn't tmux attach, but
+#+BEGIN_SRC 
+ killall -10 tmux 
+#+END_SRC
+  made it reopen its sockets. I have never understood what sockets
+  are, btw.
