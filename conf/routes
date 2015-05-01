@@ -1,5 +1,17 @@
 
+GET  /assets/*file        controllers.Assets.at(path="/public", file)
+
 GET     /                           controllers.Application.index
 
 POST    /                     controllers.Application.searchAddress
+
+GET    /richlist             controllers.Application.richList
+
+GET    /stats             controllers.Application.stats
+
+GET    /distribution      controllers.Application.distributionIndex
+
+POST   /distribution      controllers.Application.distribution
+
+GET    /faq                     controllers.Application.faq
 

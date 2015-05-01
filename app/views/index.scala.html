@@ -3,27 +3,29 @@ wallet:Option[List[(String, Long)]])
 @import b3.vertical.fieldConstructor  // Declares a vertical field constructor as default
 
 
-@main("Bitcoin Wallet Search"){
+@main("Bitcoin Wallet Search", "search"){
 
-<section>Welcome to bitcoin privacy. Enter a bitcoin address to check for other addresses that seem to belong to the same wallet, according to the blockchain up to block @blockHeight</section>
+  <p>Welcome to bitcoin privacy. Enter a bitcoin address to check for other addresses that seem to belong to the same wallet, according to the blockchain up to block @blockHeight</p>
   
-<p>
-  @b3.form(action = routes.Application.searchAddress) {
-  @b3.text(addressForm("address"), '_label -> "Bitcoin Address",
-  'placeholder -> "Please enter a bitcoin address" )
-  @b3.submit('class -> "btn btn-primary"){
-  <span class="glyphicon glyphicon-ok"></span> Search }
-        }      
-</p>
+  <p>
+    @b3.form(action = routes.Application.searchAddress) {
+      @b3.text(addressForm("address"), '_label -> "Bitcoin Address",
+      'placeholder -> "Please enter a bitcoin address" )
+      @b3.submit('class -> "btn btn-primary"){
+        <span class="glyphicon glyphicon-ok"></span> Search
+      }
+    }      
+  </p>
 
-<div class=responsive-table>
-  <table class=table>      
   @for(t<-wallet){
-    @for((address,value) <- t){   
-      <tr><td>@address</td><td>@value</td></tr>
-    }  
+    <div class=responsive-table>
+      <table class=table>
+        <tr><th> Address </th><th class="text-right"> @unitButtons() </th></tr>
+        @for((address,value) <- t){   
+          <tr><td class="bge_address">@address</td><td class="bge_value">@value</td></tr>
+        }  
+  
+      </table>
+    </div>
   }
-  </table>
-</div>
-
 }

@@ -9,10 +9,17 @@
 * TODO add date to history.log...
 * TODO connect a copy of the real db
 * TODO rebuild the web site
-** TODO search
+** DONE search
+   CLOSED: [2015-05-01 Fri 15:25]
 ** TODO static stuff
-** TODO stats
-** TODO top 1000
+** DONE stats
+   CLOSED: [2015-05-01 Fri 15:25]
+
+** DONE top 1000
+   CLOSED: [2015-05-01 Fri 15:25]
+
 ** TODO make everything much nicer, use bootstrap
+** TODO Wallet.getBlockHeight as Future
+ 
 * off we go!
 * to explore: sparkle, scala.js ...
