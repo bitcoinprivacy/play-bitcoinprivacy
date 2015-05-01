@@ -15,3 +15,10 @@ POST   /distribution      controllers.Application.distribution
 
 GET    /faq                     controllers.Application.faq
 
+GET    /explorer               controllers.Application.explorer
+
+GET   /block/:height          controllers.Application.block(height: Int) 
+
+GET   /transaction/:hash      controllers.Application.transaction(hash: String)
+
+GET    /address/:hash         controllers.Application.address(hash: String)

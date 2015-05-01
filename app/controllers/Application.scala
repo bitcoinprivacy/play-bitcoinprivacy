@@ -43,6 +43,15 @@ object Application extends Controller {
     Ok(views.html.faq())
   }
  
+  def explorer = Action.async {
+    val blocksFuture = Wallet.getBlocks(100)
+    
+    for {blocksList <- blocksFuture }
+    yield
+      Ok(views.html.explorer(Wallet.getBlockHeight, blocksList))
+  }
+
+
   def richList = Action.async {
     val addressFuture = RichList.getRichestAddresses
     val walletsFuture = RichList.getRichestWallets
@@ -74,6 +83,33 @@ object Application extends Controller {
       Ok(views.html.stats(Wallet.getBlockHeight, statsList))
   }
 
+  def block(height: Int) = Action.async {
+    val statsFuture = Wallet.getTransactions(height)
+
+
+    for {statsList <- statsFuture}
+    yield
+      Ok(views.html.block(height, statsList))
+  }
+
+  def transaction(txHash: String) = Action.async {
+    val statsFuture = Wallet.getMovements(txHash)
+
+
+    for {statsList <- statsFuture}
+    yield
+      Ok(views.html.transaction(txHash, statsList))
+  }
+
+  def address(address: String) = Action.async {
+    val statsFuture = Wallet.getAddressMovements(address)
+
+
+    for {statsList <- statsFuture}
+    yield
+      Ok(views.html.address(address, statsList))
+  }
+
   def distributionIndex = Action.async {
     val giniFuture = Stats.getGinis
     val tupleFuture = Stats.getDistribution(0)
@@ -90,13 +126,11 @@ object Application extends Controller {
       (totalBitcoins, totalAdresses, percent) <- tupleFuture }
     yield 
       valueForm.bindFromRequest.fold({
-        errors =>  /*scala.concurrent.Future*/{BadRequest(views.html.distribution(Wallet.getBlockHeight, ginis, totalBitcoins, percent, totalAdresses, 0, errors))}},
-          {
+        errors =>  {BadRequest(views.html.distribution(Wallet.getBlockHeight, ginis, totalBitcoins, percent, totalAdresses, 0, errors))}},
+        {
             case (value: Double) =>
-              //Stats.getDistribution(value) map {a =>
-                Ok(views.html.distribution(Wallet.getBlockHeight, ginis, totalBitcoins, percent, totalAdresses, value, valueForm))
-              //}
-      }
+               Ok(views.html.distribution(Wallet.getBlockHeight, ginis, totalBitcoins, percent, totalAdresses, value, valueForm))
+        }
     )
   }
 }
