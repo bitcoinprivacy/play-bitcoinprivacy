@@ -1,4 +1,3 @@
-
 package controllers
 
 import play.api.mvc._
@@ -36,7 +35,7 @@ object Application extends Controller {
   }
 
   def index = Action {
-    Ok(views.html.index(Wallet.getBlockHeight, addressForm, None))
+    Ok(views.html.index(Wallet.getBlockHeight, addressForm, "", None))
   }
 
   def faq = Action {
@@ -45,31 +44,34 @@ object Application extends Controller {
  
   def explorer = Action.async {
     val height = Wallet.getBlockHeight
-    val blocksFuture = Wallet.getBlocks(100, height)
+    val blocksFuture = Wallet.getBlocks(25, height)
     
     for {blocksList <- blocksFuture }
     yield
       Ok(views.html.explorer(height, blocksList))
   }
 
-
   def richList = Action.async {
-    val addressFuture = RichList.getRichestAddresses
-    val walletsFuture = RichList.getRichestWallets
-
+    val blockHeight = Wallet.getBlockHeight
+    val addressFuture = RichList.getRichList(blockHeight, "richest_addresses")
+    val walletsFuture = RichList.getRichList(blockHeight, "richest_closures")
+    
     for {addressList <- addressFuture
-      walletList <- walletsFuture }
-    yield 
-      Ok(views.html.richlist(Wallet.getBlockHeight, addressList, walletList))
+      walletList <- walletsFuture
+    }
+    yield{ 
+      Ok(views.html.richlist(blockHeight, addressList, walletList))
+    }
   }
 
   def searchAddress = Action.async { implicit request =>
     addressForm.bindFromRequest.fold({
-      errors => scala.concurrent.Future{BadRequest(views.html.index(Wallet.getBlockHeight,errors,None))}},
+      errors => scala.concurrent.Future{BadRequest(views.html.index(Wallet.getBlockHeight,errors,"",None))}},
       {
         case (address) => 
+          
           Wallet.get(address) map {a =>
-            Ok(views.html.index(Wallet.getBlockHeight, addressForm, Some(a)))
+            Ok(views.html.index(Wallet.getBlockHeight, addressForm, address, Some(a)))
           }
       }
     )
@@ -81,7 +83,7 @@ object Application extends Controller {
 
     for {statsList <- statsFuture}
     yield
-      Ok(views.html.index(Wallet.getBlockHeight, addressForm, Some(statsList)))
+      Ok(views.html.index(Wallet.getBlockHeight, addressForm, address, Some(statsList)))
   }
 
   def stats = Action.async {
@@ -121,27 +123,30 @@ object Application extends Controller {
   }
 
   def distributionIndex = Action.async {
+    val blockH = Wallet.getBlockHeight
     val giniFuture = Stats.getGinis
-    val tupleFuture = Stats.getDistribution(0)
+    val tupleFuture = Stats.getDistribution(1, blockH)
     for { ginis <- giniFuture
       (totalBitcoins, totalAdresses, percent) <- tupleFuture }
     yield 
-      Ok(views.html.distribution(Wallet.getBlockHeight, ginis, totalBitcoins, percent, totalAdresses, 0, valueForm))
+      Ok(views.html.distribution(blockH, ginis, totalBitcoins, percent, totalAdresses, 1, valueForm))
   }
 
   def distribution = Action.async { implicit request =>
     valueForm.bindFromRequest.fold({
       errors =>  {
-        val tupleF = Stats.getDistribution(0)
+        val blockH = Wallet.getBlockHeight
+        val tupleF = Stats.getDistribution(1, blockH)
         val ginisF = Stats.getGinis
         for {ginis <- ginisF; (totalBitcoins, totalAddresses, percent) <- tupleF}
-          yield BadRequest(views.html.distribution(Wallet.getBlockHeight, ginis, totalBitcoins, percent, totalAddresses, 0, errors))}},
+          yield BadRequest(views.html.distribution(blockH, ginis, totalBitcoins, percent, totalAddresses, 1, errors))}},
       {
         case (value: Double) =>
-          val tupleF = Stats.getDistribution(value)
+          val blockH = Wallet.getBlockHeight
+          val tupleF = Stats.getDistribution(value, blockH)
           val ginisF = Stats.getGinis
           for {ginis <- ginisF; (totalBitcoins, totalAddresses, percent) <- tupleF}
-            yield Ok(views.html.distribution(Wallet.getBlockHeight, ginis, totalBitcoins, percent, totalAddresses, value, valueForm))
+            yield Ok(views.html.distribution(blockH, ginis, totalBitcoins, percent, totalAddresses, value, valueForm))
       }
     )
   }

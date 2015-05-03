@@ -4,7 +4,7 @@ GET  /assets/*file        controllers.Assets.at(path="/public", file)
 
 GET     /                           controllers.Application.index
 
-POST    /                     controllers.Application.searchAddress
+POST   /searchAdress                    controllers.Application.searchAddress
 
 GET    /wallet/:address                      controllers.Application.wallet(address: String)
 

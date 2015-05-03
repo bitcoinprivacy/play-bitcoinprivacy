@@ -27,16 +27,25 @@ object Wallet
   def get(strAddress:String) = Future {
     val address = new Address(MainNetParams.get, strAddress)
     val hexAddress = (if(address.isP2SHAddress) "05" else "00")+valueOf(address.getHash160)
-
     DB.withConnection { implicit connection =>
       (SQL(
         """
-          SELECT
-            hash as hash, balance
-          FROM addresses
-          WHERE balance > 0 and representant = 
-          (SELECT representant FROM addresses where hash=X'"""+hexAddress+"""');
-        """
+          select hash, balance as balance from (
+            SELECT
+              hash as hash, balance
+            FROM addresses
+            WHERE balance > 0 and representant = 
+            (SELECT representant FROM addresses where hash=X'"""+hexAddress+"""')
+               UNION
+            SELECT address as hash, sum(value) as balance 
+              FROM movements where 
+               address is not null and
+              spent_in_transaction_hash is null and address=X'"""+hexAddress+"""' 
+          )   
+           where hash is not null
+          group by hash;
+         """
+        
       )() map {row => (hashToAddress(row[Array[Byte]]("hash")), row[Option[Long]]("balance").getOrElse(0L))}).toList
     }
   }
