@@ -18,11 +18,13 @@ wallet:Option[List[(String, Long)]])
   </p>
 
   @for(t<-wallet){
+    <p class="text-right">@unitButtons()</p>
     <div class=responsive-table>
       <table class=table>
-        <tr><th> Address </th><th class="text-right"> @unitButtons() </th></tr>
+        <tr><th> Address </th><th class="text-right"></th></tr>
         @for((address,value) <- t){   
-          <tr><td class="bge_address_wallet">@address</td><td class="bge_value">@value</td></tr>
+          <tr><td class="bge_address_wallet">@address</td><td class="bge_value
+        text-right">@value</td></tr>
         }  
   
       </table>

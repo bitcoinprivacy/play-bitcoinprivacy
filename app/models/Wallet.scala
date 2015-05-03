@@ -41,12 +41,14 @@ object Wallet
     }
   }
   
-  def getBlocks(number: Int) = Future {
-
+  def getBlocks(number: Int, blockHeight: Int) = Future {
+    val blocksMin = blockHeight - number
     DB.withConnection { implicit connection => 
       (SQL(
-        "select hex(hash) as hash, block_height from blocks order by block_height desc limit "+number)() map {
-      row => (row[String]("hash"), row[Int]("block_height"))}).toList
+        "select hex(b.hash) as hash, b.block_height as block_height, ifnull(m.y,0) as tx_count from blocks b left join " +
+        " (select block_height as x, count(distinct(transaction_hash)) as y from movements where block_height > " + blocksMin + " group by block_height) m " + 
+        " on b.block_height = m.x where b.block_height > " + blocksMin + " order by block_height desc" )() map {
+      row => (row[String]("hash"), row[Int]("block_height"), row[Int]("tx_count"))}).toList
     }
   }
 
@@ -68,7 +70,7 @@ object Wallet
     DB.withConnection { implicit connection =>
       (SQL(
         "SELECT  sum(value) as balance, hex(transaction_hash) as address FROM movements WHERE block_height = "+height+" GROUP BY transaction_hash")() map {                                                                                               
-      row => (row[String]("address"), row[Int]("balance"))}).toList                                                                                                                                   
+      row => (row[String]("address"), row[Long]("balance"))}).toList                                                                                                                                   
 
     }
   }
@@ -78,18 +80,18 @@ object Wallet
     val hexAddress = (if(address.isP2SHAddress) "05" else "00")+valueOf(address.getHash160)
     DB.withConnection { implicit connection =>
       (SQL(
-        "SELECT ifnull(value,0) as balance, hex(transaction_hash) as address, hex(spent_in_transaction_hash) as spent_tx FROM movements WHERE address = X'"+hexAddress+"'"
-      )() map {row => (row[String]("address"), row[String]("spent_tx"), row[Int]("balance"))}).toList
+        "SELECT ifnull(value,0) as balance, hex(transaction_hash) as tx, hex(spent_in_transaction_hash) as spent_in_tx FROM movements WHERE address = X'"+hexAddress+"'"
+      )() map {row => (row[String]("tx"), row[String]("spent_in_tx"), row[Long]("balance"))}).toList
     }
   }
 
 def getMovements(txHash: String) = Future {
   DB.withConnection { implicit connection => 
     (SQL(
-      "SELECT  value as balance, address as address, hex(spent_in_transaction_hash) as spent_in, 'x' as paid_in FROM  movements WHERE  transaction_hash = X'"+txHash+"'" +
-        " union " +
-      "SELECT value as balance, address as address, 'x' as spent_in, hex(transaction_hash) as paid_in FROM movements WHERE  spent_in_transaction_hash = X'"+txHash+"'"
-    )() map {row => (hashToAddress(row[Array[Byte]]("address")), row[String]("paid_in"),row[String]("spent_in"), row[Int]("balance"))}).toList
+      "SELECT  sum(value) as balance, address as address, hex(spent_in_transaction_hash) as spent_in, 'x' as paid_in FROM  movements WHERE  transaction_hash = X'"+txHash+"' group by address" +
+        " union ALL " +
+      "SELECT sum(value) as balance, address as address, 'x' as spent_in, hex(transaction_hash) as paid_in FROM movements WHERE  spent_in_transaction_hash = X'"+txHash+"' group by address"
+    )() map {row => (hashToAddress(row[Array[Byte]]("address")), row[String]("paid_in"),row[String]("spent_in"), row[Long]("balance"))}).toList
   }
 }
 }

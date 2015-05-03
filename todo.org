@@ -4,7 +4,7 @@
 ** emacs with everything we need
 * DONE install play-bitcoinprivacy docker
 * DONE add this file to an appropriate git repo
-* DONE put home/www-test-data on the oder hd
+* TODO put home/www-test-data on the oder hd
 * TODO make getblocklist.sh watch for existing processes
 * TODO add date to history.log...
 * TODO connect a copy of the real db
@@ -12,21 +12,15 @@
 ** DONE search
    CLOSED: [2015-05-01 Fri 15:25]
 ** TODO static stuff
-
 ** DONE stats
    CLOSED: [2015-05-01 Fri 15:25]
 
 ** DONE top 1000
    CLOSED: [2015-05-01 Fri 15:25]
-
+** TODO balance - closure query should be slick code
+** TODO transaction from address wrong displayed.
 ** TODO make everything much nicer, use bootstrap
 ** TODO Wallet.getBlockHeight as Future
  
-
-** TODO stats
-** TODO top 1000
-** DONE make everything much nicer, use bootstrap
-   CLOSED: [2015-04-24 Fri 15:04]
-
 * off we go!
 * to explore: sparkle, scala.js ...

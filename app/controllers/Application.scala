@@ -44,11 +44,12 @@ object Application extends Controller {
   }
  
   def explorer = Action.async {
-    val blocksFuture = Wallet.getBlocks(100)
+    val height = Wallet.getBlockHeight
+    val blocksFuture = Wallet.getBlocks(100, height)
     
     for {blocksList <- blocksFuture }
     yield
-      Ok(views.html.explorer(Wallet.getBlockHeight, blocksList))
+      Ok(views.html.explorer(height, blocksList))
   }
 
 
@@ -72,6 +73,15 @@ object Application extends Controller {
           }
       }
     )
+  }
+
+  def wallet(address: String) = Action.async {
+    val statsFuture = Wallet.get(address)
+
+
+    for {statsList <- statsFuture}
+    yield
+      Ok(views.html.index(Wallet.getBlockHeight, addressForm, Some(statsList)))
   }
 
   def stats = Action.async {
@@ -120,17 +130,19 @@ object Application extends Controller {
   }
 
   def distribution = Action.async { implicit request =>
-    val giniFuture = Stats.getGinis
-    val tupleFuture = Stats.getDistribution(0)
-    for { ginis <- giniFuture
-      (totalBitcoins, totalAdresses, percent) <- tupleFuture }
-    yield 
-      valueForm.bindFromRequest.fold({
-        errors =>  {BadRequest(views.html.distribution(Wallet.getBlockHeight, ginis, totalBitcoins, percent, totalAdresses, 0, errors))}},
-        {
-            case (value: Double) =>
-               Ok(views.html.distribution(Wallet.getBlockHeight, ginis, totalBitcoins, percent, totalAdresses, value, valueForm))
-        }
+    valueForm.bindFromRequest.fold({
+      errors =>  {
+        val tupleF = Stats.getDistribution(0)
+        val ginisF = Stats.getGinis
+        for {ginis <- ginisF; (totalBitcoins, totalAddresses, percent) <- tupleF}
+          yield BadRequest(views.html.distribution(Wallet.getBlockHeight, ginis, totalBitcoins, percent, totalAddresses, 0, errors))}},
+      {
+        case (value: Double) =>
+          val tupleF = Stats.getDistribution(value)
+          val ginisF = Stats.getGinis
+          for {ginis <- ginisF; (totalBitcoins, totalAddresses, percent) <- tupleF}
+            yield Ok(views.html.distribution(Wallet.getBlockHeight, ginis, totalBitcoins, percent, totalAddresses, value, valueForm))
+      }
     )
   }
 }
