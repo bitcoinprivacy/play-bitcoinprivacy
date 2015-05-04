@@ -1,0 +1,87 @@
+@main("Frequently Asked Questions", "faq"){
+<div class="row">
+<div class="col-md-12">
+
+
+  
+      <h3>What is this about?</h3>
+<p>When you use bitcoin today, you have to give away bitcoin addresses
+  to people. That is, you announce "I have control over this address"
+  to your business partners or even the whole world. The structure of
+  the public blockchain often makes it possible for anyone to group
+  multiple addresses as belonging to the same entity or person. This
+  means that anybody who listened to your announcement and can perform
+  this analysis gains knowledge like "you own at least x bitcoins" or
+  "I know these addresses belong to you and I can now watch for your
+  use of them".</p>
+<p>Such analysis techniques have been known for a long time, but until
+  now, mostly researchers have been able to actually process the huge
+  amounts of data in the blockchain this way. However, interested
+  parties have always been free to invest into evaluating this
+  data. Arguably, criminals or government agencies might be parties
+  interested in&nbsp;such
+  knowledge. <a href="bitcoinprivacy.net">Bitcoinprivacy.net</a> puts
+  this power back in the hands of every bitcoin user.</p>
+<h3>What exactly can you tell me?</h3>
+<p>Probably the simplest analysis is repeatedly grouping addresses
+  that&nbsp;appear together as inputs in the same transaction. There
+  are other heuristics, but this is what you can find out with our
+  tool from the beginning. So when you enter a bitcoin address, we can
+  tell you what other addresses have been used in the same payments as
+  this one, and what balances they contain. So when you pay someone,
+  you can now tell what the recipient learns about you with respect to
+  bitcoins you own.</p>
+<h3>Is it reliable?</h3>
+<p>This particular heuristic is very reliable. It&nbsp;proves that the
+  people who own a group of private keys had to work together in order
+  to spend bitcoins. However, there are two caveats:</p>
+<ul>
+<li>1. This does not mean that one person actually owns all these
+  bitcoins. A counterexample might be an address belonging to an
+  exchange or wallet provider. This entity controls bitcoins given to
+  them by their customers.</li>
+<li>2. <a href="https://bitcointalk.org/index.php?topic=279249.0">CoinJoin</a>
+  is a proposal for a group of techniques that lets multiple people
+  join their transactions together to make it look like one person
+  spent all these bitcoins, in order to thwart exactly the kind of
+  analysis we are performing. If everyone used CoinJoin, the naive
+  implementation that we are using now would be useless. If you have
+  used a CoinJoin implementation on your addresses, the results from
+  our search can not be trusted anymore. Your addresses are
+  effectively mixed with those of other people. But beware: There is
+  <a href="http://www.coinjoinsudoku.com/">research</a>&nbsp;that
+  makes it possible to unmix joined coins. It is just a little more
+  work. We plan on implementing these ideas later on.</li>
+</ul>
+<h3>How can I protect my privacy?</h3>
+<p>Following the general suggestion of never reusing addresses is a
+  very good idea. It does not prevent you from linking addresses, but
+  the moment that they are linked they are also spent; so the public
+  learns nothing about your bitcoin balance. Unfortunately, many
+  wallets (web wallets in particular) make this simple measure hard or
+  even impossible.&nbsp;</p>
+<p>Mike Hearn
+  has <a href="https://medium.com/@@octskyward/merge-avoidance-7f95a386692f">written</a>&nbsp;about
+  ways of actually avoiding merging addresses. Unfortunately, we are
+  not aware of any tools implementing this, so it remains a manual
+  process.</p>
+<h3>How does this work?</h3>
+<p>We built the open
+  source <a href="https://github.com/stefanwouldgo/Bitcoin-Graph-Explorer">Bitcoin
+  Graph Explorer</a> to do the heavy lifting. Feel free to fork and
+  explore!</p>
+<h3>How can I help?</h3>
+<p>Glad you asked. Processing and storing gigabytes upon gigabytes of
+  blockchain data doesn't come for free. If you find this helpful, we
+  are grateful for your
+  donation:&nbsp;<span><a title="1L1EnvmZ8Gg42NTzGwEHrMD4XaosmgntKF"
+  href="bitcoin:1L1EnvmZ8Gg42NTzGwEHrMD4XaosmgntKF"><strong>1L1EnvmZ8Gg42NTzGwEHrMD4XaosmgntKF</strong></a>
+  .&nbsp;</span></p>
+<h3>How can I reach you?</h3>
+<p>We'd love to read your
+  feedback:&nbsp;<a href="mailto:info@@bitcoinprivacy.net">info@@bitcoinprivacy.net</a>&nbsp;.</p>
+<p>&nbsp;</p>  
+  
+</div>  
+</div>
+}

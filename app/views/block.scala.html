@@ -1,0 +1,39 @@
+@(blockHeight:Int, txList: List[(String, Long)])
+
+
+@main("Block " + blockHeight, "explorer"){
+  <div class="row">
+    <div class="col-md-12">
+      <p>
+        Transactions from block @blockHeight
+      </p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <p></p>
+    </div>
+  </div>
+        
+  <div class="row">
+    <div class="col-md-12 text-right">
+      <p>@unitButtons()</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="responsive-table col-md-12">
+      <table style="table-layout:fixed" class="table table-striped table-hover ">
+        <tr>
+          <th>Transaction</th>
+          <th class="text-right">Value</th>
+        </tr>
+        @for((hash,value) <- txList){   
+          <tr>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="bge_tx_block">@hash</td>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="text-right bge_value">@value</td>
+          </tr>
+        }  
+      </table>
+    </div>
+  </div>
+}

@@ -1,0 +1,49 @@
+@(address:String, movements:List[(String, String, Long)])
+
+@main("Address", "explorer"){
+  <div class="row">
+    <div class="col-md-12">
+      <p>
+        Movements done by the address
+      </p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <p style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="bge_wallet">@address</p>
+      </p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12 text-right">
+      <p>
+        @unitButtons()
+      </p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <table class="table table-hover table-striped" style="table-layout:fixed">
+        <tr>
+          <th width="30%">Output</th>
+          <th width="20%" class="text-right">Value</th>
+          <th width="30%">Input</th>
+          <th width="20%" class="text-right">Value</th>
+        </tr>
+        @for((address,spent_in,value) <- movements){   
+          <tr>                             
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="bge_tx_block">@address</td>
+            <td style="color:green;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="text-right bge_value">@value</td>
+            @if(spent_in != ""){
+              <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="bge_tx_block">@spent_in</td>
+              <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:red;" class="text-right bge_value">@value</td>
+            } else {
+              <td></td>
+              <td></td>
+            }
+            </tr>
+          }
+        </table>
+    </div>
+  </div>
+}

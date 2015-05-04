@@ -33,7 +33,7 @@ object Wallet
           select hash, balance as balance from (
             SELECT
               hash as hash, balance
-            FROM addresses
+            FROM addresses 
             WHERE balance > 0 and representant = 
             (SELECT representant FROM addresses where hash=X'"""+hexAddress+"""')
                UNION
@@ -97,9 +97,9 @@ object Wallet
 def getMovements(txHash: String) = Future {
   DB.withConnection { implicit connection => 
     (SQL(
-      "SELECT  sum(value) as balance, address as address, hex(spent_in_transaction_hash) as spent_in, 'x' as paid_in FROM  movements WHERE  transaction_hash = X'"+txHash+"' group by address" +
+      "SELECT  value as balance, address as address, hex(spent_in_transaction_hash) as spent_in, 'x' as paid_in FROM  movements WHERE  transaction_hash = X'"+txHash+"'" +
         " union ALL " +
-      "SELECT sum(value) as balance, address as address, 'x' as spent_in, hex(transaction_hash) as paid_in FROM movements WHERE  spent_in_transaction_hash = X'"+txHash+"' group by address"
+      "SELECT value as balance, address as address, 'x' as spent_in, hex(transaction_hash) as paid_in FROM movements WHERE  spent_in_transaction_hash = X'"+txHash+"'"
     )() map {row => (hashToAddress(row[Array[Byte]]("address")), row[String]("paid_in"),row[String]("spent_in"), row[Long]("balance"))}).toList
   }
 }

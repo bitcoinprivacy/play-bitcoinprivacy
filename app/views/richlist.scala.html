@@ -1,0 +1,40 @@
+@(blockHeight:Int, addresses:List[(String, Long)], wallets: List[(String, Long)])
+
+@main("Bitcoin (Partial Wallet) Rich List", "richlist"){
+<div class="row">
+  <div class="col-md-12">
+    <p>Behold the top 1000 richest standalone addresses versus the top
+    1000 partial wallets, up to block  <span class="bge_block">@blockHeight</span>!</p>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <p class="text-right">
+      @unitButtons()
+  </div>
+</div>
+  
+<div class="row">
+    <div class="col-xs-12">
+      <table style="table-layout:fixed" class="table-hover table table-striped">
+        <tr>
+          <th width="10%"></th>
+          <th width="25%">Addresses</th>
+          <th width="20%"></th>
+          <th width="25%">Wallet</th>
+          <th width="20%"></th>
+        </tr>
+        </tr>
+        @for((e, pos) <- (addresses zip wallets).zipWithIndex){
+          <tr>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="text-left">@pos</td>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="bge_address_wallet">@e._1._1</td>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="text-right bge_value">@e._1._2</td>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="bge_wallet">@e._2._1</td>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="text-right bge_value">@e._2._2</td>
+          </tr>
+         }
+      </table>
+    </div>
+</div>
+}
