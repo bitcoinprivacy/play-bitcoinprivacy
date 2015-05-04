@@ -1,0 +1,26 @@
+.bge_address, 
+.bge_tx_hash, 
+.bge_block_number{
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+table{
+    table-layout:fixed;
+}
+
+.bge_tx_in,
+.bge_tx_in a{
+    color:green;
+}
+
+.bge_tx_out,
+.bge_tx_out a{
+    color:red;
+}
+
+.bge_tx_out a,
+.bge_tx_in a{
+    text-decoration:underline;
+}

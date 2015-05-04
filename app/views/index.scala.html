@@ -33,24 +33,23 @@
     </div>
     <div class="row">
       <div class="col-md-12">
-        <table class="table table-striped table-hover" style="table-layout:fixed">
+        <table class="table table-striped table-hover">
           <tr>
             <th width="60%">Address</th>
             <th width="40%" class="text-right">Value</th>
           </tr>
           @if(t.size==0){
             <tr>
-              <td width="60%" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"  class="bge_address_wallet">@inputAddress</td>
+              <td width="60%"  class="bge_address">@inputAddress</td>
               <td width="40%"
-              style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
               class="bge_value text-right">0</td>
             </tr>
 
           }
           @for((address,value) <- t){   
             <tr>
-              <td width="60%" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="bge_address_wallet">@address</td>
-              <td width="40%" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="bge_value text-right">@value</td>
+              <td width="60%" class="bge_address">@address</td>
+              <td width="40%" class="bge_value text-right">@value</td>
             </tr>
           }  
   

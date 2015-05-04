@@ -60,7 +60,7 @@ object Application extends Controller {
       walletList <- walletsFuture
     }
     yield{ 
-      Ok(views.html.richlist(blockHeight, addressList, walletList))
+       Ok(views.html.richlist(blockHeight, addressList zip walletList))
     }
   }
 

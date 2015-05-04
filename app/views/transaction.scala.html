@@ -8,7 +8,7 @@
 </div>
 <div class="row">
   <div class="col-md-12">
-    <p style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="bge_tx_block">@txHash</p>
+    <p class="bge_tx_hash" search="@txHash">@txHash</p>
   </div>
 </div>
 
@@ -21,7 +21,7 @@
   </div>
   <div class="row">
     <div class="col-md-6">
-      <table class="table table-hover table-striped" style="table-layout:fixed">
+      <table class="table table-hover table-striped">
         <tr>
           <th width="60%">Outputs</th>
           <th width="40%" class="text-right">Value</th>
@@ -29,15 +29,15 @@
         @for((address, paidInTx, spentInTx,value) <- movements){   
           @if(spentInTx=="x"){
             <tr>
-              <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="bge_address_wallet">@address</td>
-              <td value="@paidInTx" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:green;" class="bge_value text-right  @(" bge_paid_in".when(paidInTx != ""))">@value</td>
+              <td class="bge_address">@address</td>
+              <td search="@paidInTx" class="bge_value bge_tx_in text-right  @(" bge_tx_hash".when(paidInTx != ""))">@value</td>
             </tr>
           }
         }  
       </table>
     </div>
     <div class="col-md-6">
-      <table class="table table-hover table-striped" style="table-layout:fixed">
+      <table class="table table-hover table-striped">
         <tr>
           <th width="60%">Inputs</th>
           <th width="40%" class="text-right">Value</th>
@@ -45,8 +45,8 @@
         @for((address, paidInTx, spentInTx,value) <- movements){
           @if(spentInTx != "x"){
             <tr>
-              <td width="60%" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="bge_address_wallet">@address</td>
-              <td width="40%" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:red;" value="@spentInTx" class="text-right bge_value @(" bge_spent_in".when(spentInTx != ""))">@value</td>
+              <td width="60%" class="bge_address">@address</td>
+              <td width="40%" search="@spentInTx" class="text-right bge_tx_out bge_value @(" bge_tx_hash".when(spentInTx != ""))">@value</td>
             </tr>
           }
         }

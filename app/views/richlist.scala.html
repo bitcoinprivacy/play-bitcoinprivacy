@@ -1,4 +1,4 @@
-@(blockHeight:Int, addresses:List[(String, Long)], wallets: List[(String, Long)])
+@(blockHeight:Int, richestList:List[((String, Long), (String, Long))]/*, wallets: List[(String, Long)]*/)
 
 @main("Bitcoin (Partial Wallet) Rich List", "richlist"){
 <div class="row">
@@ -16,7 +16,7 @@
   
 <div class="row">
     <div class="col-xs-12">
-      <table style="table-layout:fixed" class="table-hover table table-striped">
+      <table class="table-hover table table-striped">
         <tr>
           <th width="10%"></th>
           <th width="25%">Addresses</th>
@@ -25,13 +25,13 @@
           <th width="20%"></th>
         </tr>
         </tr>
-        @for((e, pos) <- (addresses zip wallets).zipWithIndex){
+        @for((((address,addressBalance),(wallet,walletBalance)),pos) <- richestList.zipWithIndex){
           <tr>
-            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="text-left">@pos</td>
-            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="bge_address_wallet">@e._1._1</td>
-            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="text-right bge_value">@e._1._2</td>
-            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="bge_wallet">@e._2._1</td>
-            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="text-right bge_value">@e._2._2</td>
+            <td class="text-left">@(pos+1)</td>
+            <td class="bge_address">@address</td>
+            <td class="text-right bge_value">@addressBalance</td>
+            <td class="bge_wallet">@wallet</td>
+            <td class="text-right bge_value">@walletBalance</td>
           </tr>
          }
       </table>
