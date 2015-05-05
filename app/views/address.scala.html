@@ -1,6 +1,8 @@
-@(address:String, movements:List[(String, String, Long)])
+@(address:String, movements:List[(String, String,Long)],addressForm:play.api.data.Form[String])
+@import b3.vertical.fieldConstructor  // Declares a vertical field constructor as default
 
 @main("Address", "explorer"){
+
   <div class="row">
     <div class="col-md-12">
       <p>
@@ -8,12 +10,16 @@
       </p>
     </div>
   </div>
+  
+  
   <div class="row">
     <div class="col-md-12">
       <p class="bge_wallet" search="@address">@address</p>
       </p>
     </div>
   </div>
+  @search_form(addressForm,"Bitcoin Address, block height or tx hash", "Please enter a search")
+
   <div class="row">
     <div class="col-md-12 text-right">
       <p>
@@ -32,11 +38,11 @@
         </tr>
         @for((tx_hash,spent_in_tx_hash,value) <- movements){   
           <tr>                             
-            <td class="bge_tx_hash" search="@tx_hash">@tx_hash</td>
-            <td class="text-right bge_tx_in bge_value" satoshis="@value">@value</td>
+            <td class="bge_tx" search="@tx_hash">@tx_hash</td>
+            <td class="text-right bge_tx_in bge_tx bge_value" satoshis="@value">@value</td>
             @if(spent_in_tx_hash != ""){
-              <td class="bge_tx_hash" search="@spent_in_tx_hash">@spent_in_tx_hash</td>
-              <td class="text-right bge_tx_out bge_value" satoshis="@value">@value</td>
+              <td class="bge_tx" search="@spent_in_tx_hash">@spent_in_tx_hash</td>
+              <td class="text-right bge_tx_out bge_tx bge_value" search="@spent_in_tx_hash" satoshis="@value">@value</td>
             } else {
               <td></td>
               <td></td>

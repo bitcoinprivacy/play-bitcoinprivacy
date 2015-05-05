@@ -67,7 +67,7 @@ object Wallet
     else "todo"
   }
 
-  def getBlockHeight = {
+  def getBlockHeight = Future {
     DB.withConnection{ implicit connection => 
       SQL("select max(block_height) as c from blocks")().head[Int]("c")
     }

@@ -1,6 +1,8 @@
 .bge_address, 
-.bge_tx_hash, 
-.bge_block_number{
+.bge_tx,
+.bge_hash,
+.bge_value
+.bge_blocke{
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
@@ -23,4 +25,14 @@ table{
 .bge_tx_out a,
 .bge_tx_in a{
     text-decoration:underline;
+}
+#top-link-block.affix-top {
+    position: absolute;
+    bottom: -82px;
+    left: 10px;
+}
+#top-link-block.affix {
+    position: fixed;
+    bottom: 18px;
+    left: 10px;
 }

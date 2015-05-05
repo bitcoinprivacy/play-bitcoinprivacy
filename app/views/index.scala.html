@@ -11,20 +11,7 @@
       according to the blockchain up to block <span class="bge_block">@blockHeight</span></p>
     </div>
   </div>
-  <div class="row">
-    <div class="col-md-12">
-      <p>
-        @b3.form(action = routes.Application.searchAddress) {
-          @b3.text(addressForm("address"), '_label -> "Bitcoin Address",
-          'placeholder -> "Please enter a bitcoin address" )
-          @b3.submit('class -> "btn btn-primary"){
-            <span class="text-right glyphicon glyphicon-ok"></span> Search
-          }
-        }      
-      </p>
-    </div>
-  </div>
-
+  @search_form(addressForm, "Bitcoin Address", "Please enter a bitcoin address")
   @for(t<-wallet){
     <div class="row">
       <div class="col-md-12">

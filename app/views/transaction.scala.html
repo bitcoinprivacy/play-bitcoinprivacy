@@ -1,17 +1,18 @@
-@(txHash: String, movements:List[(String, String, String, Long)])
+@(txHash: String, movements:List[(String, String, String, Long)],addressForm:play.api.data.Form[String])
+@import b3.vertical.fieldConstructor  // Declares a vertical field constructor as default
 
 @main("Transaction", "explorer"){
-  <div class="row">
+<div class="row">
     <div class="col-md-12">
       <p>List of movements of the transaction</p>
    </div>
 </div>
 <div class="row">
   <div class="col-md-12">
-    <p class="bge_tx_hash" search="@txHash">@txHash</p>
+    <p>@txHash</p>
   </div>
 </div>
-
+@search_form(addressForm,"Bitcoin Address, block height or tx hash","Please enter a search")  
   <div class="row">
     <div class="col-md-12">
       <p class="text-right">
@@ -30,7 +31,7 @@
           @if(spentInTx=="x"){
             <tr>
               <td class="bge_address">@address</td>
-              <td search="@paidInTx" class="bge_value bge_tx_in text-right  @(" bge_tx_hash".when(paidInTx != ""))">@value</td>
+              <td search="@paidInTx" class="bge_value bge_tx_in text-right  @(" bge_tx".when(paidInTx != ""))">@value</td>
             </tr>
           }
         }  
@@ -46,7 +47,7 @@
           @if(spentInTx != "x"){
             <tr>
               <td width="60%" class="bge_address">@address</td>
-              <td width="40%" search="@spentInTx" class="text-right bge_tx_out bge_value @(" bge_tx_hash".when(spentInTx != ""))">@value</td>
+              <td width="40%" search="@spentInTx" class="text-right bge_tx_out bge_value @(" bge_tx".when(spentInTx != ""))">@value</td>
             </tr>
           }
         }

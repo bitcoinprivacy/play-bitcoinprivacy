@@ -37,8 +37,8 @@ def getGinis = Future {
           select * from stats order by block_height desc limit 1,1;                                                                                                                                         
         """
       )() map {row => List(
-        ("Gini addresses", row[Double]("gini_address")),
-        ("Gini wallets" , row[Double]("gini_closure"))
+        ("Gini coefficient of non-dust addresses", row[Double]("gini_address")),
+        ("Gini coefficient of non-dust wallets" , row[Double]("gini_closure"))
       )}).head
 
     }
@@ -50,7 +50,7 @@ def getDistribution(value: Double, blockHeight: Int) = Future {
       (SQL(
         "  select count(1) as a, sum(balance)/100000000 as b, (select total_bitcoins_in_addresses from stats order by block_height desc limit 1,1)  as c from addresses where balance > " + satoshis
       )() map {row => (
-        Math.round(row[Long]("b")), row[Long]("a"), Math.round(10000*row[Long]("b")/row[Long]("c"))/100
+        Math.round(row[Option[Long]]("b").getOrElse(0L)), row[Long]("a"), Math.round(10000*row[Option[Long]]("b").getOrElse(0L)/row[Long]("c"))/100
       )}).head
    
   

@@ -1,32 +1,26 @@
 $(function() {
-  addDefaultAttributes();
-  formatUnitSwitchButtons();
-  $(".show_btc").click();
-  setAllLinks();
-
-  // show to Top button for large scroll sites 
-  if ( ($(window).height() + 100) < $(document).height() ) {
-    $('#top-link-block').removeClass('hidden').affix({
-        // how far to scroll down before link "slides" into view
-        offset: {top:100}
-    });
-  }
+  onLoaded();
 });
 
-function formatUnitSwitchButtons()
+function onLoaded()
 {
+  addDefaultAttributes(".bge_block,.bge_address,.bge_wallet, .bge_tx", "search");
+  addDefaultAttributes(".bge_value", "satoshis");
   formatButton("show_btc", "BTC", 8);
   formatButton("show_sat", "sat", 0);
   formatButton("show_bit", "bit", 2);
   formatButton("show_mil", "mBTC", 5);
-}
-
-function setAllLinks()
-{
+  $(".show_btc").click();
   setLinks("bge_address", "address");
   setLinks("bge_block", "block");
-  setLinks("bge_tx_hash", "transaction");
-  setLinks("bge_wallet", "wallet");   
+  setLinks("bge_tx", "transaction");
+  setLinks("bge_wallet", "wallet");
+
+  if ( ($(window).height() + 100) < $(document).height() ) {
+    $('#top-link-block').removeClass('hidden').affix({
+        offset: {top:100}
+    });
+  }
 }
 
 function setLinks(className, url)  
@@ -45,31 +39,23 @@ function setLink(element, url)
 
 function setSelected(className)
 {
-  $(".show_unit").removeClass("active")
-  $("."+className).addClass("active")
+  $(".show_unit").removeClass("active");
+  $("."+className).addClass("active");
 }
 
 function formatButton(className, label, positions)
 {
-  $("."+className).html(label).removeClass("hidden").click(function(){formatAllValues(positions); setSelected(className); return false;})
+  $("."+className).html(label).removeClass("hidden").click(function(){formatAllValues(positions); setSelected(className); return false;});
 }
 
 function formatAllValues(d)
 {
-  $(".bge_value").each(function(i, v){formatBitcoinValues(i,v,d)})
+  $(".bge_value").each(function(i, v){formatBitcoinValues(i,v,d);});
 }  
 
-function addDefaultAttributes()
+function addDefaultAttributes(selector, attribute)
 {
-  $(".bge_block, .bge_tx_hash, .bge_wallet, .bge_address").each(function(i,e){
-    if(e.getAttribute("search")==null)
-      e.setAttribute("search", e.innerHTML);
-  });
-  
-  $(".bge_value").each(function(i,e){
-    if(e.getAttribute("satoshis")==null)
-      e.setAttribute("satoshis", e.innerHTML);
-  });
+  $(selector).each(function(i,e){ if(e.getAttribute(attribute)==null) e.setAttribute(attribute, e.innerHTML);});
 }
 
 function formatBitcoinValues(index, element, divisor)

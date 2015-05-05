@@ -4,7 +4,7 @@ GET  /assets/*file        controllers.Assets.at(path="/public", file)
 
 GET     /                           controllers.Application.index
 
-POST   /searchAdress                    controllers.Application.searchAddress
+POST    /walletPost                    controllers.Application.walletPost
 
 GET    /wallet/:address                      controllers.Application.wallet(address: String)
 
@@ -12,9 +12,9 @@ GET    /richlist             controllers.Application.richList
 
 GET    /stats             controllers.Application.stats
 
-GET    /distribution      controllers.Application.distributionIndex
+GET    /distribution/:value      controllers.Application.distribution(value)
 
-POST   /distribution      controllers.Application.distribution
+POST   /distribution      controllers.Application.distributionPost
 
 GET    /faq                     controllers.Application.faq
 

@@ -1,5 +1,5 @@
 
-name := """play-sqlite-bitcoinprivacy"""
+name := """play-bitcoinprivacy"""
 
 version := "1.0-SNAPSHOT"
 

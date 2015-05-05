@@ -56,7 +56,7 @@ docker build .
 #+BEGIN_SRC sh
 cd play-bitcoinprivacy/
 git pull
-activator run
+sbt run
 #+END_SRC
 or, better yet, start emacs first and run activator from within eshell (M-x eshell), so you can have an editor, too
 

@@ -5,7 +5,7 @@
 <div class="row">
   <div class="col-md-12">
     <p>
-    @b3.form(action = routes.Application.distribution) {
+    @b3.form(action = routes.Application.distributionPost) {
       @b3.text(valueForm("value"), '_label -> "Number of Bitcoins",
       'placeholder -> "Please enter a number of Bitcoins" )
       @b3.submit('class -> "btn btn-primary"){
