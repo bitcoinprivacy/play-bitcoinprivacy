@@ -20,7 +20,7 @@ GET    /faq                     controllers.Application.faq
 
 GET    /explorer               controllers.Application.explorer
 
-GET   /block/:height          controllers.Application.block(height: Int) 
+GET   /block/:height          controllers.Application.block(height: String) 
 
 GET   /transaction/:hash      controllers.Application.transaction(hash: String)
 

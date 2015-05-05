@@ -8,12 +8,13 @@ import anorm.Column.{ columnToArray}
 import scala.concurrent.Future
 import org.bitcoinj.core.Address
 import org.bitcoinj.params.MainNetParams
+import org.bitcoinj.core.AddressFormatException
 
 object Wallet
  {
 
   def valueOf(buf: Array[Byte]): String = buf.map("%02X" format _).mkString
- 
+  def stringToInt(s: String): Int = try{s.toInt} catch { case _ => -1} 
   implicit def rowToByteArray: Column[Array[Byte]] = {
   Column.nonNull[Array[Byte]] { (value, meta) =>
     val MetaDataItem(qualified, nullable, clazz) = meta
@@ -24,12 +25,13 @@ object Wallet
   }
   }
 
-  def get(strAddress:String) = Future {
-    val address = new Address(MainNetParams.get, strAddress)
-    val hexAddress = (if(address.isP2SHAddress) "05" else "00")+valueOf(address.getHash160)
-    DB.withConnection { implicit connection =>
-      (SQL(
-        """
+  def getWallet(strAddress:String) = Future {
+    try{
+      val address = new Address(MainNetParams.get, strAddress)
+      val hexAddress = (if(address.isP2SHAddress) "05" else "00")+valueOf(address.getHash160)
+      DB.withConnection { implicit connection =>
+        (SQL(
+          """
           select hash, balance as balance from (
             SELECT
               hash as hash, balance
@@ -46,10 +48,12 @@ object Wallet
           group by hash;
          """
         
-      )() map {row => (hashToAddress(row[Array[Byte]]("hash")), row[Option[Long]]("balance").getOrElse(0L))}).toList
+        )() map {row => (hashToAddress(row[Array[Byte]]("hash")), row[Option[Long]]("balance").getOrElse(0L))}).toList
+      }
+    }catch{
+      case _:AddressFormatException => List.empty
     }
   }
-  
   def getBlocks(number: Int, blockHeight: Int) = Future {
     val blocksMin = blockHeight - number
     DB.withConnection { implicit connection => 
@@ -74,23 +78,34 @@ object Wallet
   }
 
   
-  def getTransactions(height: Int) = Future {
-
-    DB.withConnection { implicit connection =>
+  def getTransactions(blockHeight: String) = Future {
+    
+    val height = stringToInt(blockHeight)
+    
+      DB.withConnection { implicit connection =>
       (SQL(
         "SELECT  sum(value) as balance, hex(transaction_hash) as address FROM movements WHERE block_height = "+height+" GROUP BY transaction_hash")() map {                                                                                               
       row => (row[String]("address"), row[Long]("balance"))}).toList                                                                                                                                   
 
     }
+   
+    
+    
   }
+  
 
   def getAddressMovements(strAddress: String) = Future  {
-    val address = new Address(MainNetParams.get, strAddress)
-    val hexAddress = (if(address.isP2SHAddress) "05" else "00")+valueOf(address.getHash160)
-    DB.withConnection { implicit connection =>
-      (SQL(
-        "SELECT ifnull(value,0) as balance, hex(transaction_hash) as tx, hex(spent_in_transaction_hash) as spent_in_tx FROM movements WHERE address = X'"+hexAddress+"'"
-      )() map {row => (row[String]("tx"), row[String]("spent_in_tx"), row[Long]("balance"))}).toList
+    try{
+      val address = new Address(MainNetParams.get, strAddress)
+      val hexAddress = (if(address.isP2SHAddress) "05" else "00")+valueOf(address.getHash160)
+      DB.withConnection { implicit connection =>
+        (SQL(
+          "SELECT ifnull(value,0) as balance, hex(transaction_hash) as tx, hex(spent_in_transaction_hash) as spent_in_tx FROM movements WHERE address = X'"+hexAddress+"'"
+        )() map {row => (row[String]("tx"), row[String]("spent_in_tx"), row[Long]("balance"))}).toList
+      }
+    }catch{
+      case e: AddressFormatException =>
+        List.empty
     }
   }
 

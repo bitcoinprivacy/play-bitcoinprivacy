@@ -32,21 +32,16 @@ object Application extends Controller {
     }
   }
 
-  def isTx(hash: String): Boolean = {
-    try{
-      new Transaction(MainNetParams.get, hex2bytes(hash))
-      true
-    }
-    catch { 
-      case _: Throwable => false
-    }
+  def hex2bytes(hex: String): Array[Byte] = {
+    hex.replaceAll("[^0-9A-Fa-f]", "").sliding(2, 2).toArray.map(Integer.parseInt(_, 16).toByte)
   }
 
-  def isBlock(block: String, blockHeight: Int): Boolean =
-    (
-      for (a <- block.toIntOpt)
-      yield blockHeight >= a && a >= 0
-    ).getOrElse(false)
+  def isTx(hash: String): Boolean = {
+    return hex2bytes(hash).length == 32
+  }
+
+  def isBlock(block: String): Boolean =
+    block.toIntOpt.isDefined
 
   def isAddress(address: String): Boolean = {
     try{
@@ -57,8 +52,6 @@ object Application extends Controller {
       case _: Throwable => false
     }
   }
-
-
 
   def index = Action.async {
     for ( height <- Wallet.getBlockHeight )
@@ -73,6 +66,7 @@ object Application extends Controller {
     for {
       height <- Wallet.getBlockHeight
       blockList <- Wallet.getBlocks(25,height)
+
     }
     yield
       Ok(views.html.explorer(height, blockList,addressForm))
@@ -93,20 +87,21 @@ object Application extends Controller {
       {
         errors =>
         for (blockHeight <- Wallet.getBlockHeight)
-        yield BadRequest(views.html.index(blockHeight,errors,"",None))
+          yield BadRequest(views.html.index(blockHeight,errors,"",None))
       },
       {
-        case (string) => {
+        case (string: String) => {
          for (blockHeight <- Wallet.getBlockHeight)
-         yield if (isBlock(string, blockHeight))
-           Redirect(routes.Application.block(string.toIntOpt.getOrElse(0)))
-         else if (isAddress(string))
+          yield
+            if (isBlock(string))
+              Redirect(routes.Application.block(string))
+            else if (isAddress(string))
               Redirect(routes.Application.wallet(string))
-         else if (isTx(string))
-           Redirect(routes.Application.transaction(string))
-         else
-           Redirect(routes.Application.index)}
-
+            else if (isTx(string))
+              Redirect(routes.Application.transaction(string))
+            else
+              Redirect(routes.Application.index)
+        }
       }
     )
   }
@@ -115,7 +110,7 @@ object Application extends Controller {
   def wallet(address: String) = Action.async {
     for {
       blockHeight <- Wallet.getBlockHeight
-      walletList <- Wallet.get(address)
+      walletList <- Wallet.getWallet(address)
     }
     yield
       Ok(views.html.index(blockHeight, addressForm, address, Some(walletList)))
@@ -130,13 +125,12 @@ object Application extends Controller {
       Ok(views.html.stats(blockHeight, statsList))
   }
 
-  def block(height: Int) = Action.async {
+  def block(blockHeight: String) = Action.async {
     for {
-      blockHeight <- Wallet.getBlockHeight
-      txList <- Wallet.getTransactions(blockHeight)
+       txList <- Wallet.getTransactions(blockHeight)
     }
     yield
-      Ok(views.html.block(height, txList, addressForm))
+      Ok(views.html.block(blockHeight, txList, addressForm))
   }
 
   def transaction(txHash: String) = Action.async {

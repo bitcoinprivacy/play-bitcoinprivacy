@@ -1,8 +1,7 @@
-@(blockHeight:Int, txList: List[(String, Long)],addressForm:play.api.data.Form[String])
+@(blockHeight:String, txList: List[(String, Long)],addressForm:play.api.data.Form[String])
 @import b3.vertical.fieldConstructor  // Declares a vertical field constructor as default
 
 @main("Block " + blockHeight, "explorer"){
-
   <div class="row">
     <div class="col-md-12">
       <p>
@@ -18,6 +17,8 @@
     </div>
   </div>
   @search_form(addressForm,"Bitcoin Address, block height or tx hash", "Please enter a search")
+  @not_found("block", txList.length==0)
+  @if(txList.length>0)  {
   <div class="row">
     <div class="col-md-12">
       <p></p>
@@ -45,4 +46,5 @@
       </table>
     </div>
   </div>
+}
 }
