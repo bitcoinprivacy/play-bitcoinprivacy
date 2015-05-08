@@ -1,0 +1,40 @@
+@(blockHeight:Int,inputAddress:String,addressForm:play.api.data.Form[String],info:AddressesInfo,addressesOption:Option[List[Address]])
+
+@main("Wallet", "explorer"){
+  @row{ <p>Wallet of address</p>
+  @row{<p class="bge_address">@inputAddress</p>}
+  }
+  @search_form(addressForm)
+  @for(t<-addressesOption){
+    @row{
+      @table{
+        @tr{
+          <th>Summary</th>
+          <th class="text-right">@unitButtons()</th>
+        }
+        @tr{
+          <td>Count</td>
+          <td class="text-right">@info.count</td>
+        }
+        @tr{
+          <td>Balance</td>
+          <td class="text-right">@info.balance</td>
+        }
+      }
+    }
+    @row{
+      @table{
+        @tr{
+          <th width="60%">Address</th>
+          <th width="40%" class="text-right">Value</th>
+        }
+        @for(address <- t){
+          @tr{
+            <td class="bge_address">@address.hash</td>
+            <td class="bge_value text-right">@address.balance</td>
+          }
+        }
+      }
+    }
+  }
+}

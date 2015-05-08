@@ -1,50 +1,42 @@
-@(blockHeight:String, txList: List[(String, Long)],addressForm:play.api.data.Form[String])
-@import b3.vertical.fieldConstructor  // Declares a vertical field constructor as default
+@(blockHeight:String, list: List[Transaction],info: TransactionInfo,addressForm:play.api.data.Form[String])
 
-@main("Block " + blockHeight, "explorer"){
-  <div class="row">
-    <div class="col-md-12">
-      <p>
-        Transactions from block
-      </p>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-12">
-      <p>
-        @blockHeight
-      </p>
-    </div>
-  </div>
-  @search_form(addressForm,"Bitcoin Address, block height or tx hash", "Please enter a search")
-  @not_found("block", txList.length==0)
-  @if(txList.length>0)  {
-  <div class="row">
-    <div class="col-md-12">
-      <p></p>
-    </div>
-  </div>
-        
-  <div class="row">
-    <div class="col-md-12 text-right">
-      <p>@unitButtons()</p>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-12">
-      <table class="table table-striped table-hover">
-        <tr>
-          <th>Transaction</th>
-          <th class="text-right">Value</th>
-        </tr>
-        @for((hash,value) <- txList){   
-          <tr>
-            <td class="bge_tx">@hash</td>
-            <td class="text-right bge_value">@value</td>
-          </tr>
-        }  
-      </table>
-    </div>
-  </div>
-}
+
+@main("Block", "explorer"){
+  @row{<p>Transactions from block @blockHeight</p>}
+  @search_form(addressForm)
+  @not_found("block", list.length==0)
+  @if(list.length>0){
+    @row{
+      @table{
+        @tr{
+         <th>Summary</th>
+         <th class="text-right">@unitButtons()</th>
+        }
+        @tr{
+          <td>Transactions</td>
+          <td class="text-right">@info.tx</td>
+        }
+        @tr{
+          <td>Value</td>
+          <td class="text-right bge_value">@info.value</td>
+        }
+      }
+    }
+  }
+   
+     
+  @row{
+    @table{
+      @tr{
+        <th width="75%">Transaction</th>
+        <th width="25%" class="text-right">Value</th>
+      }
+      @for(tx <- list){   
+        @tr{
+          <td class="bge_tx">@tx.hash</td>
+          <td class="text-right bge_value">@tx.value</td>
+        }
+      }  
+    }
+  }
 }

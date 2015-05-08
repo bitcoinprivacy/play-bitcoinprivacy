@@ -30,11 +30,29 @@ function setLinks(className, url)
 
 function setLink(element, url)
 {
+  var html = element.innerHTML;
+  var arrSearch = html.split(",");
+  var size = arrSearch.length;
+  
+  var isMulti = size>1;
+  var width = Math.floor(isMulti?(80/size):100);
+  arrSearch.forEach(function(e,i){
+    arrSearch[i] = (size > 1 ? "<span class='elliptic' style='display:inline-block;max-width:"+width+"%;'>&nbsp;" : "<span>") + e + "&nbsp;</span>";
+
+  });
+  html = (size > 1 ? "<span class='elliptic' style='display:inline-block;max-width:10%;'>1 of&nbsp;</span>" : "")  + arrSearch.join("");
+  var search = element.getAttribute("search");  
   var a = document.createElement("a");
-  a.href = "/"+url+"/"+element.getAttribute("search");
-  a.innerHTML = element.innerHTML;
+ a .style.width="100%";
+  a.href = "/"+url+"/"+search;
+  a.innerHTML = html;
+  a.style.display="inline-block";
   element.innerHTML = "";
+  
+  
+  
   element.appendChild(a);
+  
 }
 
 function setSelected(className)

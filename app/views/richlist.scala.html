@@ -1,40 +1,41 @@
-@(blockHeight:Int, richestList:List[((String, Long), (String, Long))]/*, wallets: List[(String, Long)]*/)
+@(blockHeight:Int, richestList:List[(Address, Address)], addInfo: AddressesInfo, wallInfo: AddressesInfo)
 
 @main("Bitcoin (Partial Wallet) Rich List", "richlist"){
-<div class="row">
-  <div class="col-md-12">
-    <p>Behold the top 1000 richest standalone addresses versus the top
-    1000 partial wallets, up to block  <span class="bge_block">@blockHeight</span>!</p>
-  </div>
-</div>
-<div class="row">
-  <div class="col-md-12">
-    <p class="text-right">
-      @unitButtons()
-  </div>
-</div>
-  
-<div class="row">
-    <div class="col-xs-12">
-      <table class="table-hover table table-striped">
-        <tr>
-          <th width="10%"></th>
-          <th width="25%">Addresses</th>
-          <th width="20%"></th>
-          <th width="25%">Wallet</th>
-          <th width="20%"></th>
-        </tr>
-        </tr>
-        @for((((address,addressBalance),(wallet,walletBalance)),pos) <- richestList.zipWithIndex){
-          <tr>
-            <td class="text-left">@(pos+1)</td>
-            <td class="bge_address">@address</td>
-            <td class="text-right bge_value">@addressBalance</td>
-            <td class="bge_wallet">@wallet</td>
-            <td class="text-right bge_value">@walletBalance</td>
-          </tr>
-         }
-      </table>
-    </div>
-</div>
+  @row{<p>Behold the top 1000 richest standalone addresses versus the top 1000 partial wallets, up to block @blockHeight!</p>}
+  @row{
+    @table{
+      @tr{
+        <th>Summary</th>
+        <th class="text-right">@unitButtons()</th>
+      }
+      @tr{
+        <td>Total in 1000 addresses</td>
+        <td class="text-right bge_value">@addInfo.balance</td>
+      }
+      @tr{
+        <td>Total in 1000 wallets</td>
+        <td class="text-right bge_value">@wallInfo.balance</td>
+      }
+    }
+  }
+  @row{
+    @table{
+      @tr{
+        <th width="10%"></th>
+        <th width="25%">Addresses</th>
+        <th width="20%"></th>
+        <th width="25%">Wallet</th>
+        <th width="20%"></th>
+      }
+      @for(((address, representant),pos) <- richestList.zipWithIndex){
+        @tr{
+          <td class="text-left">@(pos+1)</td>
+          <td class="bge_address">@address.hash</td>
+          <td class="text-right bge_value">@address.balance</td>
+          <td class="bge_wallet">@representant.hash</td>
+          <td class="text-right bge_value">@representant.balance</td>
+        }
+      }
+    }
+  }
 }

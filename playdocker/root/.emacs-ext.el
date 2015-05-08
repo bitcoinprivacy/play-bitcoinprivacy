@@ -27,7 +27,7 @@
 ; (load "~/.emacs.d/elpa/package.el") Needed for version 23 only!
 
 ; list the packages you want
-(setq package-list '(magit color-theme scala-mode2 auto-complete yasnippet ensime smex))
+(setq package-list '(magit color-theme scala-mode2 auto-complete yasnippet ensime smex js2-mode w3))
 
 ; list the repositories containing them
 (setq package-archives '(("org"       . "http://orgmode.org/elpa/")

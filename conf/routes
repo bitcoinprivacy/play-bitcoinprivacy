@@ -2,9 +2,10 @@ GET  /favicon.ico   controllers.Assets.at(path="/public", file="img/bitcoin.png"
 
 GET  /assets/*file        controllers.Assets.at(path="/public", file)
 
-GET     /                           controllers.Application.index
+GET     /                           controllers.Application.explorer
 
-POST    /walletPost                    controllers.Application.walletPost
+
+POST    /search                       controllers.Application.search
 
 GET    /wallet/:address                      controllers.Application.wallet(address: String)
 

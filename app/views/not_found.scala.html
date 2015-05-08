@@ -1,0 +1,11 @@
+@(text: String, condition: Boolean)
+
+@if(condition){
+  @row{
+    <div class="alert alert-danger">
+      <p>
+        @text not found
+      </p> 
+    </div>
+  }
+}

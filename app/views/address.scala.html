@@ -1,54 +1,74 @@
-@(address:String, movements:List[(String, String,Long)],addressForm:play.api.data.Form[String])
-@import b3.vertical.fieldConstructor  // Declares a vertical field constructor as default
+@(address:String, outputs:List[Output], info: OutputsInfo, addressForm:play.api.data.Form[String])
 
 @main("Address", "explorer"){
-  <div class="row">
-    <div class="col-md-12">
-      <p>
-        Movements done by the address
-      </p>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-12">
-      <p class="bge_wallet" search="@address">@address</p>
-      </p>
-    </div>
-  </div>
-  @search_form(addressForm,"Bitcoin Address, block height or tx hash", "Please enter a search")
-  @not_found("address", movements.length==0)
-  @if(movements.length>0){
-    <div class="row">
-      <div class="col-md-12 text-right">
-        <p>
-          @unitButtons()
-        </p>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12">
-        <table class="table table-hover table-striped">
-          <tr>
-            <th width="30%">Output</th>
-            <th width="20%" class="text-right">Value</th>
-            <th width="30%">Input</th>
-            <th width="20%" class="text-right">Value</th>
-          </tr>
-          @for((tx_hash,spent_in_tx_hash,value) <- movements){   
-            <tr>                             
-              <td class="bge_tx" search="@tx_hash">@tx_hash</td>
-              <td class="text-right bge_tx_in bge_tx bge_value" satoshis="@value">@value</td>
-              @if(spent_in_tx_hash != ""){
-                <td class="bge_tx" search="@spent_in_tx_hash">@spent_in_tx_hash</td>
-                <td class="text-right bge_tx_out bge_tx bge_value" search="@spent_in_tx_hash" satoshis="@value">@value</td>
-              } else {
-                <td></td>
-                <td></td>
-              }
-            </tr>
+  @row{<p>Transaction outputs with the address</p>}  
+  @row{<p class="bge_wallet" search="@address">@address</p>}  
+  @search_form(addressForm)
+  @not_found("address", outputs.length==0)
+  @if(outputs.length>0){
+    @row{
+      @table{
+        @tr{
+          <th>Summary</th>
+          <th class="text-right">@unitButtons()</th>
+        }
+        @tr{
+          <td>Balance</td>
+          <td class="bge_value text-right">@(info.in-info.out)</td>
+        }        
+        @tr{
+          <td>Received</td>
+          <td class="bge_value text-right">@info.in</td>
+        }
+        @tr{
+          <td>Spent</td>
+          <td class="bge_value text-right">@info.out</td>
+        }
+        @tr{
+          <td>Total outputs</td>
+          <td class="text-right">@info.outputs</td>
+        }
+        @tr{
+          <td>Unspent outputs</td>
+          <td class="text-right">@info.inputs</td>
+        }
+        @for( add <- address.split(",") if (address.split(",").length>1)){
+          @tr{
+            <td>Related address</td>
+            <td class="bge_tx text-right">@add</td>
           }
-        </table>
-    </div>
-  </div>
-}
+        }  
+      }
+    }
+    @row{
+      @table{
+          @tr{<th>Transaction outputs (TxOs)</th>}
+      }
+    }
+    @row{
+      
+      @table{
+        
+        @tr{
+          <th width="30%">Received in Tx</th>
+          <th width="20%" class="text-right">Value</th>
+          <th width="30%">Spent in Tx</th>
+          <th width="20%" class="text-right">Value</th>
+        }
+        @for(o <- outputs){   
+          @tr{                             
+            <td class="bge_tx" search="@o.hash">@o.hash</td>
+            <td class="text-right in bge_tx_in bge_value" satoshis="@o.value">@o.value</td>
+            @if(o.spent != ""){
+              <td class="bge_tx" search="@o.spent">@o.spent</td>
+              <td class="text-right bge_tx_out bge_value" search="@o.spent" satoshis="@o.value">@o.value</td>
+            }else {
+              <td></td>
+              <td></td>
+            }
+          }
+        }
+      }
+    }
+  }
 }

@@ -1,27 +1,16 @@
-@(blockHeight:Int, stats:List[(String, Int)])
+@(blockHeight:Int, stats:List[Stat])
 
 @main("Statistics", "stats"){
-
- <div class="row">
-   <div class="col-md-12">
-     <p>Stats related to the information processed</p>
-   </div>
- </div>
- <div class="row">
-    <div class="col-md-12">
-      <p></p>
-    </div>
-  </div>
- <div class="row">
-   <div class="col-md-12">
-      <table style="table-layout:fixed" class="table-hover table-striped table">
-        @for((name,value) <-stats){   
-          <tr>
-            <td width="75%" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="">@name</td>
-            <td width="25%" class="">@value</td>
-          </tr>
-        }  
-      </table>
-   </div>
- </div>
+ @row{<p>Stats related to the information processed</p>}
+ @row{<p></p>}
+ @row{
+   @table{
+     @for(stat <-stats){   
+       @tr{
+         <td width="60%" class="elliptic">@stat.name</td>
+         <td width="40%" class="text-right">@stat.value</td>
+       }
+     }
+   }
+ }
 }

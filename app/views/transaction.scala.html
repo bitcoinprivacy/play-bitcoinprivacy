@@ -1,57 +1,73 @@
-@(txHash: String, movements:List[(String, String, String, Long)],addressForm:play.api.data.Form[String])
-@import b3.vertical.fieldConstructor  // Declares a vertical field constructor as default
+@(txHash: String, movements:List[Movement], info: MovementsInfo,addressForm:play.api.data.Form[String])
 
 @main("Transaction", "explorer"){
-<div class="row">
-    <div class="col-md-12">
-      <p>List of movements of the transaction</p>
-   </div>
-</div>
-<div class="row">
-  <div class="col-md-12">
-    <p>@txHash</p>
-  </div>
-</div>
-@search_form(addressForm,"Bitcoin Address, block height or tx hash","Please enter a search")  
-  <div class="row">
-    <div class="col-md-12">
-      <p class="text-right">
-        @unitButtons()
-      </p>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-6">
-      <table class="table table-hover table-striped">
-        <tr>
-          <th width="60%">Outputs</th>
-          <th width="40%" class="text-right">Value</th>
-        </tr>
-        @for((address, paidInTx, spentInTx,value) <- movements){   
-          @if(spentInTx=="x"){
-            <tr>
-              <td class="bge_address">@address</td>
-              <td search="@paidInTx" class="bge_value bge_tx_in text-right  @(" bge_tx".when(paidInTx != ""))">@value</td>
-            </tr>
-          }
-        }  
-      </table>
-    </div>
-    <div class="col-md-6">
-      <table class="table table-hover table-striped">
-        <tr>
-          <th width="60%">Inputs</th>
-          <th width="40%" class="text-right">Value</th>
-        </tr>
-        @for((address, paidInTx, spentInTx,value) <- movements){
-          @if(spentInTx != "x"){
-            <tr>
-              <td width="60%" class="bge_address">@address</td>
-              <td width="40%" search="@spentInTx" class="text-right bge_tx_out bge_value @(" bge_tx".when(spentInTx != ""))">@value</td>
-            </tr>
-          }
+  @row{<p>List of inputs and outputs of the transaction</p>}
+  @row{<p>@txHash</p>}
+  @search_form(addressForm)  
+  @not_found("transaction", movements.length==0)
+  @if(movements.length>0){
+    @row{
+      @table{
+        @tr {
+         <th>Summary</th>
+         <th class="text-right">@unitButtons()</th>
         }
-      </table>
-    </div>
-  </div>
+        @tr{
+          <td>Inputs</td>
+          <td class="text-right">@info.inputs</td>
+        }
+        @tr{
+          <td>Outputs</td>
+          <td class="text-right">@info.outputs</td>
+        }
+        @tr{
+          <td>Sum of Inputs</td>
+          <td class="bge_value text-right">@info.in</td>
+        }
+        @tr{
+          <td>Sum of Outputs</td>
+          <td class="bge_value text-right">@info.out</td>
+        }
+        @if(info.in==0){
+          @tr{
+            <td>Coinbase transaction (freshly mined bitcoins plus fees of this block)</td>
+            @*TODO: link to block, redesign search position*@
+            <td></td>
+          }
+       }else{
+         @tr{
+           <td>Fee</td>
+           <td class="bge_value text-right">@(info.in - info.out)</td>
+         }
+       }
+     }
+   }
+   @row2{
+    @table{
+      @tr{
+        <th width="60%">Inputs</th>
+        <th width="40%" class="text-right">Value</th>
+      }
+      @for(m <- movements if(m.mode=="in")){   
+        @tr{
+          <td class="bge_address">@m.address</td>
+          <td search="@m.hash" class="bge_value bge_tx_in text-right  @(" bge_tx".when(m.hash != ""))">@m.value</td>
+        }
+      }  
+    }
+  }{
+    @table{
+      @tr{
+        <th width="60%">Outputs</th>
+        <th width="40%" class="text-right">Value</th>
+      }
+      @for(m <- movements if (m.mode=="out")){
+        @tr{
+          <td class="bge_address">@m.address</td>
+          <td search="@m.hash" class="text-right bge_tx_out bge_value @(" bge_tx".when(m.hash != ""))">@m.value</td>
+        }
+      }
+    }
+  }
+}
 }

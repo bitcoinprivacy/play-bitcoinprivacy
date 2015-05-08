@@ -5,67 +5,21 @@ import play.api.data.{Form}
 import play.api.data.validation._
 import play.api.data.Forms.{single, nonEmptyText, of}
 import play.api.data.format.Formats._
-import models.{Wallet,RichList,Stats}
-import org.bitcoinj.core.{Address,Transaction}
+import org.bitcoinj.core.{Address=>Ad,Transaction => Tx}
 import org.bitcoinj.params.MainNetParams
-
+import models._
+import play.api.libs.concurrent.Execution.Implicits._
 
 object Application extends Controller {
-
-
-  val addressForm = Form(
-    single("address" -> nonEmptyText(minLength=0, maxLength=64).verifying(chainConstraint))
-  )
-
-  val valueForm = Form(
-    single("value" -> of[Double])
-  )
- 
-  def chainConstraint: Constraint[String] = {
-    Constraint("constraint.addressCheck"){
-      string => 
-      {  if (string.toIntOpt.isDefined || isAddress(string) || isTx(string))
-        Valid
-        else
-          Invalid(Seq(ValidationError("Not found pattern")))
-      }
-    }
-  }
-
-  def hex2bytes(hex: String): Array[Byte] = {
-    hex.replaceAll("[^0-9A-Fa-f]", "").sliding(2, 2).toArray.map(Integer.parseInt(_, 16).toByte)
-  }
-
-  def isTx(hash: String): Boolean = {
-    return hex2bytes(hash).length == 32
-  }
-
-  def isBlock(block: String): Boolean =
-    block.toIntOpt.isDefined
-
-  def isAddress(address: String): Boolean = {
-    try{
-      new Address(MainNetParams.get, address);
-      true
-    }
-    catch { 
-      case _: Throwable => false
-    }
-  }
-
-  def index = Action.async {
-    for ( height <- Wallet.getBlockHeight )
-    yield Ok(views.html.index(height, addressForm, "", None))
-  }
-
+  
   def faq = Action {
     Ok(views.html.faq())
   }
  
   def explorer = Action.async {
     for {
-      height <- Wallet.getBlockHeight
-      blockList <- Wallet.getBlocks(25,height)
+      height <- Block.getBlockHeight
+      blockList <- Block.getBlocks(25,height)
 
     }
     yield
@@ -74,24 +28,27 @@ object Application extends Controller {
 
   def richList = Action.async {
     for {
-      blockHeight <- Wallet.getBlockHeight
-      addressList <- RichList.getRichList(blockHeight, "richest_addresses")
-      walletList <- RichList.getRichList(blockHeight, "richest_closures")
+      blockHeight <- Block.getBlockHeight
+      addressList <- Address.getRichList(blockHeight, "richest_addresses")
+      walletList <- Address.getRichList(blockHeight, "richest_closures")
+      addressInfo <- Address.getAddressesInfo(addressList)
+      walletInfo <- Address.getAddressesInfo(walletList)
     }
     yield
-       Ok(views.html.richlist(blockHeight, addressList zip walletList))
+       Ok(views.html.richlist(blockHeight, addressList zip walletList, addressInfo, walletInfo))
   }
 
-  def walletPost = Action.async { implicit request =>
+  def search = Action.async { implicit request =>
     addressForm.bindFromRequest.fold(
       {
         errors =>
-        for (blockHeight <- Wallet.getBlockHeight)
-          yield BadRequest(views.html.index(blockHeight,errors,"",None))
+        for {blockHeight <- Block.getBlockHeight
+            blocks <- Block.getBlocks(25, blockHeight)}
+          yield BadRequest(views.html.explorer(blockHeight, blocks, errors))
       },
       {
         case (string: String) => {
-         for (blockHeight <- Wallet.getBlockHeight)
+         for (blockHeight <- Block.getBlockHeight)
           yield
             if (isBlock(string))
               Redirect(routes.Application.block(string))
@@ -100,83 +57,93 @@ object Application extends Controller {
             else if (isTx(string))
               Redirect(routes.Application.transaction(string))
             else
-              Redirect(routes.Application.index)
+              Redirect(routes.Application.explorer)
         }
       }
     )
   }
 
-
   def wallet(address: String) = Action.async {
     for {
-      blockHeight <- Wallet.getBlockHeight
-      walletList <- Wallet.getWallet(address)
+      blockHeight <- Block.getBlockHeight
+      walletList <- Address.getWallet(address)
+      walletInfo <- Address.getAddressesInfo(walletList)
     }
-    yield
-      Ok(views.html.index(blockHeight, addressForm, address, Some(walletList)))
+    yield{
+      Ok(views.html.wallet(blockHeight, address,addressForm, walletInfo, Some(walletList)))
+    }
   }
 
   def stats = Action.async {
     for {
-      blockHeight <- Wallet.getBlockHeight
-      statsList <- Stats.getStats
+      blockHeight <- Block.getBlockHeight
+      statsList <- Stat.getStats
     }
     yield
       Ok(views.html.stats(blockHeight, statsList))
   }
 
   def block(blockHeight: String) = Action.async {
-    for {
-       txList <- Wallet.getTransactions(blockHeight)
-    }
-    yield
-      Ok(views.html.block(blockHeight, txList, addressForm))
+      for {
+        txList <- Transaction.getTransactions(blockHeight)
+        txInfo <- Transaction.getTransactionInfo(txList)
+      }
+      yield{
+        Ok(views.html.block(blockHeight, txList, txInfo, addressForm))    
+      }    
   }
 
   def transaction(txHash: String) = Action.async {
-    for {txoList <- Wallet.getMovements(txHash)}
-    yield
-      Ok(views.html.transaction(txHash, txoList, addressForm))
+    for {
+      txoList <- Transaction.getMovements(txHash)
+      txoInfo <- Transaction.getMovementsInfo(txoList)
+    }
+    yield{
+      Ok(views.html.transaction(txHash, txoList, txoInfo, addressForm))
+    }
   }
 
   def address(address: String) = Action.async {
-    val statsFuture = Wallet.getAddressMovements(address)
-
-
-    for {statsList <- statsFuture}
-    yield
-      Ok(views.html.address(address, statsList, addressForm))
+    for {
+      txList <- Transaction.getOutputs(address)
+      adInfo <- Transaction.getOutputsInfo(txList)
+    }
+    yield{
+      
+      Ok(views.html.address(address, txList, adInfo, addressForm))
+    }
   }
 
   def distribution(arg:String = "1") = Action.async {
     for {
-      blockHeight <- Wallet.getBlockHeight
-      ginis <- Stats.getGinis
+      blockHeight <- Block.getBlockHeight
+      ginis <- Stat.getGinis
       value = arg.toDoubleOpt.getOrElse(1.0)
-      (totalBitcoins, totalAdresses, percent) <- Stats.getDistribution(value, blockHeight)
+      distribution <- Stat.getDistribution(value, blockHeight)
     }
     yield 
-      Ok(views.html.distribution(blockHeight, ginis, totalBitcoins, percent, totalAdresses, value, valueForm))
+      Ok(views.html.distribution(blockHeight, ginis, distribution, value, valueForm))
   }
 
   def distributionPost = Action.async { implicit request =>
     valueForm.bindFromRequest.fold({
       errors =>  {
         for {
-          blockHeight <- Wallet.getBlockHeight
-          ginis <- Stats.getGinis
-          (totalBitcoins, totalAddresses, percent) <- Stats.getDistribution(1, blockHeight)
+          blockHeight <- Block.getBlockHeight
+          ginis <- Stat.getGinis
+          distribution <- Stat.getDistribution(1, blockHeight)
         }
-        yield BadRequest(views.html.distribution(blockHeight, ginis, totalBitcoins, percent, totalAddresses, 1, errors))}},
+        yield BadRequest(views.html.distribution(blockHeight, ginis, distribution, 1, errors))}
+      },
       {
         case (value: Double) =>
           for {
-          blockHeight <- Wallet.getBlockHeight
-          ginis <- Stats.getGinis
-          (totalBitcoins, totalAddresses, percent) <- Stats.getDistribution(value, blockHeight)
+            blockHeight <- Block.getBlockHeight
+            ginis <- Stat.getGinis
+            distribution <- Stat.getDistribution(value, blockHeight)
           }
-          yield Ok(views.html.distribution(blockHeight, ginis, totalBitcoins, percent, totalAddresses, value, valueForm))
-        }
+          yield Ok(views.html.distribution(blockHeight, ginis, distribution, value, valueForm))
+      }
     )
   }
 }

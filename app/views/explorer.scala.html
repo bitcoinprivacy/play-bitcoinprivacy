@@ -1,36 +1,33 @@
-@(blockHeight:Int, blocks: List[(String, Int,Int)],addressForm:play.api.data.Form[String])
-@import b3.vertical.fieldConstructor  // Declares a vertical field constructor as default
-
+@(blockHeight:Int, blocks: List[Block],addressForm:play.api.data.Form[String])
 
 @main("Bitcoin Graph Explorer", "explorer"){
-  <div class="row">
-    <div class="col-md-12">
-      <p>With the Bitcoin Graph Explorer you can explore the blocks,
-      transactions and addresses up to block <span class="bge_block">@blockHeight</span></p>
-    </div>
-  </div>
-  @search_form(addressForm, "Bitcoin Address, block height or tx hash", "Please enter a search")
-  <div class="row">
-    <div class="col-md-12">
-      <p></p>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-12">
-    <table class="table table-striped table-hover">
-      <tr>
-        <td width="20%">Height</td>
-        <td width="60%">Hash</td>
-        <td width="20%" class="text-right">Tx</td>
-      </tr>
-      @for((hash,height,txCount) <- blocks){   
-        <tr class="">
-          <td width="20%" class="bge_block">@height</td>
-          <td width="60%" class="bge_hash">@hash</td>
-          <td width="20%" class="text-right">@txCount</span></td>
-        </tr>
+  @row{<p>Welcome to bitcoin privacy. Enter a bitcoin address to check for other addresses that seem to belong to the same wallet</p>}
+  @row{<p>With the Bitcoin Graph Explorer you can also explore the blocks, transactions and addresses according to the blockchain up to block @blockHeight</p>}
+
+  @search_form(addressForm)
+  
+  @row{
+    @table{
+      @tr{
+        <th>Blocks</th>
+        <th></<th>
+        <th></<th>
+        <th class="text-right">@unitButtons()</th>
       }
-      </table>
-    </div>
-  </div>
+      @tr{
+        <th width="20%">Height</th>
+        <th width="50%">Hash</th>
+        <th width="10%" class="text-right">Tx</th>
+        <th width="20%" class="text-right">Value</th>
+      }
+      @for(block <- blocks){   
+        @tr{
+          <td class="bge_block">@block.height</td>
+          <td class="bge_hash">@block.hash</td>
+          <td class="text-right">@block.tx</td>
+          <td class="bge_value text-right">@block.value</td>
+        }
+      }
+    } 
+  }
 }

@@ -2,7 +2,8 @@
 .bge_tx,
 .bge_hash,
 .bge_value
-.bge_blocke{
+.bge_blocke,
+.elliptic{
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
