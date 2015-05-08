@@ -7,17 +7,15 @@ import play.api.data.{Form}
 import play.api.data.validation._
 import play.api.data.Forms.{single, nonEmptyText, of}
 import play.api.data.format.Formats._
+import play.api.cache.Cached
 
 package object controllers{
   implicit def current = play.api.Play.current
 
   implicit def global = scala.concurrent.ExecutionContext.Implicits.global  
  
-  def getFromCache[A: ClassTag](name: String)(a: =>  A) = {
-    Cache.getOrElse(name){
-      Cache.set(name, a);
-      a
-    }
+  def getFromCache[A: ClassTag](name: String)(a:play.api.mvc.EssentialAction) = {
+    Cached(name){a}
   }
   
   val addressForm = Form(

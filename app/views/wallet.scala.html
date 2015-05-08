@@ -1,5 +1,5 @@
 @(blockHeight:Int,inputAddress:String,addressForm:play.api.data.Form[String],info:AddressesInfo,addressesOption:Option[List[Address]])
-
+@println("loading wallets")
 @main("Wallet", "explorer"){
   @row{ <p>Wallet of address</p>
   @row{<p class="bge_address">@inputAddress</p>}
@@ -18,7 +18,7 @@
         }
         @tr{
           <td>Balance</td>
-          <td class="text-right">@info.balance</td>
+          <td class="bge_value text-right">@info.balance</td>
         }
       }
     }
