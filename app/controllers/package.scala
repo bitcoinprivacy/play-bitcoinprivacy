@@ -14,6 +14,8 @@ package object controllers{
 
   implicit def global = scala.concurrent.ExecutionContext.Implicits.global  
  
+
+
   def getFromCache[A: ClassTag](name: String)(a:play.api.mvc.EssentialAction) = {
     Cached(name){a}
   }
