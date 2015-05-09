@@ -1,4 +1,4 @@
-@(blockHeight:Int,inputAddress:String,addressForm:play.api.data.Form[String],info:AddressesInfo,addressesOption:Option[List[Address]])
+@(blockHeight:Int,inputAddress:String,addressForm:play.api.data.Form[String],info:AddressesInfo,page:Pagination,addressesOption:Option[List[Address]])
 
 @main("Wallet", "explorer"){
   @row{ <p>Wallet of address</p>}
@@ -35,5 +35,6 @@
         }
       }
     }
+    @pagination(page,"/wallet/"+inputAddress)
   }
 }

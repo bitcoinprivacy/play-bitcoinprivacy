@@ -1,11 +1,11 @@
-@(txHash: String, movements:List[Movement], info: MovementsInfo,addressForm:play.api.data.Form[String])
+@(txHash: String, movements :(List[Movement], List[Movement]), info: MovementsInfo, page: Pagination, addressForm:play.api.data.Form[String])
 
 @main("Transaction", "explorer"){
   @row{<p>List of inputs and outputs of the transaction</p>}
   @row{<p>@txHash</p>}
   @search_form(addressForm)  
-  @not_found("transaction", movements.length==0)
-  @if(movements.length>0){
+  @not_found("transaction", movements._1.length==0)
+  @if(movements._1.length>0){
     @row{
       @table{
         @tr {
@@ -48,7 +48,7 @@
         <th width="60%">Inputs</th>
         <th width="40%" class="text-right">Value</th>
       }
-      @for(m <- movements if(m.mode=="in")){   
+      @for(m <- movements._1){   
         @tr{
           <td class="bge_address">@m.address</td>
           <td search="@m.hash" class="bge_value bge_tx_in text-right  @(" bge_tx".when(m.hash != ""))">@m.value</td>
@@ -61,7 +61,7 @@
         <th width="60%">Outputs</th>
         <th width="40%" class="text-right">Value</th>
       }
-      @for(m <- movements if (m.mode=="out")){
+      @for(m <- movements._2){
         @tr{
           <td class="bge_address">@m.address</td>
           <td search="@m.hash" class="text-right bge_tx_out bge_value @(" bge_tx".when(m.hash != ""))">@m.value</td>

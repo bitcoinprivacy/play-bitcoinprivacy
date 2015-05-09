@@ -1,4 +1,4 @@
-@(address:String, outputs:List[Output], info: OutputsInfo, addressForm:play.api.data.Form[String])
+@(address:String, outputs:List[Output], info: OutputsInfo, page: Pagination, addressForm:play.api.data.Form[String])
 
 @main("Address", "explorer"){
   @row{<p>Transaction outputs with the address</p>}  
@@ -26,11 +26,11 @@
         }
         @tr{
           <td>Total outputs</td>
-          <td class="text-right">@info.outputs</td>
+          <td class="text-right">@info.inputs</td>
         }
         @tr{
           <td>Unspent outputs</td>
-          <td class="text-right">@info.inputs</td>
+          <td class="text-right">@(info.inputs - info.outputs)</td>
         }
         @for( add <- address.split(",") if (address.split(",").length>1)){
           @tr{
@@ -45,6 +45,7 @@
           @tr{<th>Transaction outputs (TxOs)</th>}
       }
     }
+    
     @row{
       
       @table{
@@ -69,6 +70,8 @@
           }
         }
       }
+
     }
+    @pagination(page, "/address/"+address)
   }
 }

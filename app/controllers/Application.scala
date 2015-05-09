@@ -10,10 +10,16 @@ import org.bitcoinj.params.MainNetParams
 import models._
 import play.api.libs.concurrent.Execution.Implicits._
 
+//case class Pagination(current: Int, total: Int)
+
 object Application extends Controller {
-  
-  def faq = Action {
-    Ok(views.html.faq())
+  // cache block height and let a external process ( bge ) change it
+  // model calls should use limit and a paginator....
+
+  def faq = getFromCache("faq"){
+    Action {
+        Ok(views.html.faq())
+    }    
   }
  
   def explorer = getFromCache("explorer"){
@@ -35,11 +41,9 @@ object Application extends Controller {
         blockHeight <- Blocks.getBlockHeight
         addressList <- Addresses.getRichList(blockHeight, "richest_addresses")
         walletList <- Addresses.getRichList(blockHeight, "richest_closures")
-        addressInfo <- Addresses.getAddressesInfo(addressList)
-        walletInfo <- Addresses.getAddressesInfo(walletList)
       }
       yield{
-        Ok(views.html.richlist(blockHeight, addressList zip walletList, addressInfo, walletInfo))
+        Ok(views.html.richlist(blockHeight, addressList zip walletList))
       }
     }
   }
@@ -57,7 +61,7 @@ object Application extends Controller {
          for (blockHeight <- Blocks.getBlockHeight)
           yield
             if (isBlock(string))
-              Redirect(routes.Application.block(string))
+              Redirect(routes.Application.block(string, 1))
             else if (isAddress(string))
               Redirect(routes.Application.wallet(string))
             else if (isTx(string))
@@ -69,16 +73,16 @@ object Application extends Controller {
     )
   }
 
-  def wallet(address: String) = getFromCache("wallet."+address){
+  def wallet(address: String, page: Int) = getFromCache("wallet."+page+"."+address){
     Action.async {
       for {
         blockHeight <- Blocks.getBlockHeight
-        walletList <- Addresses.getWallet(address)
-        walletInfo <- Addresses.getAddressesInfo(walletList)
+        walletList <- Addresses.getAddresses(address,page)
+        walletInfo <- Addresses.getAddressesInfo(address)
+        walletPage <- Addresses.getAddressesPage(address, page)
       }
       yield{
-        println("generamos views")
-        Ok(views.html.wallet(blockHeight, address,addressForm, walletInfo, Some(walletList)))
+        Ok(views.html.wallet(blockHeight, address,addressForm, walletInfo,walletPage, Some(walletList)))
       }
     }
   }
@@ -94,38 +98,42 @@ object Application extends Controller {
     }
   }
   
-  def block(blockHeight: String) = getFromCache("block."+blockHeight){
+  def block(blockHeight: String, page: Int) = getFromCache("block."+page+"."+blockHeight){
+    val height = stringToInt(blockHeight)
     Action.async {
       for {
-        txList <- Transactions.getTransactions(blockHeight)
-        txInfo <- Transactions.getTransactionInfo(txList)
+        txList <- Transactions.getTransactions(height, page)
+        txInfo <- Transactions.getTransactionInfo(height)
+        txPage <- Transactions.getTransactionPage(height, page)
       }
       yield{
-        Ok(views.html.block(blockHeight, txList, txInfo, addressForm))
+        Ok(views.html.block(height, txList, txPage, txInfo, addressForm))
       }
     }
   }
 
-  def transaction(txHash: String) = getFromCache("transaction."+txHash){
+  def transaction(txHash: String, page: Int) = getFromCache("transaction."+page+"."+txHash){
     Action.async {
       for {
-        txoList <- Transactions.getMovements(txHash)
-        txoInfo <- Transactions.getMovementsInfo(txoList)
+        txoList <- Movements.getMovements(txHash, page)
+        txoInfo <- Movements.getMovementsInfo(txHash)
+        txoPage <- Movements.getMovementsPage(txHash, page)
       }
       yield{
-        Ok(views.html.transaction(txHash, txoList, txoInfo, addressForm))
+        Ok(views.html.transaction(txHash, txoList, txoInfo, txoPage,  addressForm))
       }
     }
   }
 
-  def address(address: String) = getFromCache("address."+address){
+  def address(address: String, page: Int) = getFromCache("address."+page+"."+address){
     Action.async {
       for {
-        txList <- Transactions.getOutputs(address)
-        adInfo <- Transactions.getOutputsInfo(txList)
+        txList <- Outputs.getOutputs(address,page)
+        txInfo <- Outputs.getOutputsInfo(address)
+        txPage <- Outputs.getOutputsPage(address,page)
       }
       yield{
-        Ok(views.html.address(address, txList, adInfo, addressForm))
+        Ok(views.html.address(address, txList, txInfo, txPage, addressForm))
       }
     }
   }

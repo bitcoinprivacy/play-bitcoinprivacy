@@ -1,11 +1,11 @@
-@(blockHeight:String, list: List[Transaction],info: TransactionInfo,addressForm:play.api.data.Form[String])
-
+@(height: Int, list: List[Transaction], page: Pagination, info: TransactionInfo, form:Form[String])
 
 @main("Block", "explorer"){
-  @row{<p>Transactions from block @blockHeight</p>}
-  @search_form(addressForm)
+  @row{<p>Transactions from block @height</p>}
+  @search_form(form)
   @not_found("block", list.length==0)
   @if(list.length>0){
+    
     @row{
       @table{
         @tr{
@@ -21,22 +21,23 @@
           <td class="text-right bge_value">@info.value</td>
         }
       }
-    }
-  }
-   
-     
-  @row{
-    @table{
-      @tr{
-        <th width="75%">Transaction</th>
-        <th width="25%" class="text-right">Value</th>
-      }
-      @for(tx <- list){   
+    } 
+  
+    @row{
+      @table{
         @tr{
-          <td class="bge_tx">@tx.hash</td>
-          <td class="text-right bge_value">@tx.value</td>
-        }
-      }  
+          <th width="75%">Transaction</th>
+          <th width="25%" class="text-right">Value</th>
+        } 
+        @for(tx <- list){   
+          @tr{
+            <td class="bge_tx">@tx.hash</td>
+            <td class="text-right bge_value">@tx.value</td>
+          }
+        }  
+      }
     }
+    
+    @pagination(page, "/block/"+height)          
   }
 }

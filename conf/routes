@@ -1,13 +1,13 @@
+
 GET  /favicon.ico   controllers.Assets.at(path="/public", file="img/bitcoin.png")
 
 GET  /assets/*file        controllers.Assets.at(path="/public", file)
 
 GET     /                           controllers.Application.explorer
 
-
 POST    /search                       controllers.Application.search
 
-GET    /wallet/:address                      controllers.Application.wallet(address: String)
+GET    /wallet/:address                      controllers.Application.wallet(address: String, page: Int ?=1)
 
 GET    /richlist             controllers.Application.richList
 
@@ -21,8 +21,8 @@ GET    /faq                     controllers.Application.faq
 
 GET    /explorer               controllers.Application.explorer
 
-GET   /block/:height          controllers.Application.block(height: String) 
+GET  /block/:height                   controllers.Application.block(height: String, page:Int ?= 1)
 
-GET   /transaction/:hash      controllers.Application.transaction(hash: String)
+GET   /transaction/:hash      controllers.Application.transaction(hash: String, page: Int?=1)
 
-GET    /address/:hash         controllers.Application.address(hash: String)
+GET    /address/:hash         controllers.Application.address(hash: String, page: Int?=1)

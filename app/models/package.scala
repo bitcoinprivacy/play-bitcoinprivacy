@@ -1,3 +1,4 @@
+
 import org.bitcoinj.params.MainNetParams                                                                                                              
 import scala.reflect.ClassTag
 import scala.util.control.Exception._                                                                                                                       
@@ -5,16 +6,27 @@ import org.bitcoinj.core.{Address => Add}
 import org.bitcoinj.core.AddressFormatException                                                                                                              
 import anorm._
 import anorm.SqlParser._
+import play.api.cache.Cache
+import scala.concurrent.Future
 
 package object models {
+  implicit def current = play.api.Play.current
 
+  implicit def global = scala.concurrent.ExecutionContext.Implicits.global  
+  
   type Date = java.util.Date
-
+  def pageSize = 10 
   def DB = play.api.db.DB
 
   def Logger = play.api.Logger
 
   type DateTime = org.joda.time.DateTime
+
+  def cached(name: String)(info: => Future[AddressesInfo]) = { 
+    val a = Cache.getOrElse[Future[AddressesInfo]](name,24*60*60){info}
+    Cache.set(name, a)
+    a
+  }
 
   import java.util.TimeZone
 
@@ -42,6 +54,8 @@ package object models {
     ret
   }
 
+  //case class Pagination(current: Int, total: Int)
+
   def asDateTime(date:Date) = 
     new DateTime(date)
 
@@ -61,10 +75,7 @@ package object models {
       None
  
 
-  implicit def current = play.api.Play.current
-
-  implicit def global = scala.concurrent.ExecutionContext.Implicits.global
-
+  
   implicit class StringImprovements(val s: String) {
     def toIntOpt = catching(classOf[NumberFormatException]) opt s.toInt
     def toDoubleOpt = catching(classOf[NumberFormatException]) opt s.toDouble

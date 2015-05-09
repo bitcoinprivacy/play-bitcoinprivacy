@@ -1,23 +1,9 @@
-@(blockHeight:Int, richestList:List[(Address, Address)], addInfo: AddressesInfo, wallInfo: AddressesInfo)
+@(blockHeight:Int, richestList:List[(Address, Address)])
 
 @main("Bitcoin (Partial Wallet) Rich List", "richlist"){
   @row{<p>Behold the top 1000 richest standalone addresses versus the top 1000 partial wallets, up to block @blockHeight!</p>}
-  @row{
-    @table{
-      @tr{
-        <th>Summary</th>
-        <th class="text-right">@unitButtons()</th>
-      }
-      @tr{
-        <td>Total in 1000 addresses</td>
-        <td class="text-right bge_value">@addInfo.balance</td>
-      }
-      @tr{
-        <td>Total in 1000 wallets</td>
-        <td class="text-right bge_value">@wallInfo.balance</td>
-      }
-    }
-  }
+  @row{<p class="text-right">@unitButtons()</p>}
+ 
   @row{
     @table{
       @tr{

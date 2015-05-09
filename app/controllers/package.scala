@@ -7,18 +7,19 @@ import play.api.data.{Form}
 import play.api.data.validation._
 import play.api.data.Forms.{single, nonEmptyText, of}
 import play.api.data.format.Formats._
-import play.api.cache.Cached
+import play.api.cache.Cache
+import models._
 
 package object controllers{
   implicit def current = play.api.Play.current
 
   implicit def global = scala.concurrent.ExecutionContext.Implicits.global  
- 
 
-
-  def getFromCache[A: ClassTag](name: String)(a:play.api.mvc.EssentialAction) = {
-    Cached(name){a}
+  def getFromCache(name: String)(a: => play.api.mvc.EssentialAction) = {
+    Cache.getOrElse(name, 24*60*60){a}
   }
+
+  
   
   val addressForm = Form(
     single("address" -> nonEmptyText(minLength=0, maxLength=64).verifying(chainConstraint))

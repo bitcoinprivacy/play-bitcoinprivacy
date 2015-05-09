@@ -6,7 +6,10 @@ import scala.concurrent.Future
 import org.bitcoinj.params.MainNetParams
 import org.bitcoinj.core.AddressFormatException
 
-case class Block(hash: String, height: Int, tx: Long, value: Long)
+abstract class Model
+abstract class Info
+case class Block(hash: String, height: Int, tx: Long, value: Long) extends Model
+case class Pagination(current: Int, total: Int, size: Int)
 
 object Blocks{
    def getBlocks(number: Int, blockHeight: Int) = Future {
