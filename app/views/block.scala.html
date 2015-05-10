@@ -1,4 +1,4 @@
-@(height: Int, list: List[Transaction], page: Pagination, info: TransactionInfo, form:Form[String])
+@(height: Int, list: List[Transaction], page: Pagination, info: TransactionInfo, form:Form[String], current: Int)
 
 @main("Block", "explorer"){
   @row{<p>Transactions from block @height</p>}
@@ -38,6 +38,6 @@
       }
     }
     
-    @pagination(page, "/block/"+height)          
+    @pagination(page, "/block/"+height, current)          
   }
 }

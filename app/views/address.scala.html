@@ -1,4 +1,4 @@
-@(address:String, outputs:List[Output], info: OutputsInfo, page: Pagination, addressForm:play.api.data.Form[String])
+@(address:String, outputs:List[Output], info: OutputsInfo, page: Pagination, addressForm:play.api.data.Form[String], current: Int)
 
 @main("Address", "explorer"){
   @row{<p>Transaction outputs with the address</p>}  
@@ -72,6 +72,6 @@
       }
 
     }
-    @pagination(page, "/address/"+address)
+    @pagination(page, "/address/"+address, current)
   }
 }

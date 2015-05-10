@@ -6,10 +6,14 @@ import org.bitcoinj.core.{Address => Add}
 import org.bitcoinj.core.AddressFormatException                                                                                                              
 import anorm._
 import anorm.SqlParser._
-import play.api.cache.Cache
+import play.api.cache.{Cache, Cached => Cacheed}
 import scala.concurrent.Future
+import scala.concurrent._
+import scala.concurrent.duration._
 
 package object models {
+  def cache_timeout = 60*10
+  
   implicit def current = play.api.Play.current
 
   implicit def global = scala.concurrent.ExecutionContext.Implicits.global  
@@ -21,11 +25,12 @@ package object models {
   def Logger = play.api.Logger
 
   type DateTime = org.joda.time.DateTime
-
-  def cached(name: String)(info: => Future[AddressesInfo]) = { 
-    val a = Cache.getOrElse[Future[AddressesInfo]](name,24*60*60){info}
-    Cache.set(name, a)
-    a
+  // TODO: get a generic type for all infos
+  
+  def Cached[A: ClassTag](name: String)(info: => A) = Future {
+    val label = Await.result(Blocks.getBlockHeight, Duration(50, "millis")) + "."+name
+    println("retrieving data from cache: " + label)
+    Cache.getOrElse(label){info}
   }
 
   import java.util.TimeZone

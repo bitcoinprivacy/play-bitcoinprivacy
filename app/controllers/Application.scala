@@ -5,28 +5,27 @@ import play.api.data.{Form}
 import play.api.data.validation._
 import play.api.data.Forms.{single, nonEmptyText, of}
 import play.api.data.format.Formats._
-import org.bitcoinj.core.{Address=>Ad,Transaction => Tx}
+import org.bitcoinj.core.{AddressFormatException, Address=>Ad,Transaction => Tx}
 import org.bitcoinj.params.MainNetParams
 import models._
 import play.api.libs.concurrent.Execution.Implicits._
-
-//case class Pagination(current: Int, total: Int)
+import scala.concurrent.duration._
+import scala.concurrent.Future
+import play.api.cache._
 
 object Application extends Controller {
-  // cache block height and let a external process ( bge ) change it
-  // model calls should use limit and a paginator....
 
-  def faq = getFromCache("faq"){
+  def faq = Cached("faq"){
     Action {
         Ok(views.html.faq())
     }    
   }
  
-  def explorer = getFromCache("explorer"){
+  def explorer = Cached("explorer"){
     Action.async {
       for {
         height <- Blocks.getBlockHeight
-        blockList <- Blocks.getBlocks(25,height)
+        blockList <- Blocks.getBlocks(10,height)
 
       }
       yield{
@@ -35,7 +34,7 @@ object Application extends Controller {
     }
   }
 
-  def richList = getFromCache("richList"){
+  def richList = Cached("richList"){
     Action.async {
       for {
         blockHeight <- Blocks.getBlockHeight
@@ -57,9 +56,9 @@ object Application extends Controller {
           yield BadRequest(views.html.explorer(blockHeight, blocks, errors))
       },
       {
-        case (string: String) => {
-         for (blockHeight <- Blocks.getBlockHeight)
-          yield
+        case (string: String) => 
+          for (blockHeight <- Blocks.getBlockHeight)
+          yield     
             if (isBlock(string))
               Redirect(routes.Application.block(string, 1))
             else if (isAddress(string))
@@ -67,27 +66,36 @@ object Application extends Controller {
             else if (isTx(string))
               Redirect(routes.Application.transaction(string))
             else
-              Redirect(routes.Application.explorer)
-        }
-      }
+              Redirect(routes.Application.explorer)                
+      }      
     )
   }
 
-  def wallet(address: String, page: Int) = getFromCache("wallet."+page+"."+address){
-    Action.async {
-      for {
-        blockHeight <- Blocks.getBlockHeight
-        walletList <- Addresses.getAddresses(address,page)
-        walletInfo <- Addresses.getAddressesInfo(address)
-        walletPage <- Addresses.getAddressesPage(address, page)
+  def wallet(address: String, page: Int) =
+  {
+    if (isAddress(address)){
+      Cached("wallet."+page+"."++address) {
+        Action.async {
+          for {
+            blockHeight <- Blocks.getBlockHeight
+            representant <- Addresses.getRepresentant(hexAddress(address))
+            walletList <- Addresses.getAddresses(representant,page)
+            walletInfo <- Addresses.getAddressesInfo(representant)
+            walletPage <- Addresses.getAddressesPage(representant, page)
+          }
+          yield{
+            Ok(views.html.wallet(blockHeight, address,addressForm, walletInfo,walletPage, Some(walletList), page))
+          }
+        }
       }
-      yield{
-        Ok(views.html.wallet(blockHeight, address,addressForm, walletInfo,walletPage, Some(walletList)))
-      }
-    }
+    } else{
+      wrong("Bad request: " + address + " is not a valid address")
+    }    
   }
+
+  def wrong(message: String) = Action.async(Future(Ok(views.html.wrong_search(message))))
   
-  def stats = getFromCache("stats"){
+  def stats = Cached("stats"){
     Action.async {
       for {
         blockHeight <- Blocks.getBlockHeight
@@ -98,58 +106,76 @@ object Application extends Controller {
     }
   }
   
-  def block(blockHeight: String, page: Int) = getFromCache("block."+page+"."+blockHeight){
-    val height = stringToInt(blockHeight)
-    Action.async {
-      for {
-        txList <- Transactions.getTransactions(height, page)
-        txInfo <- Transactions.getTransactionInfo(height)
-        txPage <- Transactions.getTransactionPage(height, page)
+  def block(height: String, page: Int) = Cached("block."+page+"."+height){ 
+    if (isBlock(height)) {
+      Action.async {
+        for {
+          txList <- Transactions.getTransactions(height.toInt, page)
+          txInfo <- Transactions.getTransactionInfo(height.toInt)
+          txPage <- Transactions.getTransactionPage(height.toInt, page)
+        }
+        yield{
+          Ok(views.html.block(height.toInt, txList, txPage, txInfo, addressForm,page))
+        }
       }
-      yield{
-        Ok(views.html.block(height, txList, txPage, txInfo, addressForm))
-      }
+    }
+    else{
+      wrong("Invalid block number " + height)
     }
   }
 
-  def transaction(txHash: String, page: Int) = getFromCache("transaction."+page+"."+txHash){
-    Action.async {
-      for {
-        txoList <- Movements.getMovements(txHash, page)
-        txoInfo <- Movements.getMovementsInfo(txHash)
-        txoPage <- Movements.getMovementsPage(txHash, page)
+  def transaction(txHash: String, page: Int) = Cached("transaction."+page+"."+txHash){
+    if (isTx(txHash)){
+      Action.async {
+        for {
+          txoList <- Movements.getMovements(txHash, page)
+          txoInfo <- Movements.getMovementsInfo(txHash)
+          txoPage <- Movements.getMovementsPage(txHash, page)
+        }
+        yield{
+          Ok(views.html.transaction(txHash, txoList, txoInfo, txoPage,  addressForm, page))
+        }
       }
-      yield{
-        Ok(views.html.transaction(txHash, txoList, txoInfo, txoPage,  addressForm))
-      }
+    } else{
+      wrong("Bad request: " + txHash + " is not a valid hash")
     }
   }
 
-  def address(address: String, page: Int) = getFromCache("address."+page+"."+address){
-    Action.async {
-      for {
-        txList <- Outputs.getOutputs(address,page)
-        txInfo <- Outputs.getOutputsInfo(address)
-        txPage <- Outputs.getOutputsPage(address,page)
+  def address(address: String, page: Int) = Cached("address."+page+"."+address){
+    if (isAddress(address)){
+      Action.async {
+        for {
+          txList <- Outputs.getOutputs(hexAddress(address),page)
+          hex = hexAddress(address)
+          txInfo <- Outputs.getOutputsInfo(hex)
+          txPage <- Outputs.getOutputsPage(hex,page)
+        }
+        yield{
+          Ok(views.html.address(address, txList, txInfo, txPage, addressForm, page))
+        }
       }
-      yield{
-        Ok(views.html.address(address, txList, txInfo, txPage, addressForm))
-      }
+    } else{
+      wrong("Bad request: " + address + " is not a valid address")
     }
   }
 
-  def distribution(arg:String = "1") = getFromCache("distribution."+arg){
-    val value = arg.toDoubleOpt.getOrElse(1.0)
-    Action.async {
-      for {
-        blockHeight <- Blocks.getBlockHeight
-        ginis <- Stats.getGinis
-        distribution <- Stats.getDistribution(value, blockHeight)
+  def distribution(value: String = "1.0") = Cached("distribution."+value){
+    if (isPositiveDouble(value)){
+      Action.async {
+        for {
+          blockHeight <- Blocks.getBlockHeight
+          ginis <- Stats.getGinis
+          distribution <- Stats.getDistribution(value.toDouble, blockHeight)
+        }
+        yield{
+          Ok(views.html.distribution(blockHeight, ginis, distribution, value.toDouble, valueForm))
+        }
       }
-      yield{
-        Ok(views.html.distribution(blockHeight, ginis, distribution, value, valueForm))
-      }
+    }else{
+        wrong("Value " + value + " is not a positive double")
+     
     }
+
   }
 
   def distributionPost = Action.async { implicit request =>
@@ -158,17 +184,17 @@ object Application extends Controller {
         for {
           blockHeight <- Blocks.getBlockHeight
           ginis <- Stats.getGinis
-          distribution <- Stats.getDistribution(1, blockHeight)
+          distribution <- Stats.getDistribution(1.0, blockHeight)
         }
-        yield BadRequest(views.html.distribution(blockHeight, ginis, distribution, 1, errors))}
+        yield BadRequest(views.html.distribution(blockHeight, ginis, distribution, 1.0, errors))}
       },
       {
-        case (value: Double) =>
+        case (value: String) =>
           for {
             blockHeight <- Blocks.getBlockHeight
           }
           yield
-            Redirect(routes.Application.distribution(value.toString))
+            Redirect(routes.Application.distribution(value))
       }
     )
   }

@@ -13,7 +13,7 @@ GET    /richlist             controllers.Application.richList
 
 GET    /stats             controllers.Application.stats
 
-GET    /distribution/:value      controllers.Application.distribution(value)
+GET    /distribution/:value      controllers.Application.distribution(value: String)
 
 POST   /distribution      controllers.Application.distributionPost
 
@@ -26,3 +26,4 @@ GET  /block/:height                   controllers.Application.block(height: Stri
 GET   /transaction/:hash      controllers.Application.transaction(hash: String, page: Int?=1)
 
 GET    /address/:hash         controllers.Application.address(hash: String, page: Int?=1)
+

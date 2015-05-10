@@ -1,11 +1,11 @@
-@(txHash: String, movements :(List[Movement], List[Movement]), info: MovementsInfo, page: Pagination, addressForm:play.api.data.Form[String])
+@(txHash: String, movements :(List[Movement], List[Movement]), info: MovementsInfo, page: Pagination, addressForm:play.api.data.Form[String], current: Int)
 
 @main("Transaction", "explorer"){
   @row{<p>List of inputs and outputs of the transaction</p>}
   @row{<p>@txHash</p>}
   @search_form(addressForm)  
-  @not_found("transaction", movements._1.length==0)
-  @if(movements._1.length>0){
+  @not_found("transaction", movements._1.length+movements._2.length==0)
+  @if(movements._1.length+movements._2.length>0){
     @row{
       @table{
         @tr {
@@ -69,5 +69,6 @@
       }
     }
   }
+   @pagination(page,"/transaction/"+txHash, current)
 }
 }

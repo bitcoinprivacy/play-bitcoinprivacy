@@ -10,117 +10,58 @@ case class AddressesInfo(count: Int, balance: Long) extends Info
 
 object Addresses  
 { 
-  def getRichList(blockHeight: Int, table: String) = Future {
-
+  def getRichList(blockHeight: Int, table: String) = Cached("richlist."+table+"."+blockHeight){
+      val query = "select hash, ifnull(balance,0) as balance from "+table+" where hash is not null and  block_height = (select max(block_height) from "+table+");"
+      println(query)
       DB.withConnection { implicit connection =>
-        (SQL(
-          """
-          select hash, ifnull(balance,0) as balance from """+table+""" where 
-           hash is not null and  block_height = (select max(block_height) from """+table+""");
-          """
-        )() map {row => Address(hashToAddress(row[Option[Array[Byte]]]("hash").getOrElse(Array.empty)), row[Long]("balance"))}).toList}
+        (SQL(query)() map {row => Address(hashToAddress(row[Option[Array[Byte]]]("hash").getOrElse(Array.empty)), row[Long]("balance"))}).toList}
+
   }
 
-  def getAddressesPage(address:String, page: Int) = Future{
-        try{
-      val hex = hexAddress(address)
+  def getAddressesPage(hex:String, page: Int) = Cached("addresses.page."+hex){
 
-        DB.withConnection { implicit connection =>
-          (SQL("""
-          select floor(("""+(pageSize-1)+""" + count(*))/"""+pageSize+""") as c from (
-            SELECT
-              hash as hash, balance
-            FROM addresses 
-            WHERE balance > 0 and representant = 
-            (SELECT representant FROM addresses where hash=X'"""+hex+"""')
-               UNION
-            SELECT address as hash, sum(value) as balance 
-              FROM movements where 
-               address is not null and
-              spent_in_transaction_hash is null and address=X'"""+hex+"""' 
-              UNION
-           SELECT address as hash , 0 from movements where address=X'"""+hex+"""' 
-          )   
-          where hash is not null;
-          
-         """)() map {row => Pagination(
-           page,
-           row[Int]("c"),
-           pageSize
-         )}).head
+      val query = "select floor(("+(pageSize-1)+" + count(*))/"+pageSize+") as c from (SELECT hash as hash, balance FROM addresses WHERE balance > 0 and representant = X'"+hex+"') m "
+      println(query)
+      DB.withConnection { implicit connection =>
+        (SQL(query)() map {row => Pagination(page, row[Int]("c"), pageSize)}).head
       }
-    } catch{
-      case _: Throwable => 
-        Pagination(0,0,0)
-    }
+
   }
 
-  def getAddressesInfo(address: String): Future[AddressesInfo] = cached("address.info."+address){ 
-    Future{
-      try{
-        val hex = hexAddress(address)
+  def getAddressesInfo(hex: String): Future[AddressesInfo] = Cached("addresses.info."+hex){ 
 
-        DB.withConnection { implicit connection =>
-          (SQL("""
-          select count(distinct(hash)) as c, sum(balance) as v from (
-            SELECT
-              hash as hash, balance
-            FROM addresses 
-            WHERE balance > 0 and representant = 
-            (SELECT representant FROM addresses where hash=X'"""+hex+"""')
-               UNION
-            SELECT address as hash, sum(value) as balance 
-              FROM movements where 
-               address is not null and
-              spent_in_transaction_hash is null and address=X'"""+hex+"""' 
-              UNION
-           SELECT address as hash , 0 from movements where address=X'"""+hex+"""' 
-          )   
-          where hash is not null;
-          
-         """)() map {row => AddressesInfo(
-           row[Int]("c"),
-           row[Long]("v")
-         )}).head
-        }
-      } catch{
-        case _: Throwable =>
-          AddressesInfo(0,0)
-      }
-     }
+      val query = "select count(*) as c, ifnull(sum(ifnull(m.balance,0)),0) as v from (SELECT hash as hash, balance FROM addresses WHERE balance > 0 and representant = X'"+hex+"') m  "
+      println(query)
+      DB.withConnection { implicit connection =>
+        (SQL(query)() map {row => AddressesInfo(
+          row[Int]("c"),
+          row[Long]("v")
+        )}).head
+      }  
+
   }
 
-  def getAddresses(address:String,page: Int) = Future {
-    
-    try{
-      val hex = hexAddress(address)
+  def getRepresentant(hex:String) = Cached("representant."+hex){
 
-        DB.withConnection { implicit connection =>
-          (SQL("""
-          select hash, balance as balance from (
-            SELECT
-              hash as hash, balance
-            FROM addresses 
-            WHERE balance > 0 and representant = 
-            (SELECT representant FROM addresses where hash=X'"""+hex+"""')
-               UNION
-            SELECT address as hash, sum(value) as balance 
-              FROM movements where 
-               address is not null and
-              spent_in_transaction_hash is null and address=X'"""+hex+"""' 
-              UNION
-           SELECT address as hash , 0 from movements where address=X'"""+hex+"""' 
-          )   
-          where hash is not null """+
-          " group by hash limit "+(page-1)+"*"+pageSize+","+pageSize
-          )() map {row => Address(
-           hashToAddress(row[Array[Byte]]("hash")), 
-           row[Option[Long]]("balance").getOrElse(0L)
-         )}).toList
-
+      val query ="SELECT hex(representant) as representant FROM addresses where hash=X'"+hex+"' union select '"+hex+"' as representant"
+      println(query)
+      DB.withConnection { implicit connection =>
+        (SQL(query)() map {row =>
+          println(row[String]("representant")); row[String]("representant")
+        }).head
       }
-    } catch{
-      case _: Throwable => List.empty
-    }
+  }
+
+  def getAddresses(hex:String,page: Int) = Cached("address."+page+"."+hex) {
+
+      val query = "select m.hash as hash, m.balance as balance from (SELECT hash as hash, balance FROM addresses WHERE balance > 0 and representant = X'"+hex+"') m  limit "+(page-1)*pageSize+","+pageSize
+      println(query)
+      DB.withConnection { implicit connection =>
+        (SQL(query)() map {row => Address(
+          hashToAddress(row[Array[Byte]]("hash")),
+          row[Option[Long]]("balance").getOrElse(0L)
+        )}).toList
+      }
+
   }
 }

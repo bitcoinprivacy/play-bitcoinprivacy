@@ -1,0 +1,36 @@
+@(page: Pagination, url: String, current: Int)
+
+@if(page.total>1){
+  @row{
+  <nav class="text-center">
+    <ul class="pagination">
+      <li class=@("disabled".when(current==1))>
+        <a href=@if(current>1){
+          "@url?page=@(current-1)" 
+          aria-label="Previous">} else{
+          "#"
+        }  
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+      @for(i <- current - 10 to current+10 if(i>0 && i<=page.total)){
+        @if(i==current){
+          <li class="active"><a href="@url?page=@i">@i</a></li>
+        } else{
+          <li><a href="@url?page=@i">@i</a></li>
+        }
+      }
+      <li class=@("disabled".when(current==page.total))>
+        <a href=@if(current<page.total){
+          "@url?page=@(current+1)"
+          aria-label="Next">} else{
+          "#"
+        }
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+    </ul>
+  </nav> 
+  <p class="text-center"><b>Showing page @current from @page.total, @page.size results</b></p>  
+  }
+}
