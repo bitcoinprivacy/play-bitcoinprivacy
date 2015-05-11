@@ -7,7 +7,7 @@ import org.bitcoinj.params.MainNetParams
 import org.bitcoinj.core.AddressFormatException
 
 case class Movement(address:String, hash: String, value: Long) 
-case class MovementsInfo(inputs: Long, outputs: Long, in: Long, out: Long)
+case class MovementsInfo(inputs: Long, outputs: Long, in: Long, out: Long, height: Int)
 
 object Movement{
   
@@ -18,12 +18,14 @@ object Movement{
             " (select count(*) from movements where transaction_hash = X'"+txHash+"') as a, " +
             " (select count(*) from movements where spent_in_transaction_hash = X'"+txHash+"') as b, " +
             " (select ifnull(sum(ifnull(`value`,0)),0) from movements where transaction_hash = X'"+txHash+"') as d, " +
-            " (select ifnull(sum(ifnull(`value`,0)),0) from movements where spent_in_transaction_hash = X'"+txHash+"') as c"
+            " (select ifnull(sum(ifnull(`value`,0)),0) from movements where spent_in_transaction_hash = X'"+txHash+"') as c," +
+            " (select block_height from movements where transaction_hash = X'"+txHash+"' limit 1) as h"
         )() map {row => MovementsInfo(
           row[Int]("a"),
           row[Int]("b"),
           row[Long]("c"),
-          row[Long]("d")
+          row[Long]("d"),
+          row[Int]("h")
         )}).head
 
     }

@@ -7,7 +7,7 @@ import org.bitcoinj.params.MainNetParams
 import org.bitcoinj.core.AddressFormatException
 
 case class Output(hash :String, spent: String ,value: Long) 
-case class OutputsInfo(out: Long, in: Long, outputs: Int, inputs: Int)
+case class OutputsInfo(out: Long, in: Long, outputs: Int, inputs: Int, minHeight: Int, maxHeight: Int)
 
 object Output{
   def getOutputs(hex: String, page: Int) = {
@@ -48,7 +48,9 @@ object Output{
       "sum( CASE WHEN spent_in_transaction_hash IS NOT NULL THEN value ELSE 0 END) AS a," +
       "sum( value) AS b," +
       "sum( CASE WHEN spent_in_transaction_hash IS NOT NULL THEN 1 ELSE 0 END) AS c," +
-      "count(*) AS d"  +
+      "count(*) AS d,"  +
+      " max(block_height) as ma,"+
+      " min(block_height) as mi"+
       " from movements where address = X'"+hex+"'"
       
       DB.withConnection { implicit connection =>
@@ -58,7 +60,9 @@ object Output{
           row[Long]("a"),
           row[Long]("b"),
           row[Int]("c"),
-          row[Int]("d")
+          row[Int]("d"),
+          row[Int]("mi"),
+          row[Int]("ma")
         )}).head
       }
     

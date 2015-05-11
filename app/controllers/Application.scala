@@ -25,19 +25,22 @@ object Application extends Controller {
   }
 
   // cache for the models data
-  def load[A: ClassTag](name: String, info: => A) =
-    Future {
-      Cache.getOrElse(name){
-        Cache.set(name, info, Duration(timeout, "seconds"))
+  def load[A: ClassTag](label: String, info: => A) = {
+    Future { 
+      Cache.getAs[A](label).getOrElse{
+        Cache.set(label, info, timeout)
+        println("caching info")
         info
-      }
+      }  
     }
- 
+  }
+
   // cache for the views direct from http request
-  def load(name: String)(view: play.api.mvc.EssentialAction) = {
-    Cache.getOrElse(name){
-      Cache.set(name, view, Duration(timeout, "seconds"))
-      view
+  def load(label: String)(view: => play.api.mvc.EssentialAction) = {
+    Cache.getAs[play.api.mvc.EssentialAction](label).getOrElse{
+      Cache.set(label, view, timeout)
+        println("caching view")
+        view
     }
   }
 
@@ -99,9 +102,9 @@ object Application extends Controller {
           for {
             blockHeight <- load("height", Block.getBlockHeight)
             representant <- load("addresses.representant."+address, Address.getRepresentant(hexAddress(address)))
-            walletList <- load("addresses."+page+"."+address, Address.getAddresses(representant,page))
-            walletInfo <- load("addresses.info."+address, Address.getAddressesInfo(representant))
-            walletPage <- load("addresses.page."+address, Address.getAddressesPage(representant, page))
+            walletList <- load("addresses."+page+"."+representant, Address.getAddresses(representant,page))
+            walletInfo <- load("addresses.info."+representant, Address.getAddressesInfo(representant))
+            walletPage <- load("addresses.page."+representant, Address.getAddressesPage(representant, page))
           }
           yield{
             Ok(views.html.wallet(blockHeight, address,addressForm, walletInfo,walletPage, Some(walletList), page))
@@ -119,7 +122,7 @@ object Application extends Controller {
     Action.async {
       for {
         blockHeight <- load("height", Block.getBlockHeight)
-        statsList <- load("stats",Stat.getStats)
+        statsList <- load("stats.values",Stat.getStats)
       }
       yield
         Ok(views.html.stats(blockHeight, statsList, addressForm))

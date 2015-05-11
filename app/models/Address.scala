@@ -23,8 +23,7 @@ object Address
 
   def getAddressesPage(hex:String, page: Int) = {
 
-      val query = "select floor(("+(pageSize-1)+" + count(*))/"+pageSize+") as c from (SELECT hash as hash, balance FROM addresses WHERE balance > 0 and representant = X'"+hex+"') m "
-      
+      val query = "select floor(("+(pageSize-1)+" + count(*))/"+pageSize+") as c from (SELECT hash as hash, balance FROM addresses WHERE balance > 0 and representant = X'"+hex+"') m "      
       DB.withConnection { implicit connection =>
         (SQL(query)() map {row => Pagination(page, row[Int]("c"), pageSize)}).head
       }
