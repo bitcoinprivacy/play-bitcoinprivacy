@@ -9,9 +9,9 @@ import org.bitcoinj.params.MainNetParams
 case class Stat(name: String, value: Any)
 case class Distribution(a: Long, b: Long, c:Long)
 
-object Stats{
+object Stat{
 
-  def getStats = Future {
+  def getStats = {
       DB.withConnection { implicit connection =>
         (SQL(
           "select * from stats order by block_height desc limit 1"
@@ -29,7 +29,7 @@ object Stats{
 
   }
 
-  def getGinis = Future {
+  def getGinis = {
 
       DB.withConnection { implicit connection =>
         (SQL(
@@ -42,7 +42,7 @@ object Stats{
 
   }
 
-  def getDistribution(value: Double, blockHeight: Int) = Future {
+  def getDistribution(value: Double, blockHeight: Int) = {
 
       DB.withConnection { implicit connection =>
         val satoshis = 100000000*value;

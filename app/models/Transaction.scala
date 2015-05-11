@@ -9,12 +9,12 @@ import org.bitcoinj.core.AddressFormatException
 case class Transaction(hash:String,value: Long) 
 case class TransactionInfo(value: Long, tx: Int)
 
-object Transactions{
+object Transaction{
 
-  def getTransactions(height: Int, page: Int) = Cached("transactions."+height+"."+page) {
+  def getTransactions(height: Int, page: Int) = {
     
       val query = "SELECT sum(value) as balance, hex(transaction_hash) as address FROM movements WHERE block_height = "+height+" GROUP BY transaction_hash limit "+(pageSize*(page-1))+", "+pageSize
-      println(query)
+      
       DB.withConnection { implicit connection =>
         (SQL(query)() map {row => Transaction(
           row[String]("address"),
@@ -24,10 +24,10 @@ object Transactions{
     
   }
 
-  def getTransactionPage(height: Int, page: Int) = Cached("transactions.page." + height){
+  def getTransactionPage(height: Int, page: Int) ={
     
       val query = "select count(distinct(transaction_hash)) as c from movements where block_height = "+height
-      println(query)
+      
       DB.withConnection { implicit connection =>
         (SQL(query)() map {row => Pagination(
           page,
@@ -38,10 +38,10 @@ object Transactions{
     
   }
 
-  def getTransactionInfo(height: Int) = Cached("transactions.info."+height){
+  def getTransactionInfo(height: Int) = {
     
       val query = "select count(distinct(transaction_hash)) as count, ifnull(sum(ifnull(value,0)),0) as value from movements where block_height = "+height
-      println(query)
+      
       DB.withConnection { implicit connection =>
         (SQL(query)() map {row => TransactionInfo(
           row[Long]("value"),

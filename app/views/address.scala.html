@@ -1,9 +1,9 @@
 @(address:String, outputs:List[Output], info: OutputsInfo, page: Pagination, addressForm:play.api.data.Form[String], current: Int)
 
-@main("Address", "explorer"){
+@main("Address", "explorer", addressForm){
   @row{<p>Transaction outputs with the address</p>}  
   @row{<p class="bge_wallet" search="@address">@address</p>}  
-  @search_form(addressForm)
+ 
   @not_found("address", outputs.length==0)
   @if(outputs.length>0){
     @row{

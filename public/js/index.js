@@ -46,7 +46,7 @@ function setLink(element, url)
  a .style.width="100%";
   a.href = "/"+url+"/"+search;
   a.innerHTML = html;
-  a.style.display="inline-block";
+  //a.style.display="inline-block";
   element.innerHTML = "";
   
   

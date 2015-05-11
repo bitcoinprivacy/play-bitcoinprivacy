@@ -1,8 +1,7 @@
-@(height: Int, list: List[Transaction], page: Pagination, info: TransactionInfo, form:Form[String], current: Int)
+@(height: Int, list: List[Transaction], page: Pagination, info: TransactionInfo,addressForm:play.api.data.Form[String], current: Int)
 
-@main("Block", "explorer"){
+@main("Block", "explorer", addressForm){
   @row{<p>Transactions from block @height</p>}
-  @search_form(form)
   @not_found("block", list.length==0)
   @if(list.length>0){
     

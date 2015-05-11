@@ -1,4 +1,4 @@
-@(tab: String)
+@(tab: String, addressForm:play.api.data.Form[String])
 
 <nav class="navbar navbar-default navbar-fixed-top">
   <div class="container-fluid">
@@ -12,19 +12,22 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <span style="cursor:pointer"><span><img src="/assets/img/bitcoin.png"
-      height="50px" width="auto"/></span>
-      </span>
+      <a class="navbar-brand" href="@routes.Application.explorer"style= "color:#428bca;">
+            @*<img src="/assets/img/bitcoin.png" style="margin-bottom:5px; margin-right:-3px" height="14px" width="auto"/>*@
+            Bitcoinprivacy
+          </a>
     </div>
     <!-- Collect the nav links, forms, and other content for toggling    -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">     
-        <li class="@("active".when(tab == "explorer"))"><a href="@routes.Application.explorer">Search</a></li>
         <li class="@("active".when(tab == "richlist"))"><a href="@routes.Application.richList">Richlist</a></li>
         <li class="@("active".when(tab == "stats"))"><a href="@routes.Application.stats">Stats</a></li>
         <li class="@("active".when(tab == "distribution"))"><a href="@routes.Application.distribution("1.0")">Distribution</a></li>
         <li class="@("active".when(tab == "faq"))"><a href="@routes.Application.faq">FAQ</a></li>
         <li> <a href="https://bitcointalk.org/index.php?topic=923650.0" title="News" class="sibling" target="_blank">News</a></li>
+      </ul>
+      
     </div>
   <div>
+    <span style="position:fixed;top:0px;right:75px;">@search_form(addressForm)</span>
 </nav>

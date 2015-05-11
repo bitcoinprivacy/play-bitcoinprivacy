@@ -1,6 +1,6 @@
-@(blockHeight:Int, stats:List[Stat])
+@(blockHeight:Int, stats:List[Stat], addressForm:play.api.data.Form[String])
 
-@main("Statistics", "stats"){
+@main("Statistics", "stats", addressForm){
  @row{<p>Statistics related to the information processed</p>}
  @row{<p></p>}
  @row{

@@ -1,19 +1,16 @@
 @(blockHeight:Int, blocks: List[Block],addressForm:play.api.data.Form[String])
 
-@main("Bitcoin Graph Explorer", "explorer"){
+@main("Bitcoin Graph Explorer", "explorer", addressForm){
   @row{<p>Welcome to bitcoin privacy. Enter a bitcoin address to check for other addresses that seem to belong to the same wallet</p>}
   @row{<p>With the Bitcoin Graph Explorer you can also explore the blocks, transactions and addresses according to the blockchain up to block @blockHeight</p>}
-
-  @search_form(addressForm)
-  
   @row{
     @table{
       @tr{
         <th>Blocks</th>
-        <th></<th>
-        <th></<th>
         <th class="text-right">@unitButtons()</th>
       }
+    }
+    @table{
       @tr{
         <th width="20%">Height</th>
         <th width="50%">Hash</th>

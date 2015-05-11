@@ -12,20 +12,40 @@ import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.duration._
 import scala.concurrent.Future
 import play.api.cache._
+import scala.concurrent.duration._
+import scala.concurrent._
+import scala.reflect.ClassTag
 
 object Application extends Controller {
 
-  def faq = Cached("faq"){
+  def faq = load("faq"){
     Action {
-        Ok(views.html.faq())
+        Ok(views.html.faq(addressForm))
     }    
   }
+
+  // cache for the models data
+  def load[A: ClassTag](name: String, info: => A) =
+    Future {
+      Cache.getOrElse(name){
+        Cache.set(name, info, Duration(timeout, "seconds"))
+        info
+      }
+    }
  
-  def explorer = Cached("explorer"){
+  // cache for the views direct from http request
+  def load(name: String)(view: play.api.mvc.EssentialAction) = {
+    Cache.getOrElse(name){
+      Cache.set(name, view, Duration(timeout, "seconds"))
+      view
+    }
+  }
+
+  def explorer = load("explorer"){
     Action.async {
       for {
-        height <- Blocks.getBlockHeight
-        blockList <- Blocks.getBlocks(10,height)
+        height <- load("height", Block.getBlockHeight)
+        blockList <- load("blocks.10", Block.getBlocks(10,height))
 
       }
       yield{
@@ -34,15 +54,15 @@ object Application extends Controller {
     }
   }
 
-  def richList = Cached("richList"){
+  def richList = load("richList"){
     Action.async {
       for {
-        blockHeight <- Blocks.getBlockHeight
-        addressList <- Addresses.getRichList(blockHeight, "richest_addresses")
-        walletList <- Addresses.getRichList(blockHeight, "richest_closures")
+        blockHeight <- load("height", Block.getBlockHeight)
+        addressList <- load("richlist.addresses",Address.getRichList(blockHeight, "richest_addresses"))
+        walletList <- load("richlist.closures",Address.getRichList(blockHeight, "richest_closures"))
       }
       yield{
-        Ok(views.html.richlist(blockHeight, addressList zip walletList))
+        Ok(views.html.richlist(blockHeight, addressList zip walletList, addressForm))
       }
     }
   }
@@ -51,13 +71,13 @@ object Application extends Controller {
     addressForm.bindFromRequest.fold(
       {
         errors =>
-        for {blockHeight <- Blocks.getBlockHeight
-            blocks <- Blocks.getBlocks(25, blockHeight)}
+        for {blockHeight <- load("height", Block.getBlockHeight)
+            blocks <- load("blocks."+10, Block.getBlocks(10, blockHeight))}
           yield BadRequest(views.html.explorer(blockHeight, blocks, errors))
       },
       {
         case (string: String) => 
-          for (blockHeight <- Blocks.getBlockHeight)
+          for (blockHeight <- load("height", Block.getBlockHeight))
           yield     
             if (isBlock(string))
               Redirect(routes.Application.block(string, 1))
@@ -74,14 +94,14 @@ object Application extends Controller {
   def wallet(address: String, page: Int) =
   {
     if (isAddress(address)){
-      Cached("wallet."+page+"."++address) {
+      load("wallet."+page+"."++address) {
         Action.async {
           for {
-            blockHeight <- Blocks.getBlockHeight
-            representant <- Addresses.getRepresentant(hexAddress(address))
-            walletList <- Addresses.getAddresses(representant,page)
-            walletInfo <- Addresses.getAddressesInfo(representant)
-            walletPage <- Addresses.getAddressesPage(representant, page)
+            blockHeight <- load("height", Block.getBlockHeight)
+            representant <- load("addresses.representant."+address, Address.getRepresentant(hexAddress(address)))
+            walletList <- load("addresses."+page+"."+address, Address.getAddresses(representant,page))
+            walletInfo <- load("addresses.info."+address, Address.getAddressesInfo(representant))
+            walletPage <- load("addresses.page."+address, Address.getAddressesPage(representant, page))
           }
           yield{
             Ok(views.html.wallet(blockHeight, address,addressForm, walletInfo,walletPage, Some(walletList), page))
@@ -93,26 +113,26 @@ object Application extends Controller {
     }    
   }
 
-  def wrong(message: String) = Action.async(Future(Ok(views.html.wrong_search(message))))
+  def wrong(message: String) = Action.async(Future(Ok(views.html.wrong_search(message, addressForm))))
   
-  def stats = Cached("stats"){
+  def stats = load("stats"){
     Action.async {
       for {
-        blockHeight <- Blocks.getBlockHeight
-        statsList <- Stats.getStats
+        blockHeight <- load("height", Block.getBlockHeight)
+        statsList <- load("stats",Stat.getStats)
       }
       yield
-        Ok(views.html.stats(blockHeight, statsList))
+        Ok(views.html.stats(blockHeight, statsList, addressForm))
     }
   }
   
-  def block(height: String, page: Int) = Cached("block."+page+"."+height){ 
+  def block(height: String, page: Int) = load("block."+page+"."+height){ 
     if (isBlock(height)) {
       Action.async {
         for {
-          txList <- Transactions.getTransactions(height.toInt, page)
-          txInfo <- Transactions.getTransactionInfo(height.toInt)
-          txPage <- Transactions.getTransactionPage(height.toInt, page)
+          txList <- load("transactions."+page+"."+height,Transaction.getTransactions(height.toInt, page))
+          txInfo <- load("transactions.info."+height,Transaction.getTransactionInfo(height.toInt))
+          txPage <- load("transactions.page."+height,Transaction.getTransactionPage(height.toInt, page))
         }
         yield{
           Ok(views.html.block(height.toInt, txList, txPage, txInfo, addressForm,page))
@@ -124,13 +144,13 @@ object Application extends Controller {
     }
   }
 
-  def transaction(txHash: String, page: Int) = Cached("transaction."+page+"."+txHash){
+  def transaction(txHash: String, page: Int) = load("transaction."+page+"."+txHash){
     if (isTx(txHash)){
       Action.async {
         for {
-          txoList <- Movements.getMovements(txHash, page)
-          txoInfo <- Movements.getMovementsInfo(txHash)
-          txoPage <- Movements.getMovementsPage(txHash, page)
+          txoList <- load("movements."+txHash,Movement.getMovements(txHash, page))
+          txoInfo <- load("movements.info."+txHash,Movement.getMovementsInfo(txHash))
+          txoPage <- load("movements.page."+txHash,Movement.getMovementsPage(txHash, page))
         }
         yield{
           Ok(views.html.transaction(txHash, txoList, txoInfo, txoPage,  addressForm, page))
@@ -141,14 +161,14 @@ object Application extends Controller {
     }
   }
 
-  def address(address: String, page: Int) = Cached("address."+page+"."+address){
+  def address(address: String, page: Int) = load("address."+page+"."+address){
     if (isAddress(address)){
       Action.async {
         for {
-          txList <- Outputs.getOutputs(hexAddress(address),page)
+          txList <- load("outputs."+address+"."+page, Output.getOutputs(hexAddress(address),page))
           hex = hexAddress(address)
-          txInfo <- Outputs.getOutputsInfo(hex)
-          txPage <- Outputs.getOutputsPage(hex,page)
+          txInfo <- load("outputs.info."+address,Output.getOutputsInfo(hex))
+          txPage <- load("outputs.page."+address,Output.getOutputsPage(hex,page))
         }
         yield{
           Ok(views.html.address(address, txList, txInfo, txPage, addressForm, page))
@@ -159,39 +179,37 @@ object Application extends Controller {
     }
   }
 
-  def distribution(value: String = "1.0") = Cached("distribution."+value){
+  def distribution(value: String = "1.0") = load("distribution."+value){
     if (isPositiveDouble(value)){
       Action.async {
         for {
-          blockHeight <- Blocks.getBlockHeight
-          ginis <- Stats.getGinis
-          distribution <- Stats.getDistribution(value.toDouble, blockHeight)
+          blockHeight <- load("height", Block.getBlockHeight)
+          ginis <- load("ginis", Stat.getGinis)
+          distribution <- load("stats."+value,Stat.getDistribution(value.toDouble, blockHeight))
         }
         yield{
-          Ok(views.html.distribution(blockHeight, ginis, distribution, value.toDouble, valueForm))
+          Ok(views.html.distribution(blockHeight, ginis, distribution, value.toDouble, valueForm, addressForm))
         }
       }
     }else{
         wrong("Value " + value + " is not a positive double")
-     
     }
-
   }
 
   def distributionPost = Action.async { implicit request =>
     valueForm.bindFromRequest.fold({
       errors =>  {
         for {
-          blockHeight <- Blocks.getBlockHeight
-          ginis <- Stats.getGinis
-          distribution <- Stats.getDistribution(1.0, blockHeight)
+          blockHeight <- load("height", Block.getBlockHeight)
+          ginis <- load("ginis", Stat.getGinis)
+          distribution <- load("stats.1.0", Stat.getDistribution(1.0, blockHeight))
         }
-        yield BadRequest(views.html.distribution(blockHeight, ginis, distribution, 1.0, errors))}
+        yield BadRequest(views.html.distribution(blockHeight, ginis, distribution, 1.0, errors, addressForm))}
       },
       {
         case (value: String) =>
           for {
-            blockHeight <- Blocks.getBlockHeight
+            blockHeight <- load("height", Block.getBlockHeight)
           }
           yield
             Redirect(routes.Application.distribution(value))

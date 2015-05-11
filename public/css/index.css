@@ -1,7 +1,8 @@
 .bge_address, 
 .bge_tx,
+.bge_wallet,
 .bge_hash,
-.bge_value
+.bge_value,
 .bge_blocke,
 .elliptic{
     white-space:nowrap;
@@ -11,6 +12,9 @@
 
 table{
     table-layout:fixed;
+}
+.help-block{
+display:none!important;
 }
 
 .bge_tx_in,

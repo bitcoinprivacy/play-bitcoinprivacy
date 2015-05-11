@@ -1,9 +1,8 @@
 @(blockHeight:Int,inputAddress:String,addressForm:play.api.data.Form[String],info:AddressesInfo,page:Pagination,addressesOption:Option[List[Address]], current: Int)
 
-@main("Wallet", "explorer"){
+@main("Wallet", "explorer", addressForm){
   @row{ <p>Wallet of address</p>}
   @row{<p class="bge_address">@inputAddress</p>}
-  @search_form(addressForm)
   @for(t<-addressesOption){
     @if(t.length>0){
     @row{

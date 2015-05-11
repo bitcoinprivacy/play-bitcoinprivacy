@@ -1,4 +1,4 @@
-@(title: String, tab: String)(content: Html)
+@(title: String, tab: String, addressForm:play.api.data.Form[String])(content: Html)
 
 <!DOCTYPE html>
 
@@ -12,7 +12,7 @@
        
     </head>
     <body style="padding-top:70px">
-      @menu(tab)
+      @menu(tab, addressForm)
       <div class="container">
         <h2 style="color:#428bca">@title</h2>
         

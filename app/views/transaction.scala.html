@@ -1,6 +1,6 @@
 @(txHash: String, movements :(List[Movement], List[Movement]), info: MovementsInfo, page: Pagination, addressForm:play.api.data.Form[String], current: Int)
 
-@main("Transaction", "explorer"){
+@main("Transaction", "explorer", addressForm){
   @row{<p>List of inputs and outputs of the transaction</p>}
   @row{<p>@txHash</p>}
   @search_form(addressForm)  

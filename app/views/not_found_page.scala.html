@@ -1,6 +1,6 @@
-@(name: String)
+@(name: String, addressForm:play.api.data.Form[String])
 
-@main("Not found", "not_found"){
+@main("Not found", "not_found", addressForm){
   <div class="row">
     <div class="col-md-12">      
       <div class="alert alert-danger">

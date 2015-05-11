@@ -9,9 +9,9 @@ import org.bitcoinj.core.AddressFormatException
 case class Movement(address:String, hash: String, value: Long) 
 case class MovementsInfo(inputs: Long, outputs: Long, in: Long, out: Long)
 
-object Movements{
+object Movement{
   
-  def getMovementsInfo(txHash: String) = Cached("movements.info"+txHash) {
+  def getMovementsInfo(txHash: String) = {
       DB.withConnection { implicit connection =>
         (SQL(
           " select" +
@@ -30,7 +30,7 @@ object Movements{
   }
 
 
-  def getMovements(txHash: String, page: Int) = Cached("asd") {
+  def getMovements(txHash: String, page: Int) = {
     val query = " SELECT  ifnull(value, 0) as  balance, address as address, ifnull(hex(spent_in_transaction_hash),'') as tx " +
               " FROM  movements WHERE  transaction_hash = X'"+txHash+"' limit "+(pageSize*(page-1))+","+pageSize 
     val query2 = " SELECT ifnull(n.value,0) as balance, n.address as address, hex(n.transaction_hash) as tx" +
@@ -40,9 +40,7 @@ object Movements{
               " GROUP BY address " +
               " LIMIT " + (pageSize*(page-1)) + ","+pageSize
             
-    println(query)
-    println(query2)
-
+    
     DB.withConnection { implicit connection =>
       (
         (SQL(query
@@ -63,7 +61,7 @@ object Movements{
     }
   }
 
-  def getMovementsPage(txHash: String, page: Int) = Cached(txHash) {
+  def getMovementsPage(txHash: String, page: Int) = {
     DB.withConnection {implicit connection =>
       (SQL(
         "select " +

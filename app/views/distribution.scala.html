@@ -1,7 +1,7 @@
-@(blockHeight:Int, stats:List[Stat], distribution: Distribution, inputValue: Double, valueForm:play.api.data.Form[String])
+@(blockHeight:Int, stats:List[Stat], distribution: Distribution, inputValue: Double, valueForm:play.api.data.Form[String], addressForm:play.api.data.Form[String])
 @import b3.vertical.fieldConstructor
 
-@main("Distribution", "distribution"){
+@main("Distribution", "distribution", addressForm){
 @row{<p>
     @b3.form(action = routes.Application.distributionPost) {
       @b3.text(valueForm("value"), '_label -> "Number of Bitcoins",

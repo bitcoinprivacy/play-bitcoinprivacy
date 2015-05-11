@@ -1,6 +1,6 @@
 @(blockHeight:Int, inputAddress:String,addressForm:play.api.data.Form[String],count:Int, balance:Long,wallet:Option[List[(String, Long)]])
 
-@main("Bitcoin Wallet Search", "search"){
+@main("Bitcoin Wallet Search", "search", addressForm){
   @row{ <p>Welcome to bitcoin privacy. Enter a bitcoin address to check
            for other addresses that seem to belong to the same wallet,
            according to the blockchain up to block @blockHeight

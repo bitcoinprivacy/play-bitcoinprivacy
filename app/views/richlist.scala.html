@@ -1,9 +1,7 @@
-@(blockHeight:Int, richestList:List[(Address, Address)])
+@(blockHeight:Int, richestList:List[(Address, Address)], addressForm:play.api.data.Form[String])
 
-@main("Bitcoin (Partial Wallet) Rich List", "richlist"){
+@main("Bitcoin (Partial Wallet) Rich List", "richlist", addressForm){
   @row{<p>Behold the top 1000 richest standalone addresses versus the top 1000 partial wallets, up to block @blockHeight!</p>}
-  @row{<p class="text-right">@unitButtons()</p>}
- 
   @row{
     @table{
       @tr{
@@ -17,9 +15,9 @@
         @tr{
           <td class="text-left">@(pos+1)</td>
           <td class="bge_address">@address.hash</td>
-          <td class="text-right bge_value">@address.balance</td>
+          <td class="text-right">@address.balance</td>
           <td class="bge_wallet">@representant.hash</td>
-          <td class="text-right bge_value">@representant.balance</td>
+          <td class="text-right">@representant.balance</td>
         }
       }
     }

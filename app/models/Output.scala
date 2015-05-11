@@ -9,8 +9,8 @@ import org.bitcoinj.core.AddressFormatException
 case class Output(hash :String, spent: String ,value: Long) 
 case class OutputsInfo(out: Long, in: Long, outputs: Int, inputs: Int)
 
-object Outputs{
-  def getOutputs(hex: String, page: Int) = Cached("outputs."+page+"."+hex){
+object Output{
+  def getOutputs(hex: String, page: Int) = {
     
         DB.withConnection { implicit connection =>
           (SQL(
@@ -26,10 +26,10 @@ object Outputs{
     
   }
 
-  def getOutputsPage(hex: String, page: Int) = Cached("outputs.page."+hex){
+  def getOutputsPage(hex: String, page: Int) = {
     
       val query = "select floor(("+(pageSize-1)+"+count(*))/"+pageSize+") as c from movements where address = X'"+hex+"'"
-      println(query)
+      
       DB.withConnection { implicit connection =>
         (SQL(query
 
@@ -42,7 +42,7 @@ object Outputs{
     
   }
 
-  def getOutputsInfo(hex: String) = Cached("outputs.info."+hex) {
+  def getOutputsInfo(hex: String) = {
     
       val query = "select "+
       "sum( CASE WHEN spent_in_transaction_hash IS NOT NULL THEN value ELSE 0 END) AS a," +
@@ -50,7 +50,7 @@ object Outputs{
       "sum( CASE WHEN spent_in_transaction_hash IS NOT NULL THEN 1 ELSE 0 END) AS c," +
       "count(*) AS d"  +
       " from movements where address = X'"+hex+"'"
-      println(query)
+      
       DB.withConnection { implicit connection =>
         (SQL(query
 
