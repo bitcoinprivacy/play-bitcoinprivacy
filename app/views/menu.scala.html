@@ -13,9 +13,11 @@
         <span class="icon-bar"></span>
       </button>
       <a class="navbar-brand" href="@routes.Application.explorer"style= "color:#428bca;">
-            @*<img src="/assets/img/bitcoin.png" style="margin-bottom:5px; margin-right:-3px" height="14px" width="auto"/>*@
-            Bitcoinprivacy
-          </a>
+        Bitcoinprivacy
+      </a>
+
+   
+      
     </div>
     <!-- Collect the nav links, forms, and other content for toggling    -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -26,8 +28,9 @@
         <li class="@("active".when(tab == "faq"))"><a href="@routes.Application.faq">FAQ</a></li>
         <li> <a href="https://bitcointalk.org/index.php?topic=923650.0" title="News" class="sibling" target="_blank">News</a></li>
       </ul>
-      
     </div>
-  <div>
-    <span style="position:fixed;top:0px;right:75px;">@search_form(addressForm)</span>
+    <div class="navbar-header" style="width:150px;position: fixed;top: -12px;right: 78px;">
+      <span class="navbar-brand" style="padding:0;">@search_form(addressForm)</span>
+    </div>
+    
 </nav>

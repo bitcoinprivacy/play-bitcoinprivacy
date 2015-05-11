@@ -4,18 +4,17 @@
   @row{<p>Welcome to bitcoin privacy. Enter a bitcoin address to check for other addresses that seem to belong to the same wallet</p>}
   @row{<p>With the Bitcoin Graph Explorer you can also explore the blocks, transactions and addresses according to the blockchain up to block @blockHeight</p>}
   @row{
+    
     @table{
       @tr{
-        <th>Blocks</th>
-        <th class="text-right">@unitButtons()</th>
+        <td><b>Blocks</b></th>
+        <td colspan=3 class="text-right">@unitButtons()</th>
       }
-    }
-    @table{
       @tr{
-        <th width="20%">Height</th>
-        <th width="50%">Hash</th>
-        <th width="10%" class="text-right">Tx</th>
-        <th width="20%" class="text-right">Value</th>
+        <td width="20%"><b>Height</b></th>
+        <td width="50%"><b>Hash</b></th>
+        <td width="10%" class="text-right">Tx</th>
+        <td width="20%" class="text-right">Value</th>
       }
       @for(block <- blocks){   
         @tr{

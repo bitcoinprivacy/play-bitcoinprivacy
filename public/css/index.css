@@ -17,6 +17,11 @@ table{
 display:none!important;
 }
 
+.form-inline .form-control{
+width: 100%;
+}
+
+
 .bge_tx_in,
 .bge_tx_in a{
     color:green;

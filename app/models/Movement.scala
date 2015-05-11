@@ -17,8 +17,8 @@ object Movement{
           " select" +
             " (select count(*) from movements where transaction_hash = X'"+txHash+"') as a, " +
             " (select count(*) from movements where spent_in_transaction_hash = X'"+txHash+"') as b, " +
-            " (select sum(`value`) from movements where transaction_hash = X'"+txHash+"') as d, " +
-            " (select sum(`value`) from movements where spent_in_transaction_hash = X'"+txHash+"') as c"
+            " (select ifnull(sum(ifnull(`value`,0)),0) from movements where transaction_hash = X'"+txHash+"') as d, " +
+            " (select ifnull(sum(ifnull(`value`,0)),0) from movements where spent_in_transaction_hash = X'"+txHash+"') as c"
         )() map {row => MovementsInfo(
           row[Int]("a"),
           row[Int]("b"),
@@ -43,14 +43,14 @@ object Movement{
     
     DB.withConnection { implicit connection =>
       (
-        (SQL(query
+        (SQL(query2
 
         )() map {row => Movement(
           hashToAddress(row[Array[Byte]]("address")),
           row[String]("tx"),
           row[Long]("balance")
         )}).toList,
-        (SQL(query2
+        (SQL(query
 
         )() map {row => Movement(
           hashToAddress(row[Array[Byte]]("address")),
