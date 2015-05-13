@@ -26,7 +26,7 @@ object Output{
     
   }
 
-  def getOutputsPage(hex: String, page: Int) = {
+  def getOutputsPage(hex: String) = {
     
       val query = "select floor(("+(pageSize-1)+"+count(*))/"+pageSize+") as c from movements where address = X'"+hex+"'"
       
@@ -34,7 +34,7 @@ object Output{
         (SQL(query
 
         )() map {row => Pagination(
-          page,
+          
           row[Int]("c"),
           pageSize
         )}).head

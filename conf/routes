@@ -3,23 +3,23 @@ GET  /favicon.ico   controllers.Assets.at(path="/public", file="img/bitcoin.png"
 
 GET  /assets/*file        controllers.Assets.at(path="/public", file)
 
-GET     /                           controllers.Application.explorer
+GET     /                           controllers.Application.index
 
 POST    /search                       controllers.Application.search
+
+POST    /searchWallet                 controllers.Application.searchWallet
 
 GET    /wallet/:address                      controllers.Application.wallet(address: String, page: Int ?=1)
 
 GET    /richlist             controllers.Application.richList
 
-GET    /stats             controllers.Application.stats
-
-GET    /distribution/:value      controllers.Application.distribution(value: String)
+GET    /stats/:value      controllers.Application.stats(value: String)
 
 POST   /distribution      controllers.Application.distributionPost
 
 GET    /faq                     controllers.Application.faq
 
-GET    /explorer               controllers.Application.explorer
+GET    /explorer               controllers.Application.explorer(page: Int ?=1)
 
 GET  /block/:height                   controllers.Application.block(height: String, page:Int ?= 1)
 

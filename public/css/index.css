@@ -7,7 +7,7 @@ body{
 .bge_wallet,
 .bge_hash,
 .bge_value,
-.bge_blocke,
+.bge_block,
 .elliptic{
     white-space:nowrap;
     overflow:hidden;
@@ -49,4 +49,9 @@ width: 100%;
     position: fixed;
     bottom: 0px;
     left: 50%;
+}
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
 }

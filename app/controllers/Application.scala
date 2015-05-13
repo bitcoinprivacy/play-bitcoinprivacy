@@ -1,20 +1,18 @@
 package controllers
 
-import play.api.mvc._
-import play.api.data.{Form}
-import play.api.data.validation._
-import play.api.data.Forms.{single, nonEmptyText, of}
-import play.api.data.format.Formats._
-import org.bitcoinj.core.{AddressFormatException, Address=>Ad,Transaction => Tx}
-import org.bitcoinj.params.MainNetParams
 import models._
-import play.api.libs.concurrent.Execution.Implicits._
-import scala.concurrent.duration._
-import scala.concurrent.Future
+import org.bitcoinj.core.{Address => Ad, Transaction => Tx}
 import play.api.cache._
-import scala.concurrent.duration._
+import play.api.data.Form
+import play.api.data.Forms.{nonEmptyText, of, single}
+import play.api.data.format.Formats._
+import play.api.libs.concurrent.Execution.Implicits._
+import play.api.mvc._
 import scala.concurrent._
 import scala.reflect.ClassTag
+import anorm._
+import play.api.db.DB
+
 
 object Application extends Controller {
 
@@ -24,35 +22,61 @@ object Application extends Controller {
     }    
   }
 
+  val timeout = 600 //seconds. might be better in application.conf
+
+
   // cache for the models data
+
   def load[A: ClassTag](label: String, info: => A) = {
-    Future { 
+    Future {
       Cache.getAs[A](label).getOrElse{
         Cache.set(label, info, timeout)
-        println("caching info")
         info
       }  
     }
   }
 
   // cache for the views direct from http request
-  def load(label: String)(view: => play.api.mvc.EssentialAction) = {
-    Cache.getAs[play.api.mvc.EssentialAction](label).getOrElse{
-      Cache.set(label, view, timeout)
-        println("caching view")
-        view
-    }
+ 
+  def log(path:String)(action: EssentialAction) = Action.async {
+  request => 
+    DB.withConnection("bitcoinprivacy"){ implicit connection =>
+      (SQL"insert into access (ip,path) values (${request.remoteAddress}, $path)").executeUpdate()
+    } // TODO: there is no future here, so this might block a thread!
+    action(request).run
   }
+ 
+  def load(path: String)(action: => EssentialAction) = 
+    log(path)(Cache.getAs[EssentialAction](path).getOrElse {
+      Cache.set(path, action, timeout)
+      action
+    })
+    
+    
 
-  def explorer = load("explorer"){
+
+
+  def index = load("index"){
     Action.async {
       for {
         height <- load("height", Block.getBlockHeight)
-        blockList <- load("blocks.10", Block.getBlocks(10,height))
+      }
+      yield
+        Ok(views.html.index(height, addressForm))
+    }
+  }
 
+
+  def explorer(page: Int) = load("explorer"){
+    Action.async {
+      for {
+        height <- load("height", Block.getBlockHeight)
+        blockList <- load("blocks.10", Block.getBlocks(height,page))
+        blocksInfo <-load("blocks.info", Block.getBlocksInfo)
+        blocksPage <- load("blocks.page", Block.getBlocksPage)
       }
       yield{
-        Ok(views.html.explorer(height, blockList,addressForm))
+        Ok(views.html.explorer(height, blockList,blocksPage, blocksInfo, addressForm, page))
       }
     }
   }
@@ -74,9 +98,33 @@ object Application extends Controller {
     addressForm.bindFromRequest.fold(
       {
         errors =>
-        for {blockHeight <- load("height", Block.getBlockHeight)
-            blocks <- load("blocks."+10, Block.getBlocks(10, blockHeight))}
-          yield BadRequest(views.html.explorer(blockHeight, blocks, errors))
+        for (blockHeight <- load("height", Block.getBlockHeight))
+        yield BadRequest(views.html.wrong_search("not found", errors))
+          
+      },
+      {
+        case (string: String) =>
+          for (blockHeight <- load("height", Block.getBlockHeight))
+          yield     
+            if (isBlock(string))
+              Redirect(routes.Application.block(string, 1))
+            else if (isAddress(string))
+              Redirect(routes.Application.address(string))
+            else if (isTx(string))
+              Redirect(routes.Application.transaction(string))
+            else
+              Redirect(routes.Application.index)                
+      }      
+    )
+  }
+
+
+  def searchWallet = Action.async { implicit request =>
+    addressForm.bindFromRequest.fold(
+      {
+        errors =>
+        for (blockHeight <- load("height", Block.getBlockHeight))
+        yield BadRequest(views.html.index(blockHeight, errors))
       },
       {
         case (string: String) => 
@@ -89,7 +137,7 @@ object Application extends Controller {
             else if (isTx(string))
               Redirect(routes.Application.transaction(string))
             else
-              Redirect(routes.Application.explorer)                
+              Redirect(routes.Application.index)                
       }      
     )
   }
@@ -104,7 +152,7 @@ object Application extends Controller {
             representant <- load("addresses.representant."+address, Address.getRepresentant(hexAddress(address)))
             walletList <- load("addresses."+page+"."+representant, Address.getAddresses(representant,page))
             walletInfo <- load("addresses.info."+representant, Address.getAddressesInfo(representant))
-            walletPage <- load("addresses.page."+representant, Address.getAddressesPage(representant, page))
+            walletPage <- load("addresses.page."+representant, Address.getAddressesPage(representant))
           }
           yield{
             Ok(views.html.wallet(blockHeight, address,addressForm, walletInfo,walletPage, Some(walletList), page))
@@ -118,24 +166,13 @@ object Application extends Controller {
 
   def wrong(message: String) = Action.async(Future(Ok(views.html.wrong_search(message, addressForm))))
   
-  def stats = load("stats"){
-    Action.async {
-      for {
-        blockHeight <- load("height", Block.getBlockHeight)
-        statsList <- load("stats.values",Stat.getStats)
-      }
-      yield
-        Ok(views.html.stats(blockHeight, statsList, addressForm))
-    }
-  }
-  
   def block(height: String, page: Int) = load("block."+page+"."+height){ 
     if (isBlock(height)) {
       Action.async {
         for {
           txList <- load("transactions."+page+"."+height,Transaction.getTransactions(height.toInt, page))
           txInfo <- load("transactions.info."+height,Transaction.getTransactionInfo(height.toInt))
-          txPage <- load("transactions.page."+height,Transaction.getTransactionPage(height.toInt, page))
+          txPage <- load("transactions.page."+height,Transaction.getTransactionPage(height.toInt))
         }
         yield{
           Ok(views.html.block(height.toInt, txList, txPage, txInfo, addressForm,page))
@@ -153,7 +190,7 @@ object Application extends Controller {
         for {
           txoList <- load("movements."+txHash,Movement.getMovements(txHash, page))
           txoInfo <- load("movements.info."+txHash,Movement.getMovementsInfo(txHash))
-          txoPage <- load("movements.page."+txHash,Movement.getMovementsPage(txHash, page))
+          txoPage <- load("movements.page."+txHash,Movement.getMovementsPage(txHash))
         }
         yield{
           Ok(views.html.transaction(txHash, txoList, txoInfo, txoPage,  addressForm, page))
@@ -171,7 +208,7 @@ object Application extends Controller {
           txList <- load("outputs."+address+"."+page, Output.getOutputs(hexAddress(address),page))
           hex = hexAddress(address)
           txInfo <- load("outputs.info."+address,Output.getOutputsInfo(hex))
-          txPage <- load("outputs.page."+address,Output.getOutputsPage(hex,page))
+          txPage <- load("outputs.page."+address,Output.getOutputsPage(hex))
         }
         yield{
           Ok(views.html.address(address, txList, txInfo, txPage, addressForm, page))
@@ -182,16 +219,16 @@ object Application extends Controller {
     }
   }
 
-  def distribution(value: String = "1.0") = load("distribution."+value){
+  def stats(value: String = "1.0") = load("distribution."+value){
     if (isPositiveDouble(value)){
       Action.async {
         for {
-          blockHeight <- load("height", Block.getBlockHeight)
-          ginis <- load("ginis", Stat.getGinis)
-          distribution <- load("stats."+value,Stat.getDistribution(value.toDouble, blockHeight))
+          height <- load("height", Block.getBlockHeight)
+          stats <- load("stats", Stat.getStats(height))
+          distribution <- load("stats."+value,Stat.getDistribution(value.toDouble, height))
         }
         yield{
-          Ok(views.html.distribution(blockHeight, ginis, distribution, value.toDouble, valueForm, addressForm))
+          Ok(views.html.stats(height, stats, distribution, value.toDouble, valueForm, addressForm))
         }
       }
     }else{
@@ -204,10 +241,10 @@ object Application extends Controller {
       errors =>  {
         for {
           blockHeight <- load("height", Block.getBlockHeight)
-          ginis <- load("ginis", Stat.getGinis)
+          stats <- load("stats", Stat.getStats(blockHeight))
           distribution <- load("stats.1.0", Stat.getDistribution(1.0, blockHeight))
         }
-        yield BadRequest(views.html.distribution(blockHeight, ginis, distribution, 1.0, errors, addressForm))}
+        yield BadRequest(views.html.stats(blockHeight, stats, distribution, 1.0, errors, addressForm))}
       },
       {
         case (value: String) =>
@@ -215,7 +252,7 @@ object Application extends Controller {
             blockHeight <- load("height", Block.getBlockHeight)
           }
           yield
-            Redirect(routes.Application.distribution(value))
+            Redirect(routes.Application.stats(value))
       }
     )
   }

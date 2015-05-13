@@ -1,4 +1,5 @@
 
+
 import org.bitcoinj.params.MainNetParams                                                                                                              
 import scala.reflect.ClassTag
 import scala.util.control.Exception._                                                                                                                       
@@ -17,7 +18,7 @@ package object models {
   implicit def global = scala.concurrent.ExecutionContext.Implicits.global
   implicit def current = play.api.Play.current
 
-  def pageSize = 100 
+  def pageSize = 1000 
 
   implicit class StringImprovements(val s: String) {
     def toIntOpt = catching(classOf[NumberFormatException]) opt s.toInt
@@ -34,8 +35,7 @@ package object models {
     }
   }
 
- def hashToAddress(hash: Array[Byte]): String = {
-    
+ def hashToAddress(hash: Array[Byte]): String = {   
     if (hash.length==20){
       return new Add(MainNetParams.get,0,hash).toString
     }

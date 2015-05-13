@@ -1,16 +1,67 @@
-@(blockHeight:Int, stats:List[Stat], addressForm:play.api.data.Form[String])
+@(blockHeight:Int, stats:Stat, distribution: Distribution, inputValue: Double, valueForm:play.api.data.Form[String], addressForm:play.api.data.Form[String])
+@import b3.vertical.fieldConstructor
 
 @main("Statistics", "stats", addressForm){
- @row{<p>Statistics related to the information processed</p>}
+
+  
  @row{<p></p>}
  @row{
    @table{
-     @for(stat <-stats){   
-       @tr{
-         <td width="60%" class="elliptic">@stat.name</td>
-         <td width="40%" class="text-right">@stat.value</td>
-       }
+     @tr{
+       <td class="elliptic">Block height in database</td>
+       <td class="text-right bge_block">@stats.height</td>
+     }  
+     @tr{
+       <td class="elliptic">Total Bitcoins</td>
+       <td class="text-right bge_number">@stats.bitcoins</td>
      }
-   }
+     @tr{
+       <td class="elliptic">Number of known addresses</td>
+       <td class="text-right bge_number">@stats.addresses</td>
+     }
+     @tr{
+       <td class="elliptic">Number of known wallets</td>
+         <td class="text-right bge_number">@stats.wallets</td>
+       }
+       @tr{
+         <td class="elliptic">Number of known addresses with a positive balance</td>
+         <td class="text-right bge_number">@stats.addressesPositive</td>
+       }
+       @tr{
+         <td class="elliptic">Number of known wallets with a positive balance</td>
+         <td class="text-right bge_number">@stats.walletsPositive</td>
+       }
+       @tr{
+         <td class="elliptic">Number of known non-dust addresses</td>
+         <td class="text-right bge_number">@stats.addressesNoDust</td>
+       }
+       @tr{
+         <td class="elliptic">Number of known non-dust wallets</td>
+         <td class="text-right bge_number">@stats.walletsNoDust</td>
+       }
+       @tr{
+         <td class="elliptic">Gini coefficient of non-dust addresses</td>
+         <td class="text-right">@stats.giniAddresses</td>
+       }
+     @tr{
+       <td class="elliptic">Gini coefficient of non-dust wallets</td>
+       <td class="text-right">@stats.giniWallets</td>
+     }
+    }
+
+  }
+
+  @b3.form(action = routes.Application.distributionPost) {
+     @b3.text(valueForm("value"), '_label -> "Cumulative distribution of Bitcoins",
+    'placeholder -> "Please enter a number of Bitcoins" )
+     @b3.submit('class -> "btn btn-primary"){
+      <span class="glyphicon glyphicon-ok"></span> Search
+     }
+  }      
+  
+
+@row{<p>There are @number(distribution.addresses) addresses with more than @inputValue bitcoins, totalling @number(distribution.bitcoins) BTC, @distribution.percent % of all bitcoins.</p>}
+
+
+
  }
-}

@@ -1,11 +1,21 @@
-@(blockHeight:Int, inputAddress:String,addressForm:play.api.data.Form[String],count:Int, balance:Long,wallet:Option[List[(String, Long)]])
+@(blockHeight:Int, addressForm:play.api.data.Form[String])
 
 @main("Bitcoin Wallet Search", "search", addressForm){
-  @row{ <p>Welcome to bitcoin privacy. Enter a bitcoin address to check
-           for other addresses that seem to belong to the same wallet,
-           according to the blockchain up to block @blockHeight
-       </p>
+@row{<p></p>}
+  @row{ <p>Welcome to BitcoinPrivacy.net. We aim to level the playing
+  field in bitcoin privacy. No subscription
+  required. <a title="1L1EnvmZ8Gg42NTzGwEHrMD4XaosmgntKF"
+  href="bitcoin:1L1EnvmZ8Gg42NTzGwEHrMD4XaosmgntKF">Donations</a> are
+  welcome. <a href="mailto:info@@bitcoinprivacy.net">We</a> are looking for community-minded companies or
+  individuals to sponsor this public service.</p>
+
+  <p>Below you can enter a bitcoin address to see which addresses are
+  linked to it in a partial wallet. Please see
+  the <a href='@routes.Application.faq'>FAQ</a> for what this
+  means. Above, you can also enter addresses, block numbers (up to block <a class="bge_block">@blockHeight</a>) or
+  transaction hashes for a more traditional block explorer.</p>
+  
   }
-  @search_form(addressForm)
+  @wallet_form(addressForm)
   
 }

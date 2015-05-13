@@ -11,7 +11,7 @@ case class AddressesInfo(count: Int, balance: Long) extends Info
 object Address  
 { 
   def getRichList(blockHeight: Int, table: String) = {
-      val query = "select hash, ifnull(balance,0) as balance from "+table+" where hash is not null and  block_height = (select max(block_height) from "+table+");"
+      val query = "select hash, ifnull(balance,0) as balance from "+table+" where hash is not null and  block_height = "+blockHeight
       DB.withConnection { implicit connection =>
         (SQL(query)() map {row => Address(hashToAddress
           (row[Option[Array[Byte]]]("hash").getOrElse(Array.empty)), 
@@ -21,19 +21,16 @@ object Address
 
   }
 
-  def getAddressesPage(hex:String, page: Int) = {
-
+  def getAddressesPage(hex:String) = {
       val query = "select floor(("+(pageSize-1)+" + count(*))/"+pageSize+") as c from (SELECT hash as hash, balance FROM addresses WHERE balance > 0 and representant = X'"+hex+"') m "      
       DB.withConnection { implicit connection =>
-        (SQL(query)() map {row => Pagination(page, row[Int]("c"), pageSize)}).head
+        (SQL(query)() map {row => Pagination(row[Int]("c"), pageSize)}).head
       }
 
   }
 
   def getAddressesInfo(hex: String) = {
-
-      val query = "select count(*) as c, ifnull(sum(ifnull(m.balance,0)),0) as v from (SELECT hash as hash, balance FROM addresses WHERE balance > 0 and representant = X'"+hex+"') m  "
-      
+      val query = "select count(*) as c, ifnull(sum(ifnull(m.balance,0)),0) as v from (SELECT hash as hash, balance FROM addresses WHERE balance > 0 and representant = X'"+hex+"') m  "    
       DB.withConnection { implicit connection =>
         (SQL(query)() map {row => AddressesInfo(
           row[Int]("c"),
@@ -46,10 +43,8 @@ object Address
   def getRepresentant(hex:String) = {
 
       val query ="SELECT hex(representant) as representant FROM addresses where hash=X'"+hex+"' union select '"+hex+"' as representant"
-      
       DB.withConnection { implicit connection =>
-        (SQL(query)() map {row =>
-          println(row[String]("representant")); row[String]("representant")
+        (SQL(query)() map {row => row[String]("representant")
         }).head
       }
   }
@@ -57,7 +52,6 @@ object Address
   def getAddresses(hex:String,page: Int) = {
 
       val query = "select m.hash as hash, m.balance as balance from (SELECT hash as hash, balance FROM addresses WHERE balance > 0 and representant = X'"+hex+"') m  limit "+(page-1)*pageSize+","+pageSize
-      
       DB.withConnection { implicit connection =>
         (SQL(query)() map {row => Address(
           hashToAddress(row[Array[Byte]]("hash")),

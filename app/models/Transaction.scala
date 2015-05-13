@@ -24,13 +24,13 @@ object Transaction{
     
   }
 
-  def getTransactionPage(height: Int, page: Int) ={
+  def getTransactionPage(height: Int) ={
     
       val query = "select count(distinct(transaction_hash)) as c from movements where block_height = "+height
       
       DB.withConnection { implicit connection =>
         (SQL(query)() map {row => Pagination(
-          page,
+          
           (row[Int]("c")+pageSize-1)/pageSize,
           pageSize
         )}).head

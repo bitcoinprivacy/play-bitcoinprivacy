@@ -15,12 +15,19 @@ function onLoaded()
   setLinks("bge_block", "block");
   setLinks("bge_tx", "transaction");
   setLinks("bge_wallet", "wallet");
+  formatAllNumbers();
 
   if ( ($(window).height() + 100) < $(document).height() ) {
     $('#top-link-block').removeClass('hidden').affix({
         offset: {top:100}
     });
   }
+}
+
+function numberWithCommas(x) {
+    var parts = x.toString().split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return parts.join(".");
 }
 
 function setLinks(className, url)  
@@ -37,10 +44,10 @@ function setLink(element, url)
   var isMulti = size>1;
   var width = Math.floor(isMulti?(80/size):100);
   arrSearch.forEach(function(e,i){
-    arrSearch[i] = (size > 1 ? "<span class='elliptic' style='display:inline-block;max-width:"+width+"%;'>&nbsp;" : "<span>") + e + "&nbsp;</span>";
+    arrSearch[i] = (size > 1 ? "<span class='elliptic' style='display:inline-block;max-width:"+width+"%;'>&nbsp;":"<span>") + e + "</span>";
 
   });
-  html = (size > 1 ? "<span class='elliptic' style='display:inline-block;max-width:10%;'>1 of&nbsp;</span>" : "")  + arrSearch.join("");
+  html = (size > 1 ? "<span class='elliptic' style='display:inline-block;max-width:10%;'>1 of&nbsp;</span>":"")  + arrSearch.join("");
   var search = element.getAttribute("search");  
   var a = document.createElement("a");
  a .style.width="100%";
@@ -69,7 +76,12 @@ function formatButton(className, label, positions)
 function formatAllValues(d)
 {
   $(".bge_value").each(function(i, v){formatBitcoinValues(i,v,d);});
-}  
+}
+
+function formatAllNumbers()
+{
+  $(".bge_number,.bge_block").each(function(i, v){formatNumber(v);});
+}
 
 function addDefaultAttributes(selector, attribute)
 {
@@ -79,5 +91,11 @@ function addDefaultAttributes(selector, attribute)
 function formatBitcoinValues(index, element, divisor)
 {
   var e = (element.firstChild.tagName=="A" ? element.firstChild : element);
-  e.innerHTML = parseFloat(element.getAttribute("satoshis")/Math.pow(10, divisor)).toFixed(divisor);
+  e.innerHTML = numberWithCommas(parseFloat(element.getAttribute("satoshis")/Math.pow(10, divisor)).toFixed(divisor));
+}
+
+function formatNumber(element)
+{ 
+  var e = (element.firstChild.tagName=="A" ? element.firstChild : element);
+  e.innerHTML = numberWithCommas(e.innerHTML);
 }

@@ -1,4 +1,4 @@
-@(blockHeight:Int, blocks: List[Block],addressForm:play.api.data.Form[String])
+@(blockHeight:Int, blocks: List[Block],page: Pagination, info: BlocksInfo, addressForm:play.api.data.Form[String], current: Int)
 
 @main("Bitcoin Graph Explorer", "explorer", addressForm){
   @row{<p>Welcome to bitcoin privacy. Enter a bitcoin address to check for other addresses that seem to belong to the same wallet</p>}
@@ -25,5 +25,6 @@
         }
       }
     } 
+        @pagination(page, "/explorer", current)          
   }
 }

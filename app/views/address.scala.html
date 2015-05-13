@@ -2,8 +2,7 @@
 
 @main("Address", "explorer", addressForm){
   @row{<p>Transaction outputs with the address</p>}  
-  @row{<p class="bge_wallet" search="@address">@address</p>}  
- 
+  @row{<a class="bge_wallet" search="@address">@address</a> (Click on the address to get to its wallet)  }  
   @not_found("address", outputs.length==0)
   @if(outputs.length>0){
     @row{
@@ -17,12 +16,12 @@
           <td class="bge_value text-right">@(info.in-info.out)</td>
         }
         @tr{
-          <td>First tx</td>
-          <td class="text-right">@info.minHeight</td>
+          <td>First tx in block</td>
+          <td class="text-right bge_block">@info.minHeight</td>
         }
         @tr{
-          <td>Last tx</td>
-          <td class="text-right">@info.maxHeight</td>
+          <td>Last tx in block</td>
+          <td class="text-right bge_block">@info.maxHeight</td>
         }        
         @tr{
           <td>Received</td>
@@ -34,11 +33,11 @@
         }
         @tr{
           <td>Total outputs</td>
-          <td class="text-right">@info.inputs</td>
+          <td class="text-right bge_number">@info.inputs</td>
         }
         @tr{
           <td>Unspent outputs</td>
-          <td class="text-right">@(info.inputs - info.outputs)</td>
+          <td class="text-right bge_number">@(info.inputs - info.outputs)</td>
         }
         @for( add <- address.split(",") if (address.split(",").length>1)){
           @tr{
@@ -53,11 +52,8 @@
           @tr{<th>Transaction outputs (TxOs)</th>}
       }
     }
-    
-    @row{
-      
+    @row{ 
       @table{
-        
         @tr{
           <th width="30%">Received in Tx</th>
           <th width="20%" class="text-right">Value</th>
@@ -78,7 +74,6 @@
           }
         }
       }
-
     }
     @pagination(page, "/address/"+address, current)
   }

@@ -2,7 +2,7 @@
 
 @main("Wallet", "explorer", addressForm){
   @row{ <p>Wallet of address</p>}
-  @row{<p class="bge_address">@inputAddress</p>}
+  @row{<a class="bge_address">@inputAddress </a> (Click on any address to get to its output details)}
   @for(t<-addressesOption){
     @if(t.length>0){
     @row{
@@ -12,11 +12,11 @@
           <th class="text-right">@unitButtons()</th>
         }
         @tr{
-          <td>Count</td>
-          <td class="text-right">@info.count</td>
+          <td>Number of non-empty addresses</td>
+          <td class="text-right bge_number">@info.count</td>
         }
         @tr{
-          <td>Balance</td>
+          <td>Total balance</td>
           <td class="bge_value text-right">@info.balance</td>
         }
       }

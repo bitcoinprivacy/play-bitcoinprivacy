@@ -1,23 +1,18 @@
-import org.bitcoinj.params.MainNetParams                                                                                                              
-import play.api.cache.Cache
-import scala.reflect.ClassTag
-import scala.util.control.Exception._                                                                                                                       
-import org.bitcoinj.core.{Address => BitcoinJAddress,AddressFormatException}                                                                                                              
-import play.api.data.{Form}
-import play.api.data.validation._
-import play.api.data.Forms.{single, nonEmptyText, of}
+import org.bitcoinj.core.{Address => BitcoinJAddress}
+import org.bitcoinj.params.MainNetParams
+import play.api.data.Form
+import play.api.data.Forms.{nonEmptyText, of, single}
 import play.api.data.format.Formats._
-import scala.concurrent.duration._
+import play.api.data.validation._
 import scala.concurrent._
-import play.api.mvc._
+import scala.reflect.ClassTag
+import scala.util.control.Exception._
 
 package object controllers {
   
   implicit def current = play.api.Play.current
 
   implicit def global = scala.concurrent.ExecutionContext.Implicits.global  
-
-  def timeout = 600 
 
   def hexAddress(stringAddress: String): String = {
     val arrayAddress = stringAddress.split(",")
@@ -31,7 +26,6 @@ package object controllers {
         yield  valueOf(new BitcoinJAddress(MainNetParams.get, arrayAddress(i)).getHash160) ).mkString("")
     }
   }
-
   
   val addressForm = Form(
     single("address" -> nonEmptyText(minLength=0, maxLength=64).verifying(chainConstraint))

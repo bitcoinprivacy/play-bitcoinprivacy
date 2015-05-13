@@ -63,14 +63,14 @@ object Movement{
     }
   }
 
-  def getMovementsPage(txHash: String, page: Int) = {
+  def getMovementsPage(txHash: String) = {
     DB.withConnection {implicit connection =>
       (SQL(
         "select " +
           "  (select count(*) from movements where transaction_hash = X'"+ txHash + "') as a," +
           "  (select count(*) from movements where transaction_hash = X'"++"') as b"
       )() map {row => Pagination(
-        page,
+        
         (Math.max(row[Int]("a"), row[Int]("b"))+pageSize-1)/pageSize,
         pageSize
       )}).head
