@@ -1,6 +1,6 @@
 @(page: Pagination, url: String, current: Int)
 
-@if(page.total>1){
+@if(page.total>page.size){
   @row{
   <nav class="text-center">
     <ul class="pagination">
@@ -13,15 +13,15 @@
           <span aria-hidden="true">&laquo;</span>
         </a>
       </li>
-      @for(i <- current - 10 to current+10 if(i>0 && i<=page.total)){
+      @for(i <- current - 10 to current+10 if(i>0 && i<=(page.size-1+page.total)/page.size)){
         @if(i==current){
           <li class="active"><a href="@url?page=@i">@i</a></li>
         } else{
           <li><a href="@url?page=@i">@i</a></li>
         }
       }
-      <li class=@("disabled".when(current==page.total))>
-        <a href=@if(current<page.total){
+      <li class=@("disabled".when(current==(page.size-1+page.total)/page.size))>
+        <a href=@if(current< (page.size-1+page.total)/page.size){
           "@url?page=@(current+1)"
           aria-label="Next">} else{
           "#"
@@ -31,6 +31,6 @@
       </li>
     </ul>
   </nav> 
-  <p class="text-center"><b>Showing page @current of @page.total, @page.size results</b></p>  
+  <p class="text-center"><b>Showing page @current of @((page.size-1+page.total)/page.size), @(if (current==(page.size-1+page.total)/page.size) page.total % page.size else page.size ) results</b></p>  
   }
 }

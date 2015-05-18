@@ -16,27 +16,27 @@
        <td class="text-right bge_number">@stats.bitcoins</td>
      }
      @tr{
-       <td class="elliptic">Number of known addresses</td>
+       <td class="elliptic">Addresses</td>
        <td class="text-right bge_number">@stats.addresses</td>
      }
      @tr{
-       <td class="elliptic">Number of known wallets</td>
+       <td class="elliptic">Wallets</td>
          <td class="text-right bge_number">@stats.wallets</td>
        }
        @tr{
-         <td class="elliptic">Number of known addresses with a positive balance</td>
+         <td class="elliptic">Addresses with a positive balance</td>
          <td class="text-right bge_number">@stats.addressesPositive</td>
        }
        @tr{
-         <td class="elliptic">Number of known wallets with a positive balance</td>
+         <td class="elliptic">Wallets with a positive balance</td>
          <td class="text-right bge_number">@stats.walletsPositive</td>
        }
        @tr{
-         <td class="elliptic">Number of known non-dust addresses</td>
+         <td class="elliptic">Non-dust addresses</td>
          <td class="text-right bge_number">@stats.addressesNoDust</td>
        }
        @tr{
-         <td class="elliptic">Number of known non-dust wallets</td>
+         <td class="elliptic">Non-dust wallets</td>
          <td class="text-right bge_number">@stats.walletsNoDust</td>
        }
        @tr{
@@ -47,12 +47,14 @@
        <td class="elliptic">Gini coefficient of non-dust wallets</td>
        <td class="text-right">@stats.giniWallets</td>
      }
+     
+     
     }
 
   }
 
   @b3.form(action = routes.Application.distributionPost) {
-     @b3.text(valueForm("value"), '_label -> "Cumulative distribution of Bitcoins",
+     @b3.text(valueForm("value"), '_label -> "Distribution of Bitcoins",
     'placeholder -> "Please enter a number of Bitcoins" )
      @b3.submit('class -> "btn btn-primary"){
       <span class="glyphicon glyphicon-ok"></span> Search
@@ -60,7 +62,7 @@
   }      
   
 
-@row{<p>There are @number(distribution.addresses) addresses with more than @inputValue bitcoins, totalling @number(distribution.bitcoins) BTC, @distribution.percent % of all bitcoins.</p>}
+@row{<p>There are @number(distribution.addresses) addresses with more than @inputValue bitcoins, totalling @number(distribution.bitcoins) BTC, @distribution.percent % of all Bitcoins.</p>}
 
 
 

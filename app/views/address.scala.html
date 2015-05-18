@@ -2,7 +2,7 @@
 
 @main("Address", "explorer", addressForm){
   @row{<p>Transaction outputs with the address</p>}  
-  @row{<a class="bge_wallet" search="@address">@address</a> (Click on the address to get to its wallet)  }  
+  @row{<span class="bge_wallet" search="@address">@address</span> (Click on the address to get to its wallet)  }  
   @not_found("address", outputs.length==0)
   @if(outputs.length>0){
     @row{

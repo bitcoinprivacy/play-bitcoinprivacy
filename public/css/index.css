@@ -1,7 +1,13 @@
 body{
-    padding-bottom:40px;
+    height:100%;
+    padding-bottom:50px;
 }
-
+html{
+    height:100%;
+}
+div.container{
+    min-height:100%;
+}
 .bge_address, 
 .bge_tx,
 .bge_wallet,
@@ -47,11 +53,12 @@ width: 100%;
 }
 #top-link-block.affix {
     position: fixed;
-    bottom: 0px;
-    left: 50%;
+    bottom: 10px;
+    left: 0px;
+    
 }
 .footer {
-  position: fixed;
-  bottom: 0;
+  padding-right:25px;
+  margin-bottom:-30px;
   width: 100%;
 }

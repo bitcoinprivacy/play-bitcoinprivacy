@@ -1,4 +1,3 @@
-
 package models
 
 import play.api.libs.json._
@@ -10,30 +9,51 @@ import play.api.cache.Cache
 import scala.concurrent._
 abstract class Model
 abstract class Info
-case class Block(hash: String, height: Int, tx: Long, value: Long) extends Model
+case class Block(hash: String, height: Int, tx: Long, value: Long, tstamp: Long) extends Model
 case class Pagination(total: Int, size: Int)
-case class BlocksInfo(string: String)
+case class BlocksInfo(total: Int, txs: Long)
 
 object Block{
   def getBlocks(height: Int, page: Int) =     
       DB.withConnection { implicit connection =>
-        (SQL("select hex(b.hash) as hash, b.block_height as block_height, ifnull(m.y,0) as tx_count, ifnull(m.z, 0) as btc from blocks b left join " +
-          " (select block_height as x, count(distinct(transaction_hash)) as y, sum(value) as z from movements where block_height <= " + height + " and block_height > " +(height-pageSize)+
-          " group by block_height) m " +
-          " on b.block_height = m.x where b.block_height <= " + (height) + " and b.block_height > " + (height-pageSize)  + "  order by block_height desc" )() map {
+        (SQL(" SELECT " +
+          "  hex(hash) as hash,"+
+          "  block_height, "+
+          "  tstamp, " +
+          "  txs, "+
+          "  btcs "+
+          " FROM " + 
+          "  blocks " +
+          " WHERE " + 
+          "  block_height <= " + (height) + 
+          
+          " ORDER BY " +
+          "  block_height desc " +
+          " LIMIT "+((page-1)*pageSize)+","+pageSize)() map {
           row => Block(
             row[String]("hash"),
             row[Int]("block_height"),
-            row[Int]("tx_count"),
-            row[Long]("btc")
+            row[Int]("txs"),
+            row[Long]("btcs"),
+            row[Long]("tstamp")
           )}).toList
   }
 
-  def getBlocksInfo =
-    BlocksInfo("")
+  def getBlocksInfo(height: Int) =
+    DB.withConnection{implicit connection => (SQL("select count(1) as total, sum(txs) as txs from blocks where block_height <= "+ height)() map {
+      row => BlocksInfo(
+        row[Int]("total"),
+        row[Long]("txs")
+      )}).head
+    }
 
-  def getBlocksPage =
-    Pagination(300,pageSize)
+  def getBlocksPage(height: Int) =
+    DB.withConnection{implicit connection => (SQL("select count(1) as total from blocks where block_height <= "+ height)() map {
+      row => Pagination(
+        row[Int]("total"),
+        pageSize
+      )}).head
+    }
 
 
   def getBlockHeight = 

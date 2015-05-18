@@ -18,7 +18,7 @@ package object models {
   implicit def global = scala.concurrent.ExecutionContext.Implicits.global
   implicit def current = play.api.Play.current
 
-  def pageSize = 1000 
+  def pageSize = play.Play.application().configuration().getInt("page.size")
 
   implicit class StringImprovements(val s: String) {
     def toIntOpt = catching(classOf[NumberFormatException]) opt s.toInt

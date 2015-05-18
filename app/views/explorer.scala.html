@@ -4,27 +4,45 @@
   @row{<p>Welcome to bitcoin privacy. Enter a bitcoin address to check for other addresses that seem to belong to the same wallet</p>}
   @row{<p>With the Bitcoin Graph Explorer you can also explore the blocks, transactions and addresses according to the blockchain up to block @blockHeight</p>}
   @row{
-    
-    @table{
-      @tr{
-        <td><b>Blocks</b></th>
-        <td colspan=3 class="text-right">@unitButtons()</th>
-      }
-      @tr{
-        <td width="20%"><b>Height</b></th>
-        <td width="50%"><b>Hash</b></th>
-        <td width="10%" class="text-right">Tx</th>
-        <td width="20%" class="text-right">Value</th>
-      }
-      @for(block <- blocks){   
+    @not_found("page", blocks.size==0)
+    @if(blocks.size > 0){
+      @table{
         @tr{
-          <td class="bge_block">@block.height</td>
-          <td class="bge_hash">@block.hash</td>
-          <td class="text-right">@block.tx</td>
-          <td class="bge_value text-right">@block.value</td>
+          <th>Summary</th>
+          <th></th>
         }
+        @tr{
+          <td>Total</td>
+          <td class="text-right bge_number">@info.total</td>
+        }
+        @tr{
+          <td>Txs</td>
+          <td class="text-right bge_number">@info.txs</td>
+        } 
       }
-    } 
-        @pagination(page, "/explorer", current)          
+      @table{
+        @tr{
+          <td><b>Blocks</b></th>
+          <td colspan=4 class="text-right">@unitButtons()</th>
+        }
+        @tr{
+          <td width="15%"><b>Height</b></th>
+          <td width="30%"><b>Hash</b></th>
+          <td width="10%" class="text-right">Tx</th>
+          <td width="20%" class="text-right">Value</th>
+          <td width="20%" class="text-right">Time</th>
+        }
+        @for(block <- blocks){   
+          @tr{
+            <td class="bge_block">@block.height</td>
+            <td class="bge_hash">@block.hash</td>
+            <td class="text-right">@block.tx</td>
+            <td class="bge_value text-right">@block.value</td>
+            <td class="text-right bge_date">@block.tstamp</td>
+          }
+        }
+      } 
+      @pagination(page, "/explorer", current)          
+    }
   }
 }

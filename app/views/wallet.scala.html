@@ -2,7 +2,7 @@
 
 @main("Wallet", "explorer", addressForm){
   @row{ <p>Wallet of address</p>}
-  @row{<a class="bge_address">@inputAddress </a> (Click on any address to get to its output details)}
+  @row{<span class="bge_address">@inputAddress </span> (Click on any address to get to its output details)}
   @for(t<-addressesOption){
     @if(t.length>0){
     @row{

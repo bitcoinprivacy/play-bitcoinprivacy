@@ -10,19 +10,61 @@ function onLoaded()
   formatButton("show_sat", "sat", 0);
   formatButton("show_bit", "bit", 2);
   formatButton("show_mil", "mBTC", 5);
-  $(".show_btc").click();
   setLinks("bge_address", "address");
   setLinks("bge_block", "block");
   setLinks("bge_tx", "transaction");
   setLinks("bge_wallet", "wallet");
   formatAllNumbers();
-
+  formatAllDates();
+  formatAllTimes();
+  $(".show_btc").click();
   if ( ($(window).height() + 100) < $(document).height() ) {
     $('#top-link-block').removeClass('hidden').affix({
         offset: {top:100}
     });
   }
 }
+
+function dateConverter(UNIX_timestamp){
+  var a = new Date(UNIX_timestamp*1000);
+  var year = a.getFullYear();
+  var month = a.getMonth()+1;
+  if (month < 10)
+    month = "0" + month
+  var date = a.getDate();
+  if (date < 10)
+    date = "0" + date
+  var hour = a.getHours();
+  if (hour < 10)
+    hour = "0" + hour
+  var min = a.getMinutes();
+  if (min < 10)
+    min = "0" + min
+
+
+  var time = date + '/' + month + '/' + year + " " + hour + ':' + min;
+  return time;
+}
+
+function timeConverter(seconds){
+  var hours = Math.floor(seconds / 3600);
+  var minutes = Math.floor((seconds % 3600) / 60);
+  var secondsT = seconds % 60;
+  
+  return (hours > 0  ? hours + "h " : "") + 
+         (minutes > 0 ? minutes  + "m " : "")  + 
+         (secondsT + "s")
+  ;
+}
+
+function formatDate(element) {
+  
+  element.innerHTML = dateConverter(parseInt(element.innerHTML));
+}
+
+function formatTime(element) {
+  element.innerHTML = timeConverter(parseInt(element.innerHTML));
+} 
 
 function numberWithCommas(x) {
     var parts = x.toString().split(".");
@@ -81,6 +123,16 @@ function formatAllValues(d)
 function formatAllNumbers()
 {
   $(".bge_number,.bge_block").each(function(i, v){formatNumber(v);});
+}
+
+function formatAllDates()
+{
+  $(".bge_date").each(function(i,v){formatDate(v);});
+}
+
+function formatAllTimes()
+{
+  $(".bge_time").each(function(i,v){formatTime(v);});
 }
 
 function addDefaultAttributes(selector, attribute)

@@ -27,3 +27,4 @@ GET   /transaction/:hash      controllers.Application.transaction(hash: String, 
 
 GET    /address/:hash         controllers.Application.address(hash: String, page: Int?=1)
 
+GET    /server      controllers.Application.server

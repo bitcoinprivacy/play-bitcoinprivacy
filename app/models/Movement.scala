@@ -11,15 +11,15 @@ case class MovementsInfo(inputs: Long, outputs: Long, in: Long, out: Long, heigh
 
 object Movement{
   
-  def getMovementsInfo(txHash: String) = {
+  def getMovementsInfo(txHash: String, height: Int) = {
       DB.withConnection { implicit connection =>
         (SQL(
           " select" +
-            " (select count(*) from movements where transaction_hash = X'"+txHash+"') as a, " +
-            " (select count(*) from movements where spent_in_transaction_hash = X'"+txHash+"') as b, " +
-            " (select ifnull(sum(ifnull(`value`,0)),0) from movements where transaction_hash = X'"+txHash+"') as d, " +
-            " (select ifnull(sum(ifnull(`value`,0)),0) from movements where spent_in_transaction_hash = X'"+txHash+"') as c," +
-            " (select block_height from movements where transaction_hash = X'"+txHash+"' limit 1) as h"
+            " ifnull((select count(*) from movements where transaction_hash = X'"+txHash+"'),0) as a, " +
+            " ifnull((select count(*) from movements where spent_in_transaction_hash = X'"+txHash+"'),0) as b, " +
+            " ifnull((select ifnull(sum(ifnull(`value`,0)),0) from movements where transaction_hash = X'"+txHash+"'),0) as d, " +
+            " ifnull((select ifnull(sum(ifnull(`value`,0)),0) from movements where spent_in_transaction_hash = X'"+txHash+"'),0) as c," +
+            " ifnull((select block_height from movements where transaction_hash = X'"+txHash+"' limit 1),0) as h"
         )() map {row => MovementsInfo(
           row[Int]("a"),
           row[Int]("b"),
@@ -32,7 +32,7 @@ object Movement{
   }
 
 
-  def getMovements(txHash: String, page: Int) = {
+  def getMovements(txHash: String, height: Int, page: Int) = {
     val query = " SELECT  ifnull(value, 0) as  balance, address as address, ifnull(hex(spent_in_transaction_hash),'') as tx " +
               " FROM  movements WHERE  transaction_hash = X'"+txHash+"' limit "+(pageSize*(page-1))+","+pageSize 
     val query2 = " SELECT ifnull(n.value,0) as balance, n.address as address, hex(n.transaction_hash) as tx" +
@@ -63,7 +63,7 @@ object Movement{
     }
   }
 
-  def getMovementsPage(txHash: String) = {
+  def getMovementsPage(txHash: String, height: Int) = {
     DB.withConnection {implicit connection =>
       (SQL(
         "select " +
@@ -71,7 +71,7 @@ object Movement{
           "  (select count(*) from movements where transaction_hash = X'"++"') as b"
       )() map {row => Pagination(
         
-        (Math.max(row[Int]("a"), row[Int]("b"))+pageSize-1)/pageSize,
+        Math.max(row[Int]("a"), row[Int]("b")),
         pageSize
       )}).head
     }

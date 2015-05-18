@@ -10,14 +10,25 @@
          <th>Summary</th>
          <th class="text-right">@unitButtons()</th>
         }
+        @if(info.tstamp > 0){
+          @tr{
+            <td>In blockchain since</td>
+            <td class="text-right bge_date">@info.tstamp</td>
+          }
+        }
+        @tr{
+          <td>Total sent</td>
+          <td class="text-right bge_value">@info.value</td>
+        }
+        
         @tr{
           <td>Transactions</td>
           <td class="text-right bge_number">@info.tx</td>
-        }
-        @tr{
-          <td>Value</td>
-          <td class="text-right bge_value">@info.value</td>
-        }
+        }        
+        <tr style="height:2em">
+          <td ></td>
+          <td> </td>
+        </tr>
         @tr{
           <th width="75%">Transaction</th>
           <th width="25%" class="text-right">Value</th>
