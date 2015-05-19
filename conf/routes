@@ -4,6 +4,7 @@ GET  /favicon.ico   controllers.Assets.at(path="/public", file="img/bitcoin.png"
 GET  /assets/*file        controllers.Assets.at(path="/public", file)
 
 GET     /                           controllers.Application.index
+GET     /index.php/search.html      controllers.Application.index
 
 POST    /search                       controllers.Application.search
 
@@ -12,12 +13,16 @@ POST    /searchWallet                 controllers.Application.searchWallet
 GET    /wallet/:address                      controllers.Application.wallet(address: String, page: Int ?=1)
 
 GET    /richlist             controllers.Application.richList
+GET    /index.php/richlist.html controllers.Application.richList
 
-GET    /stats/:value      controllers.Application.stats(value: String)
+GET    /stats/:value            controllers.Application.stats(value: String)
+GET    /index.php/stats.html    controllers.Application.stats(value: String ?= "1000.0")
+GET    /index.php/distribution.html    controllers.Application.stats(value: String ?= "1000.0")
 
 POST   /distribution      controllers.Application.distributionPost
 
 GET    /faq                     controllers.Application.faq
+GET    /index.php/about.html    controllers.Application.faq
 
 GET    /explorer               controllers.Application.explorer(page: Int ?=1)
 

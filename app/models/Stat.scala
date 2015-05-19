@@ -10,7 +10,8 @@ case class Stat(
   height: Int, bitcoins: Long, addresses: Long, wallets: Long, addressesPositive: Long, walletsPositive: Long, 
   addressesNoDust: Long, walletsNoDust: Long, giniAddresses: Double, giniWallets: Double)
 case class ServerStat(
-  tstamp: Long,  duration: Long, averageDuration: Long, averageBlocks : Int, databaseSize: Long
+  tstamp: Long, blocks: Int, duration: Long, averageDuration: Long, averageBlocks : Int, databaseSize: Long,
+  lastCommand: Stream[String]
 )
 
 case class Distribution(percent: Double, addresses: Long, bitcoins: Long)
@@ -39,10 +40,13 @@ object Stat{
 
 
   def getServerStats(height: Int) = {
+    import sys.process._
     DB.withConnection { implicit connection =>
       (SQL(
         "select tstamp, " + 
           " (select tstamp from stats where block_height < " +height+ " order by block_height desc limit 1) as duration, " + 
+          " (select block_height from stats order by block_height desc limit 1) as b1," +
+          " (select block_height from stats order by block_height desc limit 1,1 ) as b2," +
           " (select (max(block_height) - min(block_height))/count(1) from stats) as avgBlocks," +
           " (select (max(tstamp) - min(tstamp))/count(1) from stats where tstamp > 0) as avgDuration, "+
           " (SELECT sum(data_length) + sum(index_length) FROM information_schema.TABLES WHERE table_schema = 'movements') as dbSize " +
@@ -50,11 +54,12 @@ object Stat{
       )() map {row => ServerStat(
         
         row[Long]("tstamp"),
-        
+        row[Int]("b1")-row[Int]("b2"),
         row[Long]("tstamp") - row[Long]("duration"),
         row[Long]("avgDuration"),
         row[Int]("avgBlocks"),
-        row[Long]("dbSize")
+        row[Long]("dbSize"),
+        Seq("tail", "-n", "10", "/root/serverdata/resume.log").lines
       )}).head
     }
   }

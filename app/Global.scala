@@ -21,5 +21,11 @@ object Global extends GlobalSettings {
     ))
   }
 
-      
+  override def onRouteRequest(request: RequestHeader): Option[Handler] = {
+  //if ( !request.headers.get("x-forwarded-proto").getOrElse("").contains("https")) {
+  //  Some(Secure.redirect)
+  //} else {
+    super.onRouteRequest(request)
+  //}
+  }
 }

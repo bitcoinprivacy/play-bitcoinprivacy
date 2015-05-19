@@ -16,6 +16,10 @@
        <td class="text-right bge_time">@stats.averageDuration</td>
       }
       @tr{
+       <td class="elliptic">Blocks</td>
+       <td class="text-right bge_number">@stats.blocks</td>
+      }
+      @tr{
        <td class="elliptic">Average blocks</td>
        <td class="text-right bge_number">@stats.averageBlocks</td>
       }
@@ -23,6 +27,16 @@
        <td class="elliptic">Database size</td>
        <td class="text-right bge_number">@(stats.databaseSize / (1024*1024)) MB</td>
       }
+      @*@tr{
+       <th>Commands</th>
+       <th></th>
+      }
+      @for(line <- stats.lastCommand){ 
+        @tr{
+          
+          <td colspan=2 class="">@line</td>
+        }
+      }*@
     }
   }
 }
