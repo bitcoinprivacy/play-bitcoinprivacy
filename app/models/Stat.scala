@@ -11,7 +11,7 @@ case class Stat(
   addressesNoDust: Long, walletsNoDust: Long, giniAddresses: Double, giniWallets: Double)
 case class ServerStat(
   tstamp: Long, blocks: Int, duration: Long, averageDuration: Long, averageBlocks : Int, databaseSize: Long,
-  lastCommand: Stream[String]
+  lastCommand: Stream[String], users: Int, clicks: Int
 )
 
 case class Distribution(percent: Double, addresses: Long, bitcoins: Long)
@@ -49,7 +49,9 @@ object Stat{
           " (select block_height from stats order by block_height desc limit 1,1 ) as b2," +
           " (select (max(block_height) - min(block_height))/count(1) from stats) as avgBlocks," +
           " (select (max(tstamp) - min(tstamp))/count(1) from stats where tstamp > 0) as avgDuration, "+
-          " (SELECT sum(data_length) + sum(index_length) FROM information_schema.TABLES WHERE table_schema = 'movements') as dbSize " +
+          " (SELECT sum(data_length) + sum(index_length) FROM information_schema.TABLES WHERE table_schema = 'movements') as dbSize, " +
+          " (select count(1) from bitcoinprivacy.access where date(created) = date(now()) ) as clicks, " + 
+          " (select count(distinct(ip))  from bitcoinprivacy.access where date(created) = date(now()) ) as users " +
         " from  stats where block_height = " + height
       )() map {row => ServerStat(
         
@@ -59,7 +61,9 @@ object Stat{
         row[Long]("avgDuration"),
         row[Int]("avgBlocks"),
         row[Long]("dbSize"),
-        Seq("tail", "-n", "10", "/root/serverdata/resume.log").lines
+        Seq("tail", "-n", "10", "/root/serverdata/resume.log").lines,
+        row[Int]("users"),
+        row[Int]("clicks")
       )}).head
     }
   }

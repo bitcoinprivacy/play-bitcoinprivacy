@@ -33,4 +33,5 @@
 * TODO enable real application secret
 * TODO integrate QR codes
 
+* TODO inserting an address does not work if it starts with whitespace. Stripping whitespace from the input should help.
 * to explore: sparkle, scala.js ...

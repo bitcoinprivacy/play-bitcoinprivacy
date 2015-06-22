@@ -35,7 +35,7 @@ object Movement{
   def getMovements(txHash: String, height: Int, page: Int) = {
     val query = " SELECT  ifnull(value, 0) as  balance, address as address, ifnull(hex(spent_in_transaction_hash),'') as tx " +
               " FROM  movements WHERE  transaction_hash = X'"+txHash+"' limit "+(pageSize*(page-1))+","+pageSize 
-    val query2 = " SELECT ifnull(n.value,0) as balance, n.address as address, hex(n.transaction_hash) as tx" +
+    val query2 = " SELECT ifnull(n.value,0) as balance, ifnull(n.address,X'') as address, hex(n.transaction_hash) as tx" +
               " FROM movements n left outer join movements m "+
               " on m.transaction_hash = n.spent_in_transaction_hash " +
               " WHERE n.spent_in_transaction_hash = X'"+txHash+"'" +
