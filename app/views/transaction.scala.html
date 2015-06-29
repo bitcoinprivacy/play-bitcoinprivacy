@@ -25,13 +25,13 @@
         }
         @tr{
           <td>Sum of Inputs</td>
-          <td class="bge_value text-right">@info.in</td>
+          <td class="bge_value text-right">@info.inputSum</td>
         }
         @tr{
           <td>Sum of Outputs</td>
-          <td class="bge_value text-right">@info.out</td>
+          <td class="bge_value text-right">@info.outputSum</td>
         }
-        @if(info.in==0){
+        @if(info.inputs==0){
           @tr{
             <td>Coinbase transaction (freshly mined bitcoins plus fees of this block)</td>
             @*TODO: link to block, redesign search position*@
@@ -40,7 +40,7 @@
        }else{
          @tr{
            <td>Fee</td>
-           <td class="bge_value text-right">@(info.in - info.out)</td>
+           <td class="bge_value text-right">@(info.inputSum - info.outputSum)</td>
          }
        }
      }
@@ -53,7 +53,7 @@
       }
       @for(m <- movements._1){   
         @tr{
-          <td class="bge_address">@m.address</td>
+          <td class=@("bge_address".when(m.address!="No decodable address found"))>@m.address</td>
           <td search="@m.hash" class="bge_value bge_tx_in text-right  @(" bge_tx".when(m.hash != ""))">@m.value</td>
         }
       }  
@@ -66,7 +66,7 @@
       }
       @for(m <- movements._2){
         @tr{
-          <td class="bge_address">@m.address</td>
+          <td class=@("bge_address".when(m.address!="No decodable address found"))>@m.address</td>
           <td search="@m.hash" class="text-right bge_tx_out bge_value @(" bge_tx".when(m.hash != ""))">@m.value</td>
         }
       }

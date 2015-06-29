@@ -50,8 +50,8 @@ object Stat{
           " (select (max(block_height) - min(block_height))/count(1) from stats) as avgBlocks," +
           " (select (max(tstamp) - min(tstamp))/count(1) from stats where tstamp > 0) as avgDuration, "+
           " (SELECT sum(data_length) + sum(index_length) FROM information_schema.TABLES WHERE table_schema = 'movements') as dbSize, " +
-          " (select count(1) from bitcoinprivacy.access where date(created) = date(now()) ) as clicks, " + 
-          " (select count(distinct(ip))  from bitcoinprivacy.access where date(created) = date(now()) ) as users " +
+          " (select count(1) from bitcoinprivacy.access where date_sub(curdate(), interval 24 hour) <= created)  as clicks, " + 
+          " (select count(distinct(ip)) from bitcoinprivacy.access where date_sub(curdate(), interval 24 hour) <= created) as users " +  
         " from  stats where block_height = " + height
       )() map {row => ServerStat(
         

@@ -5,7 +5,9 @@
 ** emacs with everything we need
 * DONE install play-bitcoinprivacy docker
 * DONE add this file to an appropriate git repo
-* TODO put home/www-test-data on the oder hd
+* DONE put home/www-test-data on the oder hd
+  CLOSED: [2015-06-29 Mon 09:04]
+  - CLOSING NOTE [2015-06-29 Mon 09:04]
 * TODO make getblocklist.sh watch for existing processes
 * TODO add date to history.log...
 * DONE connect a copy of the real db
