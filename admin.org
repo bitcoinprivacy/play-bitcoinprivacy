@@ -22,7 +22,7 @@ DOCKER_OPTS="-g /home/docker"
 *** first start a mysql docker:
 **** experimental
 #+BEGIN_SRC sh
-docker run --name mysql2 -e MYSQL_ROOT_PASSWORD=trivial -e MYSQL_DATABASE=movements -v /home/disk2/db/conf.d:/etc/mysql/conf.d -v /home/disk2/db/mysql:/var/lib/mysql -v /home/disk2/db/tmp:/tmp -d  mysql
+docker run --name mysql2 -e MYSQL_ROOT_PASSWORD=trivial -e MYSQL_DATABASE=movements -v /home/disk2/db/conf.d:/etc/mysql/conf.d -v /home/disk2/db/mysql:/var/lib/mysql -v /home/disk2/db/tmp:/tmp -d  mariadb
 #+END_SRC 
 **** production
 #+BEGIN_SRC sh
@@ -36,10 +36,10 @@ strange errors because the docker /tmp is full
 #+BEGIN_SRC sh
 docker run -t -i -p 9000:9000 -v /home/disk2/www-data:/root/serverdata --link mysql2:mysql stefanwouldgo/play-bitcoinprivacy:v4 /bin/bash
 #+END_SRC
-
+    
 *** for production
 #+BEGIN_SRC sh
-
+ docker run -t -i -p 80:80 -p 443:443 -v /home/www-data:/root/serverdata --link mysql:mysql stefanwouldgo/play-bitcoinprivacy:v4 /bin/bash
 #+END_SRC
 
 *** or build your own docker by doing
@@ -78,9 +78,9 @@ docker run -t -i -v /home/bitcoin-data:/root/.bitcoin --link mysql2:mysql -v /ho
 #+END_SRC
 **** production
 #+BEGIN_SRC sh
-
+docker run -t -i -v /home/bitcoin-data:/root/.bitcoin --link mysql:mysql -v /home/www-data:/root/bge/blockchain stefanwouldgo/bge:v22 /bin/bash
 #+END_SRC
-or build your own docker by doing
+*** or build your own docker by doing
 #+BEGIN_SRC sh
 git clone https://github.com/stefanwouldgo/Bitcoin-Graph-Explorer.git bge
 cd bge
