@@ -35,19 +35,15 @@ package object models {
     }
   }
 
- def hashToAddress(hash: Array[Byte]): String = {   
-    if (hash.length==20){
-      return new Add(MainNetParams.get,0,hash).toString
-    }
-    if (hash.length==21){
-      return new Add(MainNetParams.get,hash.head.toInt,hash.tail).toString
-    }
-    if (hash.length%20==1){
-      return (for (i <- 1 to hash.length-20 by 20) yield hashToAddress(hash.slice(i,i+20)) ).mkString(",")
-    }
-    else{
-      return hash.length + " undefined"
-    }
+ def hashToAddress(hash: Array[Byte]): String = hash.length match {   
+   case 20 => new Add(MainNetParams.get,0,hash).toString
+   case 21 => new Add(MainNetParams.get,hash.head.toInt,hash.tail).toString
+   case 0 => "No decodable address found"
+   case x if (x%20==1) => 
+     (for (i <- 1 to hash.length-20 by 20)
+     yield hashToAddress(hash.slice(i,i+20)) ).mkString(",")
+   case _  => hash.length + " undefined"
  }
-
 }
+
+

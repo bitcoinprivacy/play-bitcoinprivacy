@@ -2,13 +2,6 @@
 * joda-time is not necessary in java 8 anymore. there is java.time now, and there is a scala.time wrapper. for now, we don't need any of them.
 * fork in run in sbt is said to be the reason for play reload hanging sometimes
 
-* there are multiple file backends for docker, 
-  and we seem to use some version of devicemapper. It appears
-  devicemapper has/had some bugs, and there might be performance 
-  benefits to changing the backend. still, I believe it might be the
-  wisest path to just keep using docker and wait for upstream to
-  change, unless we keep having problems with this
-
 * mysql needs space in /tmp, though you can change this directory in my.cnf
 * tmpfs wasn't mounted on this server, but I guess it's a good idea, so I did it
 * tmux saves its sockets in /tmp, so after mounting tmpfs I couldn't tmux attach, but
@@ -17,3 +10,13 @@
 #+END_SRC
   made it reopen its sockets. I have never understood what sockets
   are, btw.
+* there are multiple file backends for docker,
+  and we seem to use some version of devicemapper. It appears
+  devicemapper has/had some bugs, and there might be performance 
+  benefits to changing the backend. still, I believe it might be the
+  wisest path to just keep using docker and wait for upstream to
+  change, unless we keep having problems with this 
+
+Well, now we have problems with this: https://github.com/docker/docker/issues/4036
+* there is a way to remotely connect visualvm, just google visualvm remote. 
+  unfortunately, it doesn't seem to do profiling, but maybe the information this gives us is good enough

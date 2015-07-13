@@ -7,7 +7,7 @@ import org.bitcoinj.params.MainNetParams
 import org.bitcoinj.core.AddressFormatException
 
 case class Movement(address:String, hash: String, value: Long) 
-case class MovementsInfo(inputs: Long, outputs: Long, in: Long, out: Long, height: Int)
+case class MovementsInfo(inputs: Long, outputs: Long, inputSum: Long, outputSum: Long, height: Int)
 
 object Movement{
   
@@ -33,12 +33,11 @@ object Movement{
 
 
   def getMovements(txHash: String, height: Int, page: Int) = {
-    val query = " SELECT  ifnull(value, 0) as  balance, address as address, ifnull(hex(spent_in_transaction_hash),'') as tx " +
+    val query = " SELECT  ifnull(value, 0) as  balance, ifnull(address,X'') as address, ifnull(hex(spent_in_transaction_hash),'') as tx " +
               " FROM  movements WHERE  transaction_hash = X'"+txHash+"' limit "+(pageSize*(page-1))+","+pageSize 
-    val query2 = " SELECT ifnull(n.value,0) as balance, n.address as address, hex(n.transaction_hash) as tx" +
-              " FROM movements n left outer join movements m "+
-              " on m.transaction_hash = n.spent_in_transaction_hash " +
-              " WHERE n.spent_in_transaction_hash = X'"+txHash+"'" +
+    val query2 = " SELECT ifnull(value,0) as balance, ifnull(address,X'') as address, hex(transaction_hash) as tx" +
+              " FROM movements " +
+              " WHERE spent_in_transaction_hash = X'"+txHash+"'" +
               " GROUP BY address " +
               " LIMIT " + (pageSize*(page-1)) + ","+pageSize
             
