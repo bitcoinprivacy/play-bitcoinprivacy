@@ -19,16 +19,17 @@ object Address
   }
 
   def getAddressesPage(hex:String, height: Int) = {
-    val query = "select floor(("+(pageSize-1)+" + count(*))/"+pageSize+") as c from (SELECT hash as hash, balance FROM addresses WHERE balance > 0 and representant = X'"+hex+"') m "
+    Pagination(100,100)
+/*    val query = "select floor(("+(pageSize-1)+" + count(*))/"+pageSize+") as c from (SELECT hash as hash, balance FROM addresses WHERE balance > 0 and representant = X'"+hex+"') m "
     DB.withConnection { implicit connection =>
       (SQL(query)() map {row => Pagination(row[Int]("c"), pageSize)}).head
-    }
+    }*/
   }
 
   def getAddressesInfo(hex: String, height: Int) = {
     val query =
-      "select count(*) as c, ifnull(sum(ifnull(m.balance,0)),0) as v " + 
-      " from (SELECT hash as hash, balance FROM addresses WHERE balance > 0 and representant = X'"+hex+"') m  "
+//      "select sum(value) as v, count(distinct(address)) as c from movements where address in (select hash from addresses where representant = X'"+hex+"') and spent_in_transaction_hash is null;"
+    "select 1 as c, 1 as v"
     DB.withConnection { implicit connection =>
       (SQL(query)() map {row => AddressesInfo(row[Int]("c"),row[Long]("v"))}).head
     }
@@ -54,12 +55,17 @@ object Address
   }
 
   def getAddresses(hex:String, height: Int,page: Int) = {
-    val query = 
-      "select m.hash as hash, m.balance as balance from " + 
-      " (SELECT hash as hash, balance FROM addresses WHERE balance > 0 and representant = X'"+hex+"') m " +
-      " limit "+(page-1)*pageSize+","+pageSize
+5
+    val subquery = "select hex(hash) as hash from addresses where representant = X'"+hex+"' limit 10000470"
+    val hashes = DB.withConnection { implicit connection =>
+      (SQL(subquery)() map {row => "X'"+row[String]("hash")+"'"}).toList
+    }
+    val stringHashes = hashes.mkString(",")
+    println(stringHashes)
+    val query =
+      "select sum(value) as balance, address from movements where address in ("+stringHashes+") and spent_in_transaction_hash is null group by address " 
     DB.withConnection { implicit connection =>
-      (SQL(query)() map {row => Address(hashToAddress(row[Array[Byte]]("hash")),row[Option[Long]]("balance").getOrElse(0L))}).toList
+      (SQL(query)() map {row => Address(hashToAddress(row[Array[Byte]]("address")),row[Option[Long]]("balance").getOrElse(0L))}).toList
     }
   }
 }
