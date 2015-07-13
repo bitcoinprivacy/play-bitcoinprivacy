@@ -2,22 +2,27 @@
 * How to setup a bitcoinprivacy server
 
 ** We assume you have installed a debian/ubuntu system
-** you will need a running docker-lxc >= 1.5 (google how to get it), 
-   emacs24 (-nox probably) to read and execute this (do C-c C-o to execute a code block), tmux, git
+** you will need a running docker-lxc >= 1.5 (google how to get it, I had to install some other kernel and change grub default to point to it), 
+   emacs24 (-nox probably) to read and execute this (do C-c C-o to execute a code block, you might need to do this on
+#+begin_src emacs-lisp :exports none
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((sh . t)))
+#+end_src
+ first), tmux, git
    #+BEGIN_SRC sh
 apt-get update && apt-get install -y lxc-docker emacs24-nox tmux git 
    #+END_SRC
-
+ 
 ** it might be a good idea to put the docker working directory on a big disk to avoid disk full problems.
    add something like
 #+BEGIN_SRC 
 DOCKER_OPTS="-g /home/docker"
 #+END_SRC 
-   to /etc/default/docker
+   to /etc/default/docker. beware, this directory might have to be deleted after an upgrade.
 ** also, a tmpfs on /tmp might be a nice, put it in /etc/fstab and do mount -a
 ** finally, start tmux and make a window (C-b c) for every docker you want to keep a bash open in, give it a nice name (C-b ,)
 ** you might have to do docker login
-
 ** to start play:
 *** first start a mysql docker:
 **** experimental
@@ -28,9 +33,11 @@ docker run --name mysql2 -e MYSQL_ROOT_PASSWORD=trivial -e MYSQL_DATABASE=moveme
 #+BEGIN_SRC sh
 docker run --name mysql -e MYSQL_ROOT_PASSWORD=trivial -e MYSQL_DATABASE=movements -v /home/db/conf.d:/etc/mysql/conf.d -v /home/db/mysql:/var/lib/mysql -v /home/db/tmp:/tmp -d  mysql
 #+END_SRC
+
+#+RESULTS:
+
 note the mounted /tmp, this is needed because otherwise mysql throws
 strange errors because the docker /tmp is full
-
 
 *** then, for experimental
 #+BEGIN_SRC sh
@@ -68,7 +75,7 @@ docker run -t -i -p 8333:8333 -v /home/bitcoin-data:/.bitcoin stefanwouldgo/bitc
 #+BEGIN_SRC sh
 /home/getblocklist.sh && cron
 #+END_SRC
-
+    
 ** to start bge, think about on which disk you want to run this (if there is one instance running on the same disk already, this could be a problem)
 *** then, first start a mysql docker (as above in play)    
 *** start the bge docker:
@@ -86,7 +93,10 @@ git clone https://github.com/stefanwouldgo/Bitcoin-Graph-Explorer.git bge
 cd bge
 docker build .
 #+END_SRC
+*** then, to start resume
+#+BEGIN_SRC sh
 
+#+END_SRC
 
 ** in emacs, if you want IDE support, do (M-x ensime). before doing this for the first time, you need to generate a .ensime file at the project home by
 #+BEGIN_SRC sh

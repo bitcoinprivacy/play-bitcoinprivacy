@@ -10,6 +10,9 @@
 #+END_SRC
   made it reopen its sockets. I have never understood what sockets
   are, btw.
+* you can now save sessions in tmux using c-b c-s, and resurrect them using c-b c-r
+* for this, I added another ppa for tmux 2.0
+* unfortunately, tmux at doesn't simply work anymore. at the moment it' s tmux -S /tmp/tmux-0/default at
 * there are multiple file backends for docker,
   and we seem to use some version of devicemapper. It appears
   devicemapper has/had some bugs, and there might be performance 
@@ -20,3 +23,5 @@
 Well, now we have problems with this: https://github.com/docker/docker/issues/4036
 * there is a way to remotely connect visualvm, just google visualvm remote. 
   unfortunately, it doesn't seem to do profiling, but maybe the information this gives us is good enough
+  I can't get this to work because one of the ports is random
+
