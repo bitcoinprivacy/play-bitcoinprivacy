@@ -43,10 +43,10 @@
       @for(((address, representant),pos) <- richestList.zipWithIndex){
         @tr{          
           <td class="text-left">@(pos+1)</td>
-          <td class="bge_address">@address.hash</td>
-          <td class="text-right bge_number">@address.balance</td>
-          <td class="bge_wallet">@representant.hash</td>
-          <td class="text-right bge_number">@representant.balance</td>
+          <td class="bge_address">@address.address</td>
+          <td class="text-right bge_number">@(address.balance/100000000)</td>
+          <td class="bge_wallet">@representant.address</td>
+          <td class="text-right bge_number">@(representant.balance/100000000)</td>
         }
       }
     }

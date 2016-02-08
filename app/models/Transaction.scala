@@ -1,5 +1,8 @@
 package models
 
+import play.api.libs.ws._
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import anorm._
 import scala.concurrent.Future
@@ -10,40 +13,11 @@ case class Transaction(hash:String,value: Long)
 case class TransactionInfo(value: Long, tx: Int, tstamp: Long)
 
 object Transaction{
+  implicit val transactionReads = Json.reads[Transaction]
+  def getTransactions(height: Int, blockHeight: Int, page: Int): Future[List[Transaction]] = WS.url("http://bitcoinprivacy.net:8080/txs/" + height + "/" + pageSize*(page-1) + "/" + pageSize * page) .get().map {response => (response.json).as[List[Transaction]]}
 
-  def getTransactions(height: Int, blockHeight: Int, page: Int) = {    
-    val query = 
-      "SELECT sum(value) as balance, hex(transaction_hash) as address FROM movements WHERE "+ height +" <= " + blockHeight + " and block_height = "+height+
-      " GROUP BY transaction_hash limit "+(pageSize*(page-1))+", "+pageSize
-    DB.withConnection { implicit connection =>
-      (SQL(query)() map {row => Transaction(
-        row[String]("address"),
-        row[Long]("balance"))
-      }).toList
-    }    
-  }
+  def getTransactionPage(height: Int) = Future{Pagination(10,1)}
 
-  def getTransactionPage(height: Int) ={
-    val query = "select count(distinct(transaction_hash)) as c from movements where block_height = "+height
-    DB.withConnection { implicit connection =>
-        (SQL(query)() map {row => Pagination(
-          row[Int]("c"),
-          pageSize
-        )}).head
-      }
-    
-  }
+  def getTransactionInfo(height: Int) = Future{TransactionInfo(100L, 1,1)}
 
-  def getTransactionInfo(height: Int) = {
-    val query =
-      "select ifnull(count(distinct(transaction_hash)),0) as count, ifnull(sum(ifnull(value,0)),0) as value, ifnull((select tstamp from blocks " +
-      " where block_height = "+height+"),0) as tstamp  from movements where block_height = "+height
-    DB.withConnection { implicit connection =>
-      (SQL(query)() map {row => TransactionInfo(
-        row[Long]("value"),
-        row[Int]("count"),
-        row[Long]("tstamp")
-      )}).head
-    }
-  }
 }

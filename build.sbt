@@ -1,4 +1,4 @@
-import NativePackagerKeys._
+//import NativePackagerKeys._
 
 name := """play-bitcoinprivacy"""
 
@@ -9,8 +9,9 @@ scalaVersion := "2.11.6"
 libraryDependencies ++= Seq(
   cache,
   jdbc,
-  anorm,
-  "mysql" % "mysql-connector-java" % "5.1.18",
+  "com.typesafe.play" %% "anorm" % "2.4.0",
+  ws,
+  "postgresql" % "postgresql" % "9.1-901-1.jdbc4",
   "org.bitcoinj" % "bitcoinj-core" % "0.12",
   "com.adrianhurt" %% "play-bootstrap3" % "0.4"
 )
@@ -34,6 +35,6 @@ fork in run := false
 maintainer := "Stefan and Jorge"
 
 // exposing the play ports
-dockerExposedPorts in Docker := Seq(9000, 9443)
+//dockerExposedPorts in Docker := Seq(9000, 9443)
 
 // run this with: docker run -p 9000:9000 play-2-3:1.0-SNAPSHOT

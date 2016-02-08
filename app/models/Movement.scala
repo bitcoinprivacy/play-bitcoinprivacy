@@ -1,78 +1,30 @@
 package models
 
+import play.api.libs.ws._
 import play.api.libs.json._
+import play.api.libs.functional.syntax._
 import anorm._
 import scala.concurrent.Future
 import org.bitcoinj.params.MainNetParams
 import org.bitcoinj.core.AddressFormatException
 
-case class Movement(address:String, hash: String, value: Long) 
+case class Movement(tx:String, value: Long, spentInTx: String)
 case class MovementsInfo(inputs: Long, outputs: Long, inputSum: Long, outputSum: Long, height: Int)
 
 object Movement{
-  
-  def getMovementsInfo(txHash: String, height: Int) = {
-      DB.withConnection { implicit connection =>
-        (SQL(
-          " select" +
-            " ifnull((select count(*) from movements where transaction_hash = X'"+txHash+"'),0) as a, " +
-            " ifnull((select count(*) from movements where spent_in_transaction_hash = X'"+txHash+"'),0) as b, " +
-            " ifnull((select ifnull(sum(ifnull(`value`,0)),0) from movements where transaction_hash = X'"+txHash+"'),0) as d, " +
-            " ifnull((select ifnull(sum(ifnull(`value`,0)),0) from movements where spent_in_transaction_hash = X'"+txHash+"'),0) as c," +
-            " ifnull((select block_height from movements where transaction_hash = X'"+txHash+"' limit 1),0) as h"
-        )() map {row => MovementsInfo(
-          row[Int]("a"),
-          row[Int]("b"),
-          row[Long]("c"),
-          row[Long]("d"),
-          row[Int]("h")
-        )}).head
 
-    }
-  }
+  implicit val movementReads = Json.reads[Movement]
 
+  def getOutputsInfo(txHash: String, height: Int) = Future{MovementsInfo(1,1,1,1,1)}
 
-  def getMovements(txHash: String, height: Int, page: Int) = {
-    val query = " SELECT  ifnull(value, 0) as  balance, ifnull(address,X'') as address, ifnull(hex(spent_in_transaction_hash),'') as tx " +
-              " FROM  movements WHERE  transaction_hash = X'"+txHash+"' limit "+(pageSize*(page-1))+","+pageSize 
-    val query2 = " SELECT ifnull(value,0) as balance, ifnull(address,X'') as address, hex(transaction_hash) as tx" +
-              " FROM movements " +
-              " WHERE spent_in_transaction_hash = X'"+txHash+"'" +
-              " GROUP BY address " +
-              " LIMIT " + (pageSize*(page-1)) + ","+pageSize
-            
-    
-    DB.withConnection { implicit connection =>
-      (
-        (SQL(query2
+  def getInputsInfo(txHash: String, height: Int) = Future{MovementsInfo(1,1,1,1,1)}
 
-        )() map {row => Movement(
-          hashToAddress(row[Array[Byte]]("address")),
-          row[String]("tx"),
-          row[Long]("balance")
-        )}).toList,
-        (SQL(query
+  def getOutputs(txHash: String, height: Int, from: Int, to: Int) = getFromApi("outputs",  txHash, from.toString, to.toString) map {response => (response.json).as[List[Movement]]}
 
-        )() map {row => Movement(
-          hashToAddress(row[Array[Byte]]("address")),
-          row[String]("tx"),
-          row[Long]("balance")
-        )}).toList
-      )
-    }
-  }
+  def getInputs(txHash: String, height: Int, from: Int, to: Int) = getFromApi("inputs",  txHash, from.toString, to.toString) map {response => (response.json).as[List[Movement]]}
 
-  def getMovementsPage(txHash: String, height: Int) = {
-    DB.withConnection {implicit connection =>
-      (SQL(
-        "select " +
-          "  (select count(*) from movements where transaction_hash = X'"+ txHash + "') as a," +
-          "  (select count(*) from movements where transaction_hash = X'"++"') as b"
-      )() map {row => Pagination(
-        
-        Math.max(row[Int]("a"), row[Int]("b")),
-        pageSize
-      )}).head
-    }
-  }
+  def getInfoFromAddress(ad: String, height: Int) = Future{MovementsInfo(1,1,1,1,1)}
+
+  def getFromAddress(ad: String, height: Int, from: Int, to: Int) = getFromApi("movements",  ad, from.toString, to.toString) map {response => (response.json).as[List[Movement]]}
+
 }

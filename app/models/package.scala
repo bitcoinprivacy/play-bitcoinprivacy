@@ -11,6 +11,10 @@ import play.api.cache.{Cache, Cached => Cacheed}
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.concurrent._
+import play.api.libs.ws._
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
+
 
 package object models {
   
@@ -34,7 +38,7 @@ package object models {
       }
     }
   }
-
+ 
  def hashToAddress(hash: Array[Byte]): String = hash.length match {   
    case 20 => new Add(MainNetParams.get,0,hash).toString
    case 21 => new Add(MainNetParams.get,hash.head.toInt,hash.tail).toString
@@ -44,6 +48,9 @@ package object models {
      yield hashToAddress(hash.slice(i,i+20)) ).mkString(",")
    case _  => hash.length + " undefined"
  }
+
+  def getFromApi(params:String*) = 
+    WS.url("http://bitcoinprivacy.net:8080/"+params.mkString("/")).get()
 }
 
 

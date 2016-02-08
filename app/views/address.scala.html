@@ -1,4 +1,4 @@
-@(address:String, outputs:List[Output], info: OutputsInfo, page: Pagination, addressForm:play.api.data.Form[String], current: Int)
+@(address:String, outputs:List[UTXO], movements:List[Movement], info: UTXOsInfo, movementsInfo: MovementsInfo, addressForm:play.api.data.Form[String], current: Int)
 
 @main("Address", "explorer", addressForm){
   @row{<p>Transaction outputs with the address</p>}  
@@ -62,19 +62,24 @@
         }
         @for(o <- outputs){   
           @tr{                             
-            <td class="bge_tx" search="@o.hash">@o.hash</td>
+            <td class="bge_tx" search="@o.tx">@o.tx</td>
             <td class="text-right in bge_tx_in bge_value" satoshis="@o.value">@o.value</td>
-            @if(o.spent != ""){
-              <td class="bge_tx" search="@o.spent">@o.spent</td>
-              <td class="text-right bge_tx_out bge_value" search="@o.spent" satoshis="@o.value">@o.value</td>
-            }else {
-              <td></td>
-              <td></td>
+            <td></td>
+            <td></td>
             }
+        }
+        
+        @for(m <- movements){   
+          @tr{                             
+            <td class="bge_tx" search="@m.tx">@m.tx</td>
+            <td class="text-right in bge_tx_in bge_value" satoshis="@m.value">@m.value</td>
+            <td class="bge_tx" search="@m.spentInTx">@m.spentInTx</td>
+            <td class="text-right bge_tx_out bge_value" search="@m.spentInTx" satoshis="@m.value">@m.value</td>
+            
           }
         }
       }
     }
-    @pagination(page, "/address/"+address, current)
+    @* @pagination(page, "/address/"+address, current)*@
   }
 }
