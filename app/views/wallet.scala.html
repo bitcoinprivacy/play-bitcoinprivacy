@@ -1,4 +1,4 @@
-@(blockHeight:Int,inputAddress:String,addressForm:play.api.data.Form[String],info:AddressesInfo,page:Pagination,addressesOption:Option[List[Address]], current: Int)
+@(blockHeight:Int,inputAddress:String,addressForm:play.api.data.Form[String],info:AddressesSummary,addressesOption:Option[List[Address]], current: Int)
 
 @main("Wallet", "explorer", addressForm){
   @row{ <p>Wallet of address</p>}
@@ -17,7 +17,7 @@
         }
         @tr{
           <td>Total balance</td>
-          <td class="bge_value text-right">@info.balance</td>
+          <td class="bge_value text-right">@info.sum</td>
         }
       }
     }
@@ -36,7 +36,7 @@
       }
     }
 
-    @pagination(page,"/wallet/"+inputAddress, current)
+    @*@pagination(page,"/wallet/"+inputAddress, current)*@
     }
     @not_found("address", t.length==0)
   }

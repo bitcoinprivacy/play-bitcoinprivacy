@@ -4,7 +4,7 @@ import play.api.libs.json._
 import play.api.libs.ws._
 
 case class Address(address:String,balance:Long) 
-case class AddressesSummary(count: Int, balance: Long)
+case class AddressesSummary(count: Int, sum: Long)
 
 object Address  
 {

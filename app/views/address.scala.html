@@ -1,4 +1,4 @@
-@(address:String, outputs:List[UTXO], movements:List[Movement], info: UTXOsInfo, movementsInfo: MovementsInfo, addressForm:play.api.data.Form[String], current: Int)
+@(address:String, outputs:List[UTXO], movements:List[Movement], utxosInfo: UTXOsSummary, movementsInfo: MovementsSummary, addressForm:play.api.data.Form[String], current: Int)
 
 @main("Address", "explorer", addressForm){
   @row{<p>Transaction outputs with the address</p>}  
@@ -13,31 +13,31 @@
         }
         @tr{
           <td>Balance</td>
-          <td class="bge_value text-right">@(info.in-info.out)</td>
+          <td class="bge_value text-right">@utxosInfo.sum</td>
         }
         @tr{
           <td>First tx in block</td>
-          <td class="text-right bge_block">@info.minHeight</td>
+          <td class="text-right bge_block">@(Math.min(utxosInfo.minHeight, movementsInfo.minHeight))</td>
         }
         @tr{
           <td>Last tx in block</td>
-          <td class="text-right bge_block">@info.maxHeight</td>
+          <td class="text-right bge_block">@(Math.max(utxosInfo.maxHeight, movementsInfo.maxHeight))</td>
         }        
         @tr{
           <td>Received</td>
-          <td class="bge_value text-right">@info.in</td>
+          <td class="bge_value text-right">@(utxosInfo.sum + movementsInfo.sum)</td>
         }
         @tr{
           <td>Spent</td>
-          <td class="bge_value text-right">@info.out</td>
+          <td class="bge_value text-right">@movementsInfo.sum</td>
         }
         @tr{
           <td>Total outputs</td>
-          <td class="text-right bge_number">@info.inputs</td>
+          <td class="text-right bge_number">@(movementsInfo.count+utxosInfo.count)</td>
         }
         @tr{
           <td>Unspent outputs</td>
-          <td class="text-right bge_number">@(info.inputs - info.outputs)</td>
+          <td class="text-right bge_number">@utxosInfo.count</td>
         }
         @for( add <- address.split(",") if (address.split(",").length>1)){
           @tr{

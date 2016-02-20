@@ -8,23 +8,40 @@ import scala.concurrent.Future
 import org.bitcoinj.params.MainNetParams
 import org.bitcoinj.core.AddressFormatException
 
-case class Movement(tx:String, value: Long, spentInTx: String)
-case class MovementsInfo(inputs: Long, outputs: Long, inputSum: Long, outputSum: Long, height: Int)
+case class Movement(tx:String, value: Long, spentInTx: String, address: String)
+case class MovementsSummary(sum: Long, count: Long, maxHeight: Int, minHeight: Int)
 
 object Movement{
 
   implicit val movementReads = Json.reads[Movement]
 
-  def getOutputsInfo(txHash: String, height: Int) = Future{MovementsInfo(1,1,1,1,1)}
+  def getOutputs(txHash: String, height: Int, from: Int, to: Int) =
+    getFromApi("outputs",  txHash, from.toString, to.toString).
+      map (_.json.as[List[Movement]])
 
-  def getInputsInfo(txHash: String, height: Int) = Future{MovementsInfo(1,1,1,1,1)}
+  def getInputs(txHash: String, height: Int, from: Int, to: Int) =
+    getFromApi("inputs",  txHash, from.toString, to.toString).
+      map {_.json.as[List[Movement]]}
 
-  def getOutputs(txHash: String, height: Int, from: Int, to: Int) = getFromApi("outputs",  txHash, from.toString, to.toString) map {response => (response.json).as[List[Movement]]}
+  def getFromAddress(ad: String, height: Int, from: Int, to: Int) =
+    getFromApi("movements",  ad, from.toString, to.toString).
+      map {_.json.as[List[Movement]]}
 
-  def getInputs(txHash: String, height: Int, from: Int, to: Int) = getFromApi("inputs",  txHash, from.toString, to.toString) map {response => (response.json).as[List[Movement]]}
+}
 
-  def getInfoFromAddress(ad: String, height: Int) = Future{MovementsInfo(1,1,1,1,1)}
+object MovementsSummary{
 
-  def getFromAddress(ad: String, height: Int, from: Int, to: Int) = getFromApi("movements",  ad, from.toString, to.toString) map {response => (response.json).as[List[Movement]]}
+  implicit val movementsSummaryReads = Json.reads[MovementsSummary]
 
+  def getOutputsInfo(txHash: String, height: Int) =
+    getFromApi("outputs", txHash, "summary").
+      map(_.json.as[MovementsSummary])
+
+  def getInputsInfo(txHash: String, height: Int) =
+  getFromApi("inputs", txHash, "summary").
+    map(_.json.as[MovementsSummary])
+
+  def getInfoFromAddress(ad: String, height: Int) =
+  getFromApi("movements", ad, "summary").
+    map(_.json.as[MovementsSummary])
 }

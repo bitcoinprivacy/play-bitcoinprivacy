@@ -84,12 +84,13 @@ object Application extends Controller {
   def richList = load("richList"){
     for {
       blockHeight <- Block.getBlockHeight
-      addressList <- Address.getRichList(blockHeight, "richest_addresses")
-      walletList <- Address.getRichList(blockHeight, "richest_closures")
-      listInfo <- Address.getRichestInfo(blockHeight)
+      addressList <- Address.getRichList(blockHeight, "addresses")
+      walletList <- Address.getRichList(blockHeight, "wallets")
+      addressInfo <- AddressesSummary.getRichest(blockHeight, "addresses")
+      walletsInfo <- AddressesSummary.getRichest(blockHeight, "wallets")
     }
     yield{
-      Ok(views.html.richlist(blockHeight, addressList zip walletList, listInfo, addressForm))
+      Ok(views.html.richlist(blockHeight, addressList,  walletList, addressInfo, walletsInfo, addressForm))
     }
   }
 
@@ -148,12 +149,11 @@ object Application extends Controller {
       load("wallet."+page+"."++address) {
         for {
           blockHeight <- Block.getBlockHeight
-          walletList <- Address.getAddresses(address,blockHeight,page)
-          walletInfo <- Address.getAddressesInfo(address, blockHeight)
-          walletPage <- Address.getAddressesPage(address, blockHeight)
+          walletList <- Address.getWallet(address,blockHeight,pageSize*(page-1), pageSize*page)
+          walletInfo <- AddressesSummary.get(address, blockHeight)
         }
         yield{
-          Ok(views.html.wallet(blockHeight, address,addressForm, walletInfo,walletPage, Some(walletList), page))
+          Ok(views.html.wallet(blockHeight, address,addressForm, walletInfo, Some(walletList), page))
         }
       }
     } else{
@@ -186,10 +186,10 @@ object Application extends Controller {
         height <- Block.getBlockHeight
         inputs <- Movement.getInputs(txHash, height, (page-1)*pageSize, pageSize*page)
         outputs<- Movement.getOutputs(txHash, height, (page-1)*pageSize, pageSize*page)
-        inputsInfo <- Movement.getInputsInfo(txHash, height)
-        outputsInfo <- Movement.getOutputsInfo(txHash, height)
+        inputsInfo <- MovementsSummary.getInputsInfo(txHash, height)
+        outputsInfo <- MovementsSummary.getOutputsInfo(txHash, height)
         utxos <- UTXO.getFromTx(txHash, height, (page-1)*pageSize, pageSize*page)
-        uInfo <- UTXO.getInfoFromTx(txHash, height)
+        uInfo <- UTXOsSummary.getFromTx(txHash, height)
       }
       yield{
         Ok(views.html.transaction(txHash, inputs, outputs, utxos, inputsInfo, outputsInfo,  uInfo,  addressForm, page))
@@ -205,8 +205,8 @@ object Application extends Controller {
         height <- Block.getBlockHeight
         utxos <- UTXO.getFromAddress(address,height, pageSize*(page-1), pageSize*page)
         movements <- Movement.getFromAddress(address, height, pageSize*(page-1), pageSize*page)
-        movementsInfo <- Movement.getInfoFromAddress(address, height)
-        txInfo <- UTXO.getInfoFromAddress(address, height)       
+        movementsInfo <- MovementsSummary.getInfoFromAddress(address, height)
+        txInfo <- UTXOsSummary.getFromAddress(address, height)       
       }
       yield{
         Ok(views.html.address(address, utxos, movements, txInfo, movementsInfo, addressForm, page))

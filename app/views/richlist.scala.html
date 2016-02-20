@@ -1,4 +1,4 @@
-@(blockHeight:Int, richestList:List[(Address, Address)], info: RichestInfo, addressForm:play.api.data.Form[String])
+@(blockHeight:Int, addressesList:List[Address], walletsList: List[Address], addressesInfo: AddressesSummary, walletsInfo: AddressesSummary, addressForm:play.api.data.Form[String])
 
 @main("Bitcoin (Partial Wallet) Rich List", "richlist", addressForm){
   @row{<p></p>}
@@ -12,25 +12,24 @@
       }
       @tr{
         <td>Total BTC in top 1000 addresses</td>
-        <td class="text-right"><span class="bge_number">@(info.inAddresses/100000000)</span></td>
+        <td class="text-right"><span class="bge_number">@(addressesInfo.sum/100000000)</span></td>
       }
       @tr{
         <td>Fraction of all Bitcoins</td>
-<td class="text-right">@(100*info.inAddresses/(100000000*info.total))%</td>
+        <td class="text-right">TODO</td>
       }
       @tr{
         <td>
           Total BTC in top 1000 wallets
-          
         </td>    
         <td class="text-right">
-          <span class="bge_number">@(info.inWallets/100000000)</span>
+          <span class="bge_number">@(walletsInfo.sum/100000000)</span>
         </td>
       }
-        @tr{
+      @tr{
         <td>Fraction of all Bitcoins</td>
-      <td class="text-right">@(100*info.inWallets/(100000000*info.total))%</td>
-           }
+        <td class="text-right">TODO</td>
+       }
     }
     @table{
       @tr{
@@ -40,7 +39,7 @@
         <th width="25%" class="">Wallets</th>
         <th width="20%" class="text-right">Balance</th>
       }      
-      @for(((address, representant),pos) <- richestList.zipWithIndex){
+      @for(((address, representant),pos) <- (addressesList zip walletsList).zipWithIndex){
         @tr{          
           <td class="text-left">@(pos+1)</td>
           <td class="bge_address">@address.address</td>
