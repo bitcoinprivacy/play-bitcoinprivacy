@@ -11,6 +11,7 @@ libraryDependencies ++= Seq(
   jdbc,
   "com.typesafe.play" %% "anorm" % "2.4.0",
   ws,
+  evolutions,
   "postgresql" % "postgresql" % "9.1-901-1.jdbc4",
   "org.bitcoinj" % "bitcoinj-core" % "0.12",
   "com.adrianhurt" %% "play-bootstrap3" % "0.4"

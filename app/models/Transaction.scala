@@ -10,14 +10,24 @@ import org.bitcoinj.params.MainNetParams
 import org.bitcoinj.core.AddressFormatException
 
 case class Transaction(hash:String,value: Long) 
-case class TransactionInfo(value: Long, tx: Int, tstamp: Long)
+case class TransactionsSummary(value: Long, tx: Int, tstamp: Long)
 
 object Transaction{
+
   implicit val transactionReads = Json.reads[Transaction]
-  def getTransactions(height: Int, blockHeight: Int, page: Int): Future[List[Transaction]] = WS.url("http://bitcoinprivacy.net:8080/txs/" + height + "/" + pageSize*(page-1) + "/" + pageSize * page) .get().map {response => (response.json).as[List[Transaction]]}
 
-  def getTransactionPage(height: Int) = Future{Pagination(10,1)}
+  def get(height: Int, blockHeight: Int, from: Int, to: Int) =
+    getFromApi("txs", height.toString, from.toString, to.toString).
+      map (_.json.as[List[Transaction]])
 
-  def getTransactionInfo(height: Int) = Future{TransactionInfo(100L, 1,1)}
+}
+
+object TransactionsSummary{
+
+  implicit val transactionsummaryReads = Json.reads[TransactionsSummary]
+
+  def get(height: Int, blockHeight: Int) =
+    getFromApi("txs", height.toString, "summary").
+      map(_.json.as[TransactionsSummary])
 
 }

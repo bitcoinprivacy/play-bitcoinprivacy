@@ -1,9 +1,9 @@
-@(height: Int, list: List[Transaction], page: Pagination, info: TransactionInfo,addressForm:play.api.data.Form[String], current: Int)
+@(height: Int, list: List[Transaction], info: TransactionsSummary,addressForm:play.api.data.Form[String], current: Int)
 
 @main("Block", "explorer", addressForm){
   @row{<p>Transactions from block @height</p>}
-  @not_found("block", list.length==0)
-  @if(list.length>0){
+  @not_found("block", info.tx==0)
+  @if(info.tx>0){
     @row{
       @table{
         @tr{
@@ -42,6 +42,6 @@
       }
     }
     
-    @pagination(page, "/block/"+height, current)          
+@*    @pagination(page, "/block/"+height, current)          *@
   }
 }

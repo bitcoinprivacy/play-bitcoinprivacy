@@ -20,45 +20,7 @@ object Application extends Controller {
     Ok(views.html.faq(addressForm))
   }
 
-  val timeout = play.Play.application().configuration().getInt("cache.duration")
-
-  // cache for the models data
-
-  def load[A: ClassTag](label: String, info: => A) = {
-    Future {
-      Cache.getAs[A](label).getOrElse{
-        Cache.set(label, info, timeout)
-        info
-      }  
-    }
-  }
-
-  // cache for the views direct from http request
-
-  case class Logging[A](path:String, action: Action[A]) extends Action[A] {
-    def apply(request:Request[A]): Future[Result] = 
-      Future {DB.withConnection("bitcoinprivacy"){ implicit connection =>
-      //(SQL"insert into access (ip,path) values (${request.remoteAddress}, $path)").executeUpdate()
-    }} flatMap (_ => action(request))
-
-    lazy val parser = action.parser
-  }
- 
-  def log(path:String)(action: Action[AnyContent]) = {}
-    //new Logging(path, action)
-  
- 
-  def load(path: String)(fR: => Future[Result]) = 
-    new Logging(path, 
-      Cache.getAs[Action[AnyContent]](path).getOrElse {
-        val action = Action.async(fR)
-        Cache.set(path, action, timeout)
-        action
-      }
-    )
-    
-    
-  def index = load("index"){
+  def index = Action.async{
     for {
       height <- Block.getBlockHeight
     }
@@ -66,9 +28,7 @@ object Application extends Controller {
       Ok(views.html.index(height, addressForm))
   }
 
-
-
-  def explorer(page: Int) = load("explorer."+page){
+  def explorer(page: Int) = Action.async{
     for {
       height <- Block.getBlockHeight
       blockList <- Block.getBlocks(height,page)
@@ -79,9 +39,8 @@ object Application extends Controller {
       Ok(views.html.explorer(height, blockList,blocksPage, blocksInfo, addressForm, page))
     }
   }
-  
 
-  def richList = load("richList"){
+  def richList = Action.async{
     for {
       blockHeight <- Block.getBlockHeight
       addressList <- Address.getRichList(blockHeight, "addresses")
@@ -93,7 +52,6 @@ object Application extends Controller {
       Ok(views.html.richlist(blockHeight, addressList,  walletList, addressInfo, walletsInfo, addressForm))
     }
   }
-
 
   def search = Action.async { implicit request =>
     addressForm.bindFromRequest.fold(
@@ -118,7 +76,6 @@ object Application extends Controller {
       }      
     )
   }
-
 
   def searchWallet = Action.async { implicit request =>
     addressForm.bindFromRequest.fold(
@@ -146,7 +103,7 @@ object Application extends Controller {
   def wallet(address: String, page: Int) =
   {
     if (isAddress(address)){
-      load("wallet."+page+"."++address) {
+      Action.async{
         for {
           blockHeight <- Block.getBlockHeight
           walletList <- Address.getWallet(address,blockHeight,pageSize*(page-1), pageSize*page)
@@ -164,24 +121,23 @@ object Application extends Controller {
   def wrong(message: String) = Action.async(Future(Ok(views.html.wrong_search(message, addressForm))))
   
   def block(height: String, page: Int) = 
-    if (isBlock(height)) load("block."+page+"."+height){
+    if (isBlock(height)) Action.async{
       for {
         blockHeight <- Block.getBlockHeight
-        txList <- Transaction.getTransactions(height.toInt, blockHeight, page)
-        txInfo <- Transaction.getTransactionInfo(height.toInt)
-        txPage <- Transaction.getTransactionPage(height.toInt)
+        txList <- Transaction.get(height.toInt, blockHeight, pageSize*(page-1), pageSize *page)
+        txInfo <- TransactionsSummary.get(height.toInt, blockHeight)
       }
       yield{
-        Ok(views.html.block(height.toInt, txList, txPage, txInfo, addressForm,page))
+        Ok(views.html.block(height.toInt, txList, txInfo, addressForm,page))
       }
     }
     else{
       wrong("Invalid block number " + height)
     }
 
-  def transaction(txHash: String, page: Int) = 
+  def transaction(txHash: String, page: Int) = {
 
- if (isTx(txHash)) load("transaction."+page+"."+txHash) {
+    if (isTx(txHash)) Action.async{
       for {
         height <- Block.getBlockHeight
         inputs <- Movement.getInputs(txHash, height, (page-1)*pageSize, pageSize*page)
@@ -197,10 +153,10 @@ object Application extends Controller {
     } else{
       wrong("Bad request: " + txHash + " is not a valid hash")
     }
-
+  }
 
   def address(address: String, page: Int) = 
-    if (isAddress(address)) load("address."+page+"."+address){
+    if (isAddress(address)) Action.async{
       for {
         height <- Block.getBlockHeight
         utxos <- UTXO.getFromAddress(address,height, pageSize*(page-1), pageSize*page)
@@ -219,7 +175,7 @@ object Application extends Controller {
 
   def stats(value: String) = 
     if (isPositiveDouble(value))
-      load("distribution."+value){
+      Action.async{
         for {
           height <- Block.getBlockHeight
           stats <- Stat.getStats(height)
@@ -234,17 +190,17 @@ object Application extends Controller {
     }
   
 
-def server = 
-   Action.async{
-        for {
-          height <- Block.getBlockHeight
-          stats <- Stat.getServerStats(height)
-        }
-        yield{
-          Ok(views.html.server(height, stats, addressForm))
-        }
-   }
-  
+  def server =
+    Action.async{
+      for {
+        height <- Block.getBlockHeight
+        stats <- Stat.getServerStats(height)
+      }
+      yield{
+        Ok(views.html.server(height, stats, addressForm))
+      }
+    }
+
 
   def distributionPost = Action.async { implicit request =>
     valueForm.bindFromRequest.fold({
