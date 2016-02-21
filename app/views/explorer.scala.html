@@ -1,11 +1,11 @@
-@(blockHeight:Int, blocks: List[Block],page: Pagination, info: BlocksInfo, addressForm:play.api.data.Form[String], current: Int)
+@(blockHeight:Int, blocks: List[Block], info: BlocksInfo, addressForm:play.api.data.Form[String], current: Int)
 
 @main("Bitcoin Graph Explorer", "explorer", addressForm){
   @row{<p>Welcome to bitcoin privacy. Enter a bitcoin address to check for other addresses that seem to belong to the same wallet</p>}
   @row{<p>With the Bitcoin Graph Explorer you can also explore the blocks, transactions and addresses according to the blockchain up to block @blockHeight</p>}
   @row{
-    @not_found("page", blocks.size==0)
-    @if(blocks.size > 0){
+    @not_found("page", blocks.size==0 && current>1)
+    @if(blocks.size > 0 || current == 1){
       @table{
         @tr{
           <th>Summary</th>
@@ -42,7 +42,7 @@
           }
         }
       } 
-      @pagination(page, "/explorer", current)          
+      @pagination(blocks.size, 1000, "/explorer", current)          
     }
   }
 }

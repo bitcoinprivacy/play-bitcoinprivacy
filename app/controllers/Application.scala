@@ -33,10 +33,9 @@ object Application extends Controller {
       height <- Block.getBlockHeight
       blockList <- Block.getBlocks(height,page)
       blocksInfo <- Block.getBlocksInfo(height)
-      blocksPage <- Block.getBlocksPage(height)
     }
     yield{
-      Ok(views.html.explorer(height, blockList,blocksPage, blocksInfo, addressForm, page))
+      Ok(views.html.explorer(height, blockList, blocksInfo, addressForm, page))
     }
   }
 
