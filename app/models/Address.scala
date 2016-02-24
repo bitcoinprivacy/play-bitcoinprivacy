@@ -32,3 +32,4 @@ object AddressesSummary {
       map (_.json.as[AddressesSummary])
 
 }
+  
