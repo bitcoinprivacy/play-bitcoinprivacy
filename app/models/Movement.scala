@@ -1,12 +1,8 @@
 package models
 
-import play.api.libs.ws._
 import play.api.libs.json._
-import play.api.libs.functional.syntax._
-import anorm._
+import play.api.libs.ws._
 import scala.concurrent.Future
-import org.bitcoinj.params.MainNetParams
-import org.bitcoinj.core.AddressFormatException
 
 case class Movement(tx:String, value: Long, spentInTx: String, address: String)
 case class MovementsSummary(sum: Long, count: Long, maxHeight: Int, minHeight: Int)

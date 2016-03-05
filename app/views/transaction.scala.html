@@ -13,7 +13,7 @@
         }
         @tr{
           <td>Height</td>
-          <td class="text-right bge_block">@outputsInfo.maxHeight</td>
+<td class="text-right bge_block">@(Math.max(Math.max(outputsInfo.maxHeight, info.maxHeight), inputsInfo.maxHeight))</td>
         }
         @tr{
           <td>Inputs</td>
@@ -65,20 +65,20 @@
         <th width="40%" class="text-right">Value</th>
       }
         
-      @for(m <- outputs){
-        @tr{
-          <td class=@("bge_address".when(m.address!="No decodable address found"))>@m.address</td>
-          <td search="@m.address" class="text-right bge_tx_out bge_value @(" bge_tx".when(m.tx != ""))">@m.value</td>
-        }
-      }  
       @for(u <- utxo){
         @tr{
           <td class=@("bge_address".when(u.address!="No decodable address found"))>@u.address</td>
           <td class="text-right bge_tx_out bge_value">@u.value</td>
         }
       }
+      @for(m <- outputs){
+        @tr{
+          <td class=@("bge_address".when(m.address!="No decodable address found"))>@m.address</td>
+          <td search="@m.address" class="text-right bge_tx_out bge_value @(" bge_tx".when(m.tx != ""))">@m.value</td>
+        }
+      }        
     }
   }
-  @* @pagination(page,"/transaction/"+txHash, current)*@
+          @pagination(Math.max(inputsInfo.count,outputsInfo.count+info.count), "/transaction/"+txHash, current)
 }
 }

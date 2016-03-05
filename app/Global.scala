@@ -16,8 +16,9 @@ object Global extends GlobalSettings {
   }
 
   override def onError(request: RequestHeader, ex: Throwable) = {
+    throw ex
     Future.successful(InternalServerError(
-        views.html.not_found_page("exception " + ex, addressForm)
+        views.html.exception_page("exception " + ex, addressForm)
     ))
   }
 

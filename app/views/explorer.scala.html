@@ -32,7 +32,7 @@
           <td width="20%" class="text-right">Value</th>
           <td width="20%" class="text-right">Time</th>
         }
-        @for(block <- blocks){   
+        @for(block <- blocks.reverse){   
           @tr{
             <td class="bge_block">@block.height</td>
             <td class="bge_hash">@block.hash</td>
@@ -42,7 +42,7 @@
           }
         }
       } 
-      @pagination(blocks.size, 1000, "/explorer", current)          
+      @pagination(info.total+1, "/explorer", current)          
     }
   }
 }

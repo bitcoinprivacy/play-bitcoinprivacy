@@ -21,10 +21,8 @@ object Stat{
   implicit val statReads = Json.reads[Stat]
   implicit val distribution = Json.reads[Distribution]
 
-  def getStats(height: Int): Future[Stat] = WS.url("http://bitcoinprivacy.net:8080/stats").get().map {response => (response.json).as[Stat]}
+  def getStats(height: Int): Future[Stat] = getFromApi("stats") map {_.json.as[Stat]}
 
-  def getServerStats(height: Int) = Future{ServerStat(1L,1,10L,10L,10,10L,"lala", 10, 10)}
-  
-  def getDistribution(value: Double, blockHeight: Int): Future[Distribution] = WS.url("http://bitcoinprivacy.net:8080/distribution/"+(value*100000000).toInt).get().map {response => (response.json).as[Distribution]}
+  def getDistribution(value: Double, blockHeight: Int): Future[Distribution] = getFromApi("distribution",(value*100000000).toLong.toString) map {_.json.as[Distribution]}
 
 }

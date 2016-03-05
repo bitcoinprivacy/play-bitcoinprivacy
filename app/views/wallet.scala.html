@@ -20,7 +20,9 @@
           <td class="bge_value text-right">@info.sum</td>
         }
       }
-    }
+          }
+
+          @pagination(info.count,"/wallet/"+inputAddress, current)
     @row{
       @table{
         @tr{
@@ -36,7 +38,7 @@
       }
     }
 
-    @*@pagination(page,"/wallet/"+inputAddress, current)*@
+    @pagination(info.count,"/wallet/"+inputAddress, current)
     }
     @not_found("address", t.length==0)
   }

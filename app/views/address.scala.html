@@ -5,7 +5,7 @@
   @row{<span class="bge_wallet" search="@address">@address</span> (Click on the address to get to its wallet)  }  
   @not_found("address", outputs.length==0)
   @if(outputs.length>0){
-    @row{
+@row{
       @table{
         @tr{
           <th>Summary</th>
@@ -48,6 +48,9 @@
       }
     }
     @row{
+       @pagination(movementsInfo.count.toInt + utxosInfo.count, "/address/"+address, current)
+    }
+    @row{
       @table{
           @tr{<th>Transaction outputs (TxOs)</th>}
       }
@@ -55,31 +58,28 @@
     @row{ 
       @table{
         @tr{
-          <th width="30%">Received in Tx</th>
-          <th width="20%" class="text-right">Value</th>
-          <th width="30%">Spent in Tx</th>
+          <th width="40%">Received in Tx</th>
+          <th width="40%">Spent in Tx</th>
           <th width="20%" class="text-right">Value</th>
         }
         @for(o <- outputs){   
           @tr{                             
             <td class="bge_tx" search="@o.tx">@o.tx</td>
-            <td class="text-right in bge_tx_in bge_value" satoshis="@o.value">@o.value</td>
             <td></td>
-            <td></td>
-            }
+            <td class="text-right bge_tx_in bge_value" satoshis="@o.value">@o.value</td>
+          }
         }
         
         @for(m <- movements){   
           @tr{                             
             <td class="bge_tx" search="@m.tx">@m.tx</td>
+            <td class="bge_tx" search="@m.spentInTx">@m.spentInTx</td>          
             <td class="text-right in bge_tx_in bge_value" satoshis="@m.value">@m.value</td>
-            <td class="bge_tx" search="@m.spentInTx">@m.spentInTx</td>
-            <td class="text-right bge_tx_out bge_value" search="@m.spentInTx" satoshis="@m.value">@m.value</td>
-            
           }
         }
       }
     }
-    @* @pagination(page, "/address/"+address, current)*@
+    @pagination(movementsInfo.count.toInt + utxosInfo.count, "/address/"+address, current)
   }
 }
+

@@ -2,16 +2,12 @@ package controllers
 
 import models._
 import org.bitcoinj.core.{Address => Ad, Transaction => Tx}
-import play.api.cache._
 import play.api.data.Form
 import play.api.data.Forms.{nonEmptyText, of, single}
 import play.api.data.format.Formats._
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import scala.concurrent._
-import scala.reflect.ClassTag
-import anorm._
-import play.api.db.DB
 
 
 object Application extends Controller {
@@ -31,7 +27,7 @@ object Application extends Controller {
   def explorer(page: Int) = Action.async{
     for {
       height <- Block.getBlockHeight
-      blockList <- Block.getBlocks(height,page)
+      blockList <- Block.getBlocks(height,Math.max(0,height-page*pageSize+1), Math.max(0,height-pageSize*(page-1)+1))
       blocksInfo <- Block.getBlocksInfo(height)
     }
     yield{
@@ -42,13 +38,14 @@ object Application extends Controller {
   def richList = Action.async{
     for {
       blockHeight <- Block.getBlockHeight
+      stat <- Stat.getStats(blockHeight)
       addressList <- Address.getRichList(blockHeight, "addresses")
       walletList <- Address.getRichList(blockHeight, "wallets")
       addressInfo <- AddressesSummary.getRichest(blockHeight, "addresses")
       walletsInfo <- AddressesSummary.getRichest(blockHeight, "wallets")
     }
     yield{
-      Ok(views.html.richlist(blockHeight, addressList,  walletList, addressInfo, walletsInfo, addressForm))
+      Ok(views.html.richlist(blockHeight, stat, addressList,  walletList, addressInfo, walletsInfo, addressForm))
     }
   }
 
@@ -139,12 +136,13 @@ object Application extends Controller {
     if (isTx(txHash)) Action.async{
       for {
         height <- Block.getBlockHeight
-        inputs <- Movement.getInputs(txHash, height, (page-1)*pageSize, pageSize*page)
-        outputs<- Movement.getOutputs(txHash, height, (page-1)*pageSize, pageSize*page)
         inputsInfo <- MovementsSummary.getInputsInfo(txHash, height)
         outputsInfo <- MovementsSummary.getOutputsInfo(txHash, height)
-        utxos <- UTXO.getFromTx(txHash, height, (page-1)*pageSize, pageSize*page)
         uInfo <- UTXOsSummary.getFromTx(txHash, height)
+        utxos <- UTXO.getFromTx(txHash, height, (page-1)*pageSize, pageSize*page)
+        inputs <- Movement.getInputs(txHash, height, (page-1)*pageSize, pageSize*page)
+        outputs<- Movement.getOutputs(txHash, height, (page-1)*pageSize-uInfo.count+utxos.size, pageSize*page-uInfo.count)
+        
       }
       yield{
         Ok(views.html.transaction(txHash, inputs, outputs, utxos, inputsInfo, outputsInfo,  uInfo,  addressForm, page))
@@ -159,12 +157,13 @@ object Application extends Controller {
       for {
         height <- Block.getBlockHeight
         utxos <- UTXO.getFromAddress(address,height, pageSize*(page-1), pageSize*page)
-        movements <- Movement.getFromAddress(address, height, pageSize*(page-1), pageSize*page)
+        uInfo <- UTXOsSummary.getFromAddress(address, height)
+        movements <- Movement.getFromAddress(address, height, pageSize*(page-1)-uInfo.count+utxos.size, pageSize*page-uInfo.count)
         movementsInfo <- MovementsSummary.getInfoFromAddress(address, height)
-        txInfo <- UTXOsSummary.getFromAddress(address, height)       
+        
       }
       yield{
-        Ok(views.html.address(address, utxos, movements, txInfo, movementsInfo, addressForm, page))
+        Ok(views.html.address(address, utxos, movements, uInfo, movementsInfo, addressForm, page))
       }
     }
     else{
@@ -187,19 +186,6 @@ object Application extends Controller {
       else{
         wrong("Value " + value + " is not a positive double")
     }
-  
-
-  def server =
-    Action.async{
-      for {
-        height <- Block.getBlockHeight
-        stats <- Stat.getServerStats(height)
-      }
-      yield{
-        Ok(views.html.server(height, stats, addressForm))
-      }
-    }
-
 
   def distributionPost = Action.async { implicit request =>
     valueForm.bindFromRequest.fold({

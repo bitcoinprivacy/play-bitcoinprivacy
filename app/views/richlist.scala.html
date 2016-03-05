@@ -1,4 +1,4 @@
-@(blockHeight:Int, addressesList:List[Address], walletsList: List[Address], addressesInfo: AddressesSummary, walletsInfo: AddressesSummary, addressForm:play.api.data.Form[String])
+@(blockHeight:Int, stat: Stat, addressesList:List[Address], walletsList: List[Address], addressesInfo: AddressesSummary, walletsInfo: AddressesSummary, addressForm:play.api.data.Form[String])
 
 @main("Bitcoin (Partial Wallet) Rich List", "richlist", addressForm){
   @row{<p></p>}
@@ -16,7 +16,7 @@
       }
       @tr{
         <td>Fraction of all Bitcoins</td>
-        <td class="text-right">TODO</td>
+        <td class="text-right">@( if (stat.total_bitcoins_in_addresses == 0) 0 else (addressesInfo.sum/1000000)/stat.total_bitcoins_in_addresses)%</td>
       }
       @tr{
         <td>
@@ -28,7 +28,7 @@
       }
       @tr{
         <td>Fraction of all Bitcoins</td>
-        <td class="text-right">TODO</td>
+        <td class="text-right">@( if (stat.total_bitcoins_in_addresses > 0) (walletsInfo.sum/1000000)/stat.total_bitcoins_in_addresses else 0 )%</td>
        }
     }
     @table{
