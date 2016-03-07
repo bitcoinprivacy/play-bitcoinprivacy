@@ -3,8 +3,8 @@
 @main("Address", "explorer", addressForm){
   @row{<p>Transaction outputs with the address</p>}  
   @row{<span class="bge_wallet" search="@address">@address</span> (Click on the address to get to its wallet)  }  
-  @not_found("address", outputs.length==0)
-  @if(outputs.length>0){
+  @not_found("address", outputs.length+movements.length==0)
+  @if(outputs.length+movements.length>0){
 @row{
       @table{
         @tr{
@@ -66,7 +66,7 @@
           @tr{                             
             <td class="bge_tx" search="@o.tx">@o.tx</td>
             <td></td>
-            <td class="text-right bge_tx_in bge_value" satoshis="@o.value">@o.value</td>
+            <td class="text-right bge_value" satoshis="@o.value">@o.value</td>
           }
         }
         
@@ -74,7 +74,7 @@
           @tr{                             
             <td class="bge_tx" search="@m.tx">@m.tx</td>
             <td class="bge_tx" search="@m.spentInTx">@m.spentInTx</td>          
-            <td class="text-right in bge_tx_in bge_value" satoshis="@m.value">@m.value</td>
+            <td class="text-right bge_value" satoshis="@m.value">@m.value</td>
           }
         }
       }

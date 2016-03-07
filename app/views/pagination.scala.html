@@ -7,11 +7,20 @@
     <ul class="pagination">
       <li class=@("disabled".when(current==1))>
         <a href=@if(current>1){
-          "@url?page=@(current-1)" 
+          "@url?page=1" 
           aria-label="Previous">} else{
           "#"
         }  
           <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+      <li class=@("disabled".when(current==1))>
+        <a href=@if(current>1){
+          "@url?page=@(current-1)" 
+          aria-label="Previous">} else{
+          "#"
+        }  
+          <span aria-hidden="true">&lsaquo;</span>
         </a>
       </li>
       @for(i <- current - 10 to current+10 if(i>0 && i<=(pageSize-1+pagesTotal)/pageSize)){
@@ -24,6 +33,15 @@
       <li class=@("disabled".when(current==(pageSize-1+pagesTotal)/pageSize))>
         <a href=@if(current< (pageSize-1+pagesTotal)/pageSize){
           "@url?page=@(current+1)"
+          aria-label="Next">} else{
+          "#"
+        }
+          <span aria-hidden="true">&rsaquo;</span>
+        </a>
+      </li>
+      <li class=@("disabled".when(current==(pageSize-1+pagesTotal)/pageSize))>
+        <a href=@if(current< (pageSize-1+pagesTotal)/pageSize){
+          "@url?page=@((pageSize-1+pagesTotal)/pageSize)"
           aria-label="Next">} else{
           "#"
         }
