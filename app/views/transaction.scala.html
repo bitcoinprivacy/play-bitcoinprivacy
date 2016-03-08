@@ -74,7 +74,7 @@
       @for(m <- outputs){
         @tr{
           <td class=@("bge_address".when(m.address!="No decodable address found"))>@m.address</td>
-          <td search="@m.address" class="text-right bge_tx_out bge_value @(" bge_tx".when(m.tx != ""))">@m.value</td>
+          <td search="@m.spentInTx" class="text-right bge_tx_out bge_value @(" bge_tx".when(m.tx != ""))">@m.value</td>
         }
       }        
     }

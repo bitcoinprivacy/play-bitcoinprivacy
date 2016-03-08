@@ -5,7 +5,7 @@ import play.api.libs.ws._
 import scala.concurrent.Future
 
 case class Movement(tx:String, value: Long, spentInTx: String, address: String)
-case class MovementsSummary(sum: Long, count: Long, maxHeight: Int, minHeight: Int)
+case class MovementsSummary(sum: Long, count: Long, minHeight: Int, maxHeight: Int)
 
 object Movement{
 
