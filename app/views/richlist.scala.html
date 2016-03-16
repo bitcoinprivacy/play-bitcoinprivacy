@@ -16,7 +16,7 @@
       }
       @tr{
         <td>Fraction of all Bitcoins</td>
-        <td class="text-right">@( if (stat.total_bitcoins_in_addresses == 0) 0 else (addressesInfo.sum/1000000)/stat.total_bitcoins_in_addresses)%</td>
+        <td class="text-right">@( if (stat.total_bitcoins_in_addresses == 0) 0 else (addressesInfo.sum/1000000.0)/stat.total_bitcoins_in_addresses)%</td>
       }
       @tr{
         <td>
@@ -28,7 +28,7 @@
       }
       @tr{
         <td>Fraction of all Bitcoins</td>
-        <td class="text-right">@( if (stat.total_bitcoins_in_addresses > 0) (walletsInfo.sum/1000000)/stat.total_bitcoins_in_addresses else 0 )%</td>
+        <td class="text-right">@( if (stat.total_bitcoins_in_addresses > 0) (walletsInfo.sum/1000000.0)/stat.total_bitcoins_in_addresses else 0 )%</td>
        }
     }
     @table{
