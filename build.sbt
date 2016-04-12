@@ -2,16 +2,16 @@
 
 name := """play-bitcoinprivacy"""
 
-version := "1.0-SNAPSHOT"
+version := "2.0"
 
-scalaVersion := "2.11.6"
+scalaVersion := "2.11.8"
 
 libraryDependencies ++= Seq(
   cache,
-  jdbc,
+//  jdbc,
   "com.typesafe.play" %% "anorm" % "2.4.0",
   ws,
-  evolutions,
+//  evolutions,
   "postgresql" % "postgresql" % "9.1-901-1.jdbc4",
   "org.bitcoinj" % "bitcoinj-core" % "0.12",
   "com.adrianhurt" %% "play-bootstrap3" % "0.4"

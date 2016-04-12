@@ -28,8 +28,8 @@ package object controllers {
   }
   
   val addressForm = Form(
-    single("address" -> nonEmptyText(minLength=0, maxLength=64).verifying(chainConstraint))
-  )
+    single("address" -> nonEmptyText(minLength=0, maxLength=64).transform(_.trim, (x:String)=> x)
+    ).verifying(chainConstraint))
 
   val valueForm = Form(
     single("value" -> nonEmptyText().verifying(distributionConstraint))

@@ -59,7 +59,7 @@ object Application extends Controller {
       },
       {
         case (string: String) =>
-          for (blockHeight <- Block.getBlockHeight)
+          for {blockHeight <- Block.getBlockHeight}
           yield     
             if (isBlock(string))
               Redirect(routes.Application.block(string, 1))
@@ -82,7 +82,7 @@ object Application extends Controller {
       },
       {
         case (string: String) => 
-          for (blockHeight <- Block.getBlockHeight)
+         for {blockHeight <- Block.getBlockHeight}
           yield     
             if (isBlock(string))
               Redirect(routes.Application.block(string, 1))

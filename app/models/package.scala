@@ -1,24 +1,14 @@
-
-
-import org.bitcoinj.params.MainNetParams                                                                                                              
-import scala.reflect.ClassTag
-import scala.util.control.Exception._                                                                                                                       
-import org.bitcoinj.core.{Address => Add}
-import org.bitcoinj.core.AddressFormatException                                                                                                              
-import anorm._
-import anorm.SqlParser._
-import play.api.cache.{Cache, Cached => Cacheed}
-import scala.concurrent.Future
-import scala.concurrent.duration._
 import scala.concurrent._
-import play.api.libs.ws._
-import play.api.libs.json._
-import play.api.libs.functional.syntax._
+import scala.util.control.Exception._
 
+import org.bitcoinj.core.{Address => Add}
+import org.bitcoinj.params.MainNetParams
+import play.api.libs.ws._
+
+import com.typesafe.config.ConfigFactory
 
 package object models {
   
-  def DB = play.api.db.DB
   implicit def global = scala.concurrent.ExecutionContext.Implicits.global
   implicit def current = play.api.Play.current
 
@@ -29,17 +19,7 @@ package object models {
     def toDoubleOpt = catching(classOf[NumberFormatException]) opt s.toDouble
   }
 
-  implicit def rowToByteArray: Column[Array[Byte]] = {
-    Column.nonNull[Array[Byte]] { (value, meta) =>
-      val MetaDataItem(qualified, nullable, clazz) = meta
-      value match {
-        case bytes: Array[Byte] => Right(bytes)
-        case _ => Left(TypeDoesNotMatch("..."))
-      }
-    }
-  }
- 
- def hashToAddress(hash: Array[Byte]): String = hash.length match {   
+  def hashToAddress(hash: Array[Byte]): String = hash.length match {
    case 20 => new Add(MainNetParams.get,0,hash).toString
    case 21 => new Add(MainNetParams.get,hash.head.toInt,hash.tail).toString
    case 0 => "No decodable address found"
@@ -47,10 +27,12 @@ package object models {
      (for (i <- 1 to hash.length-20 by 20)
      yield hashToAddress(hash.slice(i,i+20)) ).mkString(",")
    case _  => hash.length + " undefined"
- }
+  }
+
+  val config = ConfigFactory.load()
 
   def getFromApi(params:String*) = 
-    WS.url("http://bitcoinprivacy.net:8080/"+params.mkString("/")).get()
+    WS.url(config.getString("api.url")+params.mkString("/")).get()
 }
 
 
