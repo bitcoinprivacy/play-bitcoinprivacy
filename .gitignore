@@ -19,3 +19,5 @@ db
 .ensime
 .ensime_cache
 .sbtserver
+
+conf/application.conf
