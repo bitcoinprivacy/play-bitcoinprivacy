@@ -10,7 +10,7 @@ object Address  {
   implicit val addressReads = Json.reads[Address]
 
   def getRichList(blockHeight: Int, table: String) = 
-    getFromApi("richlist", table, blockHeight.toString, "1", "1000").
+    getFromApi("richlist", table, blockHeight.toString, "0", "1000").
       map(_.json.as[List[Address]])
 
   def getWallet(hex:String, height: Int, from: Int, to: Int) =

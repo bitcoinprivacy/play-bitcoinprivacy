@@ -62,3 +62,13 @@ width: 100%;
   margin-bottom:-30px;
   width: 100%;
 }
+
+@media (min-width: 768px) {
+.navbar-toggle {
+display: none;
+}
+
+.navbar-header {
+right: 10px !important;
+}
+}

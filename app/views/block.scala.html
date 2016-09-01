@@ -1,4 +1,4 @@
-@(height: Int, list: List[Transaction], info: TransactionsSummary,addressForm:play.api.data.Form[String], current: Int)
+@(height: Int, list: List[Transaction], info: TransactionsSummary, hash: String, addressForm:play.api.data.Form[String], current: Int)
 
 @main("Block", "explorer", addressForm){
   @row{<p>Transactions from block @height</p>}
@@ -10,13 +10,17 @@
          <th>Summary</th>
          <th class="text-right">@unitButtons()</th>
         }
-        @if(info.tstamp > 0){
+         @tr{
+          <td>Block hash</td>
+          <td class="text-right bge_hash">@hash</td>
+         }
+         @if(info.tstamp > 0){
           @tr{
             <td>In blockchain since</td>
             <td class="text-right bge_date">@info.tstamp</td>
           }
         }
-        @tr{
+            @tr{
           <td>Total sent</td>
           <td class="text-right bge_value">@info.value</td>
         }

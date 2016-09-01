@@ -120,11 +120,12 @@ object Application extends Controller {
     if (isBlock(height)) Action.async{
       for {
         blockHeight <- Block.getBlockHeight
+        blockList <- Block.getBlocks(blockHeight , height.toInt, height.toInt+1)
         txList <- Transaction.get(height.toInt, blockHeight, pageSize*(page-1), pageSize *page)
         txInfo <- TransactionsSummary.get(height.toInt, blockHeight)
       }
       yield{
-        Ok(views.html.block(height.toInt, txList, txInfo, addressForm,page))
+        Ok(views.html.block(height.toInt, txList, txInfo, blockList.head.hash, addressForm,page))
       }
     }
     else{
