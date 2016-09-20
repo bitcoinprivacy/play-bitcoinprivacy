@@ -125,7 +125,10 @@ object Application extends Controller {
         txInfo <- TransactionsSummary.get(height.toInt, blockHeight)
       }
       yield{
-        Ok(views.html.block(height.toInt, txList, txInfo, blockList.head.hash, addressForm,page))
+        blockList.headOption match {
+          case Some(bl) =>  Ok(views.html.block(height.toInt, txList, txInfo, bl.hash, addressForm,page))
+          case None => NotFound(views.html.wrong_search("block not in DB " + height, addressForm))
+        }
       }
     }
     else{
