@@ -28,11 +28,23 @@ package object controllers {
       throw new Exception(s"Unknow params for network $network")
   }
 
+   case class AddressPrefixes(p2pAddress: String, normalAddress: String)
+     lazy val prefix = network match {
+         case "main" =>
+	       AddressPrefixes("05", "00")
+	           case "regtest" =>
+		         AddressPrefixes("C4", "6F")
+			     case "testnet" =>
+			           AddressPrefixes("C4", "6F")
+				       case _ =>
+				             throw new Exception("Unknow params for network"+network)
+
+  }
   def hexAddress(stringAddress: String): String = {
     val arrayAddress = stringAddress.split(",")
     if (arrayAddress.length == 1) {
       val address = new BitcoinJAddress(params, stringAddress)
-      (if(address.isP2SHAddress) "05" else "00")+valueOf(address.getHash160)
+      (if(address.isP2SHAddress) prefix.p2pAddress else prefix.normalAddress)+valueOf(address.getHash160)
     }
     else{
       "0" + arrayAddress.length + 
