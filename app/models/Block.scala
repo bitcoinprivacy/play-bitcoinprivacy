@@ -18,10 +18,10 @@ object Block{
 
   implicit val blockReads = Json.reads[Block]
 
-  def getBlocks(height: Int, from: Int, to: Int): Future[List[Block]] = WS.url("http://bitcoinprivacy.net:8080/blocks/" + from + "/" + to).get().map {response => (response.json).as[List[Block]]}
+  def getBlocks(height: Int, from: Int, to: Int): Future[List[Block]] = WS.url(config.getString("api.url")+"blocks/" + from + "/" + to).get().map {response => (response.json).as[List[Block]]}
 
-  def getBlocksInfo(height: Int) = WS.url("http://bitcoinprivacy.net:8080/stats").get().map{r =>  BlocksInfo((r.json \ "block_height").as[Int], (r.json \ "total_transactions").as[Int])}
+  def getBlocksInfo(height: Int) = WS.url(config.getString("api.url")+"stats").get().map{r =>  BlocksInfo((r.json \ "block_height").as[Int], (r.json \ "total_transactions").as[Int])}
 
-  def getBlockHeight = WS.url("http://bitcoinprivacy.net:8080/stats").get().map{response => (response.json \ "block_height").as[Int] }
+  def getBlockHeight = WS.url(config.getString("api.url")+"stats").get().map{response => (response.json \ "block_height").as[Int] }
 }
 
