@@ -1,5 +1,5 @@
 import org.bitcoinj.core.{Address => BitcoinJAddress}
-import org.bitcoinj.params.MainNetParams
+import org.bitcoinj.params._
 import play.api.data.Form
 import play.api.data.Forms.{nonEmptyText, of, single}
 import play.api.data.format.Formats._
@@ -7,23 +7,37 @@ import play.api.data.validation._
 import scala.concurrent._
 import scala.reflect.ClassTag
 import scala.util.control.Exception._
+import com.typesafe.config.ConfigFactory
 
 package object controllers {
   
   implicit def current = play.api.Play.current
 
   implicit def global = scala.concurrent.ExecutionContext.Implicits.global  
+  lazy val conf = ConfigFactory.load()
+  lazy val network = conf.getString("network")
+
+  lazy val params = network match {
+    case "main" =>
+      MainNetParams.get
+    case "regtest" =>
+      RegTestParams.get
+    case "testnet" =>
+      TestNet3Params.get
+    case _ =>
+      throw new Exception(s"Unknow params for network $network")
+  }
 
   def hexAddress(stringAddress: String): String = {
     val arrayAddress = stringAddress.split(",")
     if (arrayAddress.length == 1) {
-      val address = new BitcoinJAddress(MainNetParams.get, stringAddress)
+      val address = new BitcoinJAddress(params, stringAddress)
       (if(address.isP2SHAddress) "05" else "00")+valueOf(address.getHash160)
     }
     else{
       "0" + arrayAddress.length + 
         (for (i <- 0 until arrayAddress.length) 
-        yield  valueOf(new BitcoinJAddress(MainNetParams.get, arrayAddress(i)).getHash160) ).mkString("")
+        yield  valueOf(new BitcoinJAddress(params, arrayAddress(i)).getHash160) ).mkString("")
     }
   }
   
@@ -74,7 +88,7 @@ package object controllers {
 
   def isAddress(address: String): Boolean = {
     try{
-      new BitcoinJAddress(MainNetParams.get, address);
+      new BitcoinJAddress(params, address);
       true
     }
     catch { 
