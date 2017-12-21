@@ -32,7 +32,7 @@ package object models {
   }
 
   def hashToAddress(hash: Array[Byte]): String = try {hash.length match {
-   case 20 => new Add(params,0,hash).toString
+   case 20 => new Add(params,params.getAddressHeader,hash).toString
    case 21 => new Add(params,hash.head.toInt,hash.tail).toString
    case 0 => "No decodable address found"
    case x if (x%20==1) => 
@@ -45,7 +45,6 @@ package object models {
 
   def getFromApi(params:String*) = {
     val url = config.getString("api.url")+params.mkString("/")
-    println("XXXXXX"+url)
     WS.url(url).get()
   }
 }
