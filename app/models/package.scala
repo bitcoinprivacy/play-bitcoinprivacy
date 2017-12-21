@@ -31,7 +31,7 @@ package object models {
       throw new Exception(s"Unknow params for network $network")
   }
 
-  def hashToAddress(hash: Array[Byte]): String = hash.length match {
+  def hashToAddress(hash: Array[Byte]): String = try {hash.length match {
    case 20 => new Add(params,0,hash).toString
    case 21 => new Add(params,hash.head.toInt,hash.tail).toString
    case 0 => "No decodable address found"
@@ -39,12 +39,15 @@ package object models {
      (for (i <- 1 to hash.length-20 by 20)
      yield hashToAddress(hash.slice(i,i+20)) ).mkString(",")
    case _  => hash.length + " undefined"
-  }
+  }} catch{case _:Exception => "Bitcoinj failed decoding address"}
 
   val config = ConfigFactory.load()
 
-  def getFromApi(params:String*) = 
-    WS.url(config.getString("api.url")+params.mkString("/")).get()
+  def getFromApi(params:String*) = {
+    val url = config.getString("api.url")+params.mkString("/")
+    println("XXXXXX"+url)
+    WS.url(url).get()
+  }
 }
 
 

@@ -53,7 +53,7 @@
       }
       @for(m <- inputs){   
         @tr{
-          <td class=@("bge_address".when(m.address!="No decodable address found"))>@m.address</td>
+          <td class=@("bge_address".when(m.address!="Bitcoinj failed decoding address" && m.address!="No decodable address found"))>@m.address</td>
           <td search="@m.tx" class="bge_value bge_tx_in text-right  @(" bge_tx".when(m.tx != ""))">@m.value</td>
         }
       }  
@@ -67,13 +67,13 @@
         
       @for(u <- utxo){
         @tr{
-          <td class=@("bge_address".when(u.address!="No decodable address found"))>@u.address</td>
+          <td class=@("bge_address".when(u.address!="Bitcoinj failed decoding address" && u.address!="No decodable address found"))>@u.address</td>
           <td class="text-right bge_tx_out bge_value">@u.value</td>
         }
       }
       @for(m <- outputs){
         @tr{
-          <td class=@("bge_address".when(m.address!="No decodable address found"))>@m.address</td>
+          <td class=@("bge_address".when(m.address!="Bitcoinj failed decoding address" && m.address!="No decodable address found"))>@m.address</td>
           <td search="@m.spentInTx" class="text-right bge_tx_out bge_value @(" bge_tx".when(m.tx != ""))">@m.value</td>
         }
       }        
