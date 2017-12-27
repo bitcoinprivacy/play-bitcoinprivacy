@@ -64,7 +64,7 @@
   }      
   
 
-@row{<p>There are @number(distribution.addresses) addresses with more than @inputValue bitcoins, totalling @number(distribution.satoshis/100000000) BTC, @(distribution.satoshis/(stats.total_bitcoins_in_addresses*1000000))% of all existing bitcoins.</p>}
+@row{<p>There are @number(distribution.addresses) addresses with more than @inputValue bitcoins, totalling @number(distribution.satoshis/100000000) BTC, @(if (stats.total_bitcoins_in_addresses==0) 0 else distribution.satoshis/(stats.total_bitcoins_in_addresses*1000000))% of all existing bitcoins.</p>}
 
 
 
