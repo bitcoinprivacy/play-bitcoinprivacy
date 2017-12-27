@@ -31,7 +31,7 @@
         }
         @for(address <- t){
           @tr{
-            <td class="bge_address">@address.address</td>
+            <td class=@("bge_address".when(address.address!="Bitcoinj failed decoding address" && address.address!="No decodable address found"))>@address.address</td>
             <td class="bge_value text-right">@address.balance</td>
           }
         }

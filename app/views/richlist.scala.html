@@ -42,9 +42,9 @@
       @for(((address, representant),pos) <- (addressesList zip walletsList).zipWithIndex){
         @tr{          
           <td class="text-left">@(pos+1)</td>
-          <td class="bge_address">@address.address</td>
+          <td class=@("bge_address".when(address.address!="Bitcoinj failed decoding address" && address.address!="No decodable address found"))>@address.address</td>
           <td class="text-right bge_number">@(address.balance/100000000)</td>
-          <td class="bge_wallet">@representant.address</td>
+          <td class=@("bge_wallet".when(representant.address!="Bitcoinj failed decoding address" && representant.address!="No decodable address found"))>@representant.address</td>
           <td class="text-right bge_number">@(representant.balance/100000000)</td>
         }
       }
