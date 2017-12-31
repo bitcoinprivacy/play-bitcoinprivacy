@@ -9,3 +9,4 @@ resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/release
 addSbtPlugin("com.typesafe.play" % "sbt-fork-run-plugin" % "2.4.0")
 
 addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.14.3")
+
