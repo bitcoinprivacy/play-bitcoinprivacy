@@ -16,7 +16,7 @@ object Application extends Controller {
     Ok(views.html.faq(addressForm))
   }
 
-  lazy val thema = theme
+  lazy val favicon = if (theme == "primary") "img/bitcoin.png" else if (theme == "danger") "img/bitcoin_danger.png" else "img/bitcoin_success.png"
 
   def index = Action.async{
     for {

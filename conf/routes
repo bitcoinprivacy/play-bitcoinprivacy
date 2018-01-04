@@ -1,6 +1,5 @@
 
-GET  /favicon.ico   if (controllers.Application.thema == "primary") controllers.Assets.at(path="/public", file="img/bitcoin.png") else if (controllers.Application.thema == "danger") controllers.Assets.at(path="/public", file="img/bitcoin_danger.png") if (controllers.Application.thema == "success") controllers.Assets.at(path="/public", file="img/bitcoin_success.png") 
-
+GET  /favicon.ico   controllers.Assets.at(path="/public", file= controllers.Application.favicon)
 GET  /assets/*file        controllers.Assets.at(path="/public", file)
 
 GET     /                           controllers.Application.index
