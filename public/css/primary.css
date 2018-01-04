@@ -8,7 +8,9 @@ html{
 div.container{
     min-height:100%;
 }
-a, h2{
+.navbar-default a.navbar-brand, 
+h2,
+a{
     color: #428bca;
 }
 .bge_address, 

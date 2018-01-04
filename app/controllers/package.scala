@@ -28,7 +28,9 @@ package object controllers {
       throw new Exception(s"Unknow params for network $network")
   }
 
-   case class AddressPrefixes(p2pAddress: String, normalAddress: String)
+  lazy val theme = conf.getString("theme")
+
+  case class AddressPrefixes(p2pAddress: String, normalAddress: String)
      lazy val prefix = network match {
          case "main" =>
 	       AddressPrefixes("05", "00")

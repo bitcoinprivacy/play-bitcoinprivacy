@@ -1,0 +1,79 @@
+body{
+    height:100%;
+    padding-bottom:50px;
+}
+html{
+    height:100%;
+}
+div.container{
+    min-height:100%;
+}
+.navbar-default a.navbar-brand, 
+h2,
+a{
+    color: green;
+}
+.bge_address, 
+.bge_tx,
+.bge_wallet,
+.bge_hash,
+.bge_value,
+.bge_block,
+.elliptic{
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+table{
+    table-layout:fixed;
+}
+.help-block{
+display:none!important;
+}
+
+.form-inline .form-control{
+width: 100%;
+}
+
+
+.bge_tx_in,
+.bge_tx_in a{
+    color:green;
+}
+
+.bge_tx_out,
+.bge_tx_out a{
+    color:red;
+}
+
+.bge_tx_out a,
+.bge_tx_in a{
+    text-decoration:underline;
+}
+#top-link-block.affix-top {
+    position: absolute;
+    bottom: -82px;
+    left: 10px;
+}
+#top-link-block.affix {
+    position: fixed;
+    bottom: 10px;
+    left: 0px;
+    
+}
+.footer {
+  padding-right:25px;
+  margin-bottom:-30px;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+.navbar-toggle {
+display: none;
+}
+
+.navbar-header {
+right: 10px !important;
+}
+}
