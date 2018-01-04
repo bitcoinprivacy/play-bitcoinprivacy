@@ -9,11 +9,19 @@ div.container{
     min-height:100%;
 }
 .navbar-default a.navbar-brand, 
+.navbar-default a.navbar-brand:hover,
 h2,
 a{
 	    
-color: red;
+color: #d9534f;
 }
+::selection {
+  background: #ffb7b7;
+}
+a:hover{
+  color: red;
+}
+
 .bge_address, 
 .bge_tx,
 .bge_wallet,

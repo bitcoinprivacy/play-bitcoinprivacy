@@ -16,6 +16,8 @@ object Application extends Controller {
     Ok(views.html.faq(addressForm))
   }
 
+  lazy val thema = theme
+
   def index = Action.async{
     for {
       height <- Block.getBlockHeight
