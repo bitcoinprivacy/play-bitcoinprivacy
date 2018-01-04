@@ -10,7 +10,7 @@ import scala.concurrent.Future
 import org.bitcoinj.params.MainNetParams
 
 case class Stat(block_height: Int,total_bitcoins_in_addresses:Long,total_transactions: Long,total_addresses:Long,total_closures:Long, total_addresses_with_balance: Long,
-  total_closures_with_balance: Long, total_addresses_no_dust: Long,total_closures_no_dust:Long,gini_closure: Double,gini_address:Double, tstamp: Long)
+  total_closures_with_balance: Long, total_addresses_no_dust: Long,total_closures_no_dust:Long,gini_closure: Double,gini_address:Double, tstamp: Long, network: String, dustLimit: Int)
 
 case class ServerStat(tstamp: Long, blocks: Int, duration: Long, averageDuration: Long, averageBlocks : Int, databaseSize: Long,
   lastCommand: String, users: Int, clicks: Int)
