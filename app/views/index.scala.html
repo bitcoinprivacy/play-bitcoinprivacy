@@ -1,4 +1,4 @@
-@(blockHeight:Int, addressForm:play.api.data.Form[String])
+@(blockHeight:Int, addressForm:play.api.data.Form[String], blocks: List[Block], info: BlocksInfo, current: Int)
 
 @main("Bitcoin Wallet Search", "search", addressForm){
 @row{<p></p>}
@@ -17,5 +17,46 @@
   
   }
   @wallet_form(addressForm)
-  
+  @row{
+    @not_found("page", blocks.size==0 && current>1)
+    @if(blocks.size > 0 || current == 1){
+      @table{
+        @tr{
+          <th>Summary</th>
+          <th></th>
+        }
+        @tr{
+          <td>Total</td>
+          <td class="text-right bge_number">@info.total</td>
+        }
+        @tr{
+          <td>Txs</td>
+          <td class="text-right bge_number">@info.txs</td>
+        }
+      }
+      @table{
+        @tr{
+          <td><b>Blocks</b></th>
+          <td colspan=4 class="text-right">@unitButtons()</th>
+        }
+        @tr{
+          <td width="15%"><b>Height</b></th>
+          <td width="30%"><b>Hash</b></th>
+          <td width="10%" class="text-right">Tx</th>
+          <td width="20%" class="text-right">Value</th>
+          <td width="20%" class="text-right">Time</th>
+        }
+        @for(block <- blocks.reverse){
+          @tr{
+            <td class="bge_block">@block.height</td>
+            <td class="bge_hash">@block.hash</td>
+            <td class="text-right">@block.tx</td>
+            <td class="bge_value text-right">@block.value</td>
+            <td class="text-right bge_date">@block.tstamp</td>
+          }
+        }
+      }
+      @pagination(info.total+1, "/explorer", current)
+    }
+  }  
 }

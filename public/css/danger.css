@@ -18,7 +18,7 @@ color: #d9534f;
 ::selection {
   background: #ffb7b7;
 }
-a:hover{
+a:hover, a:visited{
   color: red;
 }
 

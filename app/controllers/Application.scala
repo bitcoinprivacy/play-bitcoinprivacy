@@ -18,12 +18,14 @@ object Application extends Controller {
 
   lazy val favicon = if (theme == "primary") "img/bitcoin.png" else if (theme == "danger") "img/bitcoin_danger.png" else "img/bitcoin_success.png"
 
-  def index = Action.async{
+  def index(page: Int) = Action.async{
     for {
       height <- Block.getBlockHeight
+      blockList <- Block.getBlocks(height,Math.max(0,height-page*pageSize+1), Math.max(0,height-pageSize*(page-1)+1))
+      blocksInfo <- Block.getBlocksInfo(height)
     }
     yield
-      Ok(views.html.index(height, addressForm))
+      Ok(views.html.index(height, addressForm, blockList, blocksInfo, page))
   }
 
   def explorer(page: Int) = Action.async{
@@ -70,7 +72,7 @@ object Application extends Controller {
             else if (isTx(string))
               Redirect(routes.Application.transaction(string))
             else
-              Redirect(routes.Application.index)                
+              Redirect(routes.Application.index(1))                
       }      
     )
   }
@@ -79,8 +81,12 @@ object Application extends Controller {
     addressForm.bindFromRequest.fold(
       {
         errors =>
-        for (blockHeight <- Block.getBlockHeight)
-        yield BadRequest(views.html.index(blockHeight, errors))
+        for {
+          height <- Block.getBlockHeight
+	  blockList <- Block.getBlocks(height,Math.max(0,height-1*pageSize+1), Math.max(0,height-pageSize*(1-1)+1))
+          blocksInfo <- Block.getBlocksInfo(height)
+	}
+        yield BadRequest(views.html.index(height, errors, blockList, blocksInfo, 1))
       },
       {
         case (string: String) => 
@@ -93,7 +99,7 @@ object Application extends Controller {
             else if (isTx(string))
               Redirect(routes.Application.transaction(string))
             else
-              Redirect(routes.Application.index)                
+              Redirect(routes.Application.index(1))                
       }      
     )
   }

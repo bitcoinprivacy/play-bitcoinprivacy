@@ -8,6 +8,7 @@ import scala.concurrent._
 import scala.reflect.ClassTag
 import scala.util.control.Exception._
 import com.typesafe.config.ConfigFactory
+import scala.collection.JavaConverters._
 
 package object controllers {
   
@@ -29,7 +30,7 @@ package object controllers {
   }
 
   lazy val theme = conf.getString("theme")
-
+  lazy val links = (conf.getStringList("play.menu.titles").asScala zip conf.getStringList("play.menu.hrefs").asScala) toMap
   case class AddressPrefixes(p2pAddress: String, normalAddress: String)
      lazy val prefix = network match {
          case "main" =>
