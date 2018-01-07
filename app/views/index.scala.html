@@ -1,4 +1,4 @@
-@(blockHeight:Int, addressForm:play.api.data.Form[String], blocks: List[Block], info: BlocksInfo, current: Int)
+@(blockHeight:Int, addressForm:play.api.data.Form[String], blocks: List[Block])
 
 @main("Bitcoin Wallet Search", "search", addressForm){
 @row{<p></p>}
@@ -18,22 +18,8 @@
   }
   @wallet_form(addressForm)
   @row{
-    @not_found("page", blocks.size==0 && current>1)
-    @if(blocks.size > 0 || current == 1){
-      @table{
-        @tr{
-          <th>Summary</th>
-          <th></th>
-        }
-        @tr{
-          <td>Total</td>
-          <td class="text-right bge_number">@info.total</td>
-        }
-        @tr{
-          <td>Txs</td>
-          <td class="text-right bge_number">@info.txs</td>
-        }
-      }
+    @not_found("page", blocks.size==0)
+    @if(blocks.size > 0){
       @table{
         @tr{
           <td><b>Blocks</b></th>
@@ -56,7 +42,7 @@
           }
         }
       }
-      @pagination(info.total+1, "/explorer", current)
     }
+    <div class="text-right">To see more blocks <a href="@routes.Application.explorer(1)">click here</a></div>
   }  
 }

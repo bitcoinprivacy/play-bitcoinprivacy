@@ -1,4 +1,4 @@
-body{
+77body{
     height:100%;
     padding-bottom:50px;
 }
@@ -8,18 +8,27 @@ html{
 div.container{
     min-height:100%;
 }
+.pagination li.active a{
+    background-color: red;
+    border-color: red;
+}
 .navbar-default a.navbar-brand, 
 .navbar-default a.navbar-brand:hover,
 h2,
-a{
+a,
+.pagination>li>a{
 	    
 color: #d9534f;
 }
 ::selection {
   background: #ffb7b7;
 }
-a:hover, a:visited{
-  color: red;
+.pagination>li>a:hover,
+.pagination>li>a:visited,
+a:hover, a:visited,
+.pagination>li>a:focus,
+a:focus{
+  color: #efa5a5;
 }
 
 .bge_address, 
@@ -85,4 +94,7 @@ display: none;
 .navbar-header {
 right: 10px !important;
 }
+}
+div.container{
+padding-bottom:35px;
 }

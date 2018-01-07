@@ -8,13 +8,23 @@ html{
 div.container{
     min-height:100%;
 }
+.pagination li.active a{
+    background-color: green;
+    border-color: green;
+}
 .navbar-default a.navbar-brand, 
 .navbar-default a.navbar-brand:hover,
 h2,
+.pagination>li>a, 
 a{
     color: #5cb85c;
 }
-a:hover, a:visited{
+.pagination>li>a:hover,
+a:hover, 
+.pagination>li>a:visited,
+a:visited,
+.pagination>li>a:focus,
+a:focus{
   color: #3e8f3e;
 }
 ::selection{
@@ -84,4 +94,7 @@ display: none;
 .navbar-header {
 right: 10px !important;
 }
+}
+div.container{
+padding-bottom:35px;
 }

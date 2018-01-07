@@ -2,7 +2,7 @@
 GET  /favicon.ico   controllers.Assets.at(path="/public", file= controllers.Application.favicon)
 GET  /assets/*file        controllers.Assets.at(path="/public", file)
 
-GET     /                           controllers.Application.index(page: Int ?=1)
+GET     /                           controllers.Application.index
 
 POST    /search                       controllers.Application.search
 

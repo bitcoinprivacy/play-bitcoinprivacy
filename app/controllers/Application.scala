@@ -18,14 +18,13 @@ object Application extends Controller {
 
   lazy val favicon = if (theme == "primary") "img/bitcoin.png" else if (theme == "danger") "img/bitcoin_danger.png" else "img/bitcoin_success.png"
 
-  def index(page: Int) = Action.async{
+  def index = Action.async{
     for {
       height <- Block.getBlockHeight
-      blockList <- Block.getBlocks(height,Math.max(0,height-page*pageSize+1), Math.max(0,height-pageSize*(page-1)+1))
-      blocksInfo <- Block.getBlocksInfo(height)
+      blockList <- Block.getBlocks(height,Math.max(0,height-1*10+1), Math.max(0,height-10*(1-1)+1))
     }
     yield
-      Ok(views.html.index(height, addressForm, blockList, blocksInfo, page))
+      Ok(views.html.index(height, addressForm, blockList))
   }
 
   def explorer(page: Int) = Action.async{
@@ -72,7 +71,7 @@ object Application extends Controller {
             else if (isTx(string))
               Redirect(routes.Application.transaction(string))
             else
-              Redirect(routes.Application.index(1))                
+              Redirect(routes.Application.index)                
       }      
     )
   }
@@ -83,10 +82,9 @@ object Application extends Controller {
         errors =>
         for {
           height <- Block.getBlockHeight
-	  blockList <- Block.getBlocks(height,Math.max(0,height-1*pageSize+1), Math.max(0,height-pageSize*(1-1)+1))
-          blocksInfo <- Block.getBlocksInfo(height)
+	  blockList <- Block.getBlocks(height,Math.max(0,height-1*10+1), Math.max(0,height-10*(1-1)+1))
 	}
-        yield BadRequest(views.html.index(height, errors, blockList, blocksInfo, 1))
+        yield BadRequest(views.html.index(height, errors, blockList))
       },
       {
         case (string: String) => 
@@ -99,7 +97,7 @@ object Application extends Controller {
             else if (isTx(string))
               Redirect(routes.Application.transaction(string))
             else
-              Redirect(routes.Application.index(1))                
+              Redirect(routes.Application.index)                
       }      
     )
   }
